@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EONS Studio AI — Build Your 3D Concept</title>
+<meta name="description" content="The world's first 3D animation creative director powered by AI. Generate professional briefs, cinematic storyboards, and visual direction documents in minutes.">
+<link rel="canonical" href="https://eons.studio/studio-ai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════ VARIABLES */
+:root{
+  --bg:#05040e;--surface:rgba(155,111,212,.06);
+  --glass:rgba(12,8,28,.75);--gb:rgba(180,160,240,.12);--gbb:rgba(210,190,255,.26);
+  --v:#9b6fd4;--v2:#7a52b8;--mauve:#c4b0e8;--md:#8a78b8;--mbr:#d8ccf5;--blush:#e8c0d8;
+  --white:#f0ecfa;--dim:rgba(196,176,232,.4);
+  --glow:rgba(155,111,212,.22);--glowbr:rgba(155,111,212,.5);
+  --green:#6dd4a8;--red:#e87070;--gold:#d4a96d;
+  --orange:#d4836d;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden;min-height:100vh;cursor:none;}
+@media(pointer:coarse){body{cursor:auto;}}
+
+/* ══════════════════════════════ CURSOR */
+#cur,#cur-ring{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);border-radius:50%;}
+#cur{width:8px;height:8px;background:var(--v);mix-blend-mode:screen;transition:width .2s,height .2s;}
+#cur-ring{width:32px;height:32px;border:1px solid rgba(155,111,212,.3);z-index:9998;transition:all .25s;}
+#cur.big{width:13px;height:13px;}
+#cur-ring.big{width:50px;height:50px;}
+@media(pointer:coarse){#cur,#cur-ring{display:none;}}
+
+/* ══════════════════════════════ BG CANVAS */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ══════════════════════════════ NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,4,14,.82);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--v);}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-badge{padding:4px 12px;background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.22);border-radius:100px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--v);font-family:'JetBrains Mono',monospace;}
+.nav-team-btn{padding:6px 14px;border:1px solid var(--gb);border-radius:6px;background:transparent;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--md);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;}
+.nav-team-btn:hover{border-color:var(--md);color:var(--mauve);}
+.nav-back{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s;}
+.nav-back:hover{color:var(--mauve);}
+.nav-back::before{content:'← ';}
+
+/* ══════════════════════════════ FULL-SCREEN OVERLAYS */
+.overlay{display:none;position:fixed;inset:0;z-index:2000;overflow-y:auto;}
+.overlay.active{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 20px 40px;}
+.overlay-bg{position:fixed;inset:0;background:rgba(5,4,14,.95);backdrop-filter:blur(32px);}
+
+/* ══════════════════════════════ EMAIL GATE — ONBOARDING */
+#gateOverlay{background:transparent;}
+.gate-wrap{position:relative;z-index:1;width:100%;max-width:520px;}
+
+/* Step indicator */
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:40px;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:1px solid var(--gb);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--md);transition:all .4s;position:relative;z-index:1;background:var(--bg);}
+.step-dot.active{border-color:var(--v);color:var(--v);box-shadow:0 0 16px rgba(155,111,212,.3);}
+.step-dot.done{background:var(--v);border-color:var(--v);color:var(--white);}
+.step-line{width:48px;height:1px;background:var(--gb);transition:background .4s;}
+.step-line.done{background:var(--v);}
+
+/* Gate card */
+.gate-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;overflow:hidden;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(155,111,212,.08);}
+.gate-hdr{padding:28px 28px 0;text-align:center;}
+.gate-hdr-icon{font-size:36px;margin-bottom:16px;display:block;}
+.gate-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em;margin-bottom:8px;}
+.gate-hdr-sub{font-size:14px;color:var(--dim);line-height:1.6;}
+.gate-body{padding:24px 28px 28px;}
+
+/* Steps container */
+.gate-step{display:none;animation:stepIn .4s cubic-bezier(.2,1,.4,1);}
+.gate-step.active{display:block;}
+@keyframes stepIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* Form fields */
+.gate-fields{display:flex;flex-direction:column;gap:14px;margin-bottom:20px;}
+.gate-field{display:flex;flex-direction:column;gap:6px;}
+.gate-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--md);}
+.gate-input{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:10px;padding:12px 16px;color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .3s;width:100%;}
+.gate-input:focus{border-color:var(--md);}
+.gate-input::placeholder{color:rgba(196,176,232,.2);}
+.gate-input-optional::after{content:' (optional)';color:rgba(155,111,212,.4);font-size:9px;}
+
+/* Source selector — styled cards */
+.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.source-card{padding:12px 14px;background:rgba(155,111,212,.05);border:1px solid var(--gb);border-radius:10px;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:10px;}
+.source-card:hover{border-color:rgba(155,111,212,.3);background:rgba(155,111,212,.09);}
+.source-card.selected{border-color:var(--v);background:rgba(155,111,212,.14);box-shadow:0 0 16px rgba(155,111,212,.12);}
+.source-card-icon{font-size:18px;flex-shrink:0;}
+.source-card-label{font-size:12px;font-weight:500;color:var(--mauve);letter-spacing:.04em;}
+.source-card.selected .source-card-label{color:var(--white);}
+
+/* Purpose selector — larger visual cards */
+.purpose-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:4px;}
+@media(min-width:480px){.purpose-grid{grid-template-columns:1fr 1fr;}}
+.purpose-card{padding:16px 14px;background:rgba(155,111,212,.05);border:1px solid var(--gb);border-radius:12px;cursor:pointer;transition:all .3s;text-align:left;}
+.purpose-card:hover{border-color:rgba(155,111,212,.3);background:rgba(155,111,212,.09);transform:translateY(-2px);}
+.purpose-card.selected{border-color:var(--v);background:rgba(155,111,212,.14);}
+.purpose-card-icon{font-size:22px;margin-bottom:8px;display:block;}
+.purpose-card-title{font-size:13px;font-weight:600;color:var(--mauve);margin-bottom:4px;}
+.purpose-card.selected .purpose-card-title{color:var(--white);}
+.purpose-card-desc{font-size:11px;color:var(--dim);line-height:1.5;}
+
+/* Gate button */
+.gate-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:10px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--white);cursor:pointer;box-shadow:0 0 28px var(--glow);transition:all .3s;margin-top:8px;}
+.gate-btn:hover{box-shadow:0 0 44px var(--glowbr);transform:translateY(-1px);}
+.gate-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.gate-btn-ghost{width:100%;padding:10px;background:transparent;border:1px solid var(--gb);border-radius:10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;margin-top:6px;}
+.gate-btn-ghost:hover{border-color:var(--md);color:var(--mauve);}
+.gate-error{font-size:12px;color:var(--red);margin-top:6px;display:none;}
+.gate-error.show{display:block;}
+
+/* Privacy note */
+.gate-privacy{text-align:center;margin-top:16px;font-size:11px;color:rgba(155,111,212,.35);letter-spacing:.04em;}
+
+/* ══════════════════════════════ TEAM PORTAL */
+#teamOverlay{}
+.team-wrap{position:relative;z-index:1;width:100%;max-width:960px;}
+.team-card{background:var(--glass);border:1px solid var(--gb);border-radius:20px;overflow:hidden;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(155,111,212,.06);}
+
+/* Team login */
+.team-login{padding:48px 32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;}
+.team-login-icon{font-size:40px;}
+.team-login-title{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.06em;}
+.team-login-sub{font-size:13px;color:var(--dim);max-width:300px;}
+.team-pw-wrap{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px;}
+.team-pw{background:var(--surface);border:1px solid var(--gb);border-radius:10px;padding:12px 16px;color:var(--white);font-family:'Barlow',sans-serif;font-size:15px;outline:none;text-align:center;letter-spacing:.2em;transition:border-color .3s;width:100%;}
+.team-pw:focus{border-color:var(--md);}
+.team-pw-err{font-size:12px;color:var(--red);display:none;}
+.team-pw-err.show{display:block;}
+
+/* Team dashboard */
+.team-dash{display:none;}
+.team-dash-hdr{padding:20px 24px;border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.team-dash-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.06em;}
+.team-close-btn{width:34px;height:34px;border:1px solid var(--gb);border-radius:8px;background:transparent;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:16px;}
+.team-close-btn:hover{border-color:var(--md);color:var(--white);}
+
+/* Dashboard tabs */
+.team-tabs{display:flex;gap:4px;padding:16px 24px 0;border-bottom:1px solid var(--gb);flex-wrap:wrap;}
+.ttab{padding:8px 16px;border:none;border-bottom:2px solid transparent;background:transparent;font-size:12px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;margin-bottom:-1px;}
+.ttab.on{color:var(--v);border-bottom-color:var(--v);}
+.ttab:hover{color:var(--mauve);}
+.ttab-content{display:none;padding:20px 24px;}
+.ttab-content.on{display:block;}
+
+/* Stats row */
+.team-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+@media(max-width:600px){.team-stats{grid-template-columns:repeat(2,1fr);}}
+.tstat{padding:14px;background:var(--surface);border:1px solid var(--gb);border-radius:12px;text-align:center;}
+.tstat-n{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--v);}
+.tstat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);margin-top:3px;}
+
+/* Team members grid */
+.members-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+@media(min-width:600px){.members-grid{grid-template-columns:repeat(3,1fr);}}
+.member-card{padding:18px;background:var(--surface);border:1px solid var(--gb);border-radius:14px;display:flex;flex-direction:column;gap:10px;transition:all .3s;}
+.member-card:hover{border-color:rgba(155,111,212,.28);}
+.member-card-top{display:flex;align-items:center;gap:10px;}
+.member-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--white);flex-shrink:0;position:relative;}
+.presence-dot{position:absolute;bottom:1px;right:1px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg);background:var(--md);}
+.presence-dot.online{background:var(--green);box-shadow:0 0 6px rgba(109,212,168,.5);}
+.member-info{flex:1;min-width:0;}
+.member-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.member-role{font-size:10px;color:var(--md);letter-spacing:.06em;text-transform:uppercase;}
+.member-status{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:5px;}
+.member-status-dot{width:6px;height:6px;border-radius:50%;background:var(--md);flex-shrink:0;}
+.member-status-dot.online{background:var(--green);}
+.member-activity{font-size:11px;color:var(--dim);padding:6px 10px;background:rgba(155,111,212,.05);border-radius:7px;font-style:italic;}
+.member-login-btn{width:100%;padding:8px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--white);cursor:pointer;transition:all .3s;box-shadow:0 0 14px var(--glow);}
+.member-login-btn:hover{box-shadow:0 0 24px var(--glowbr);}
+.member-card.active-session{border-color:rgba(155,111,212,.4);background:rgba(155,111,212,.08);}
+
+/* Add member */
+.add-member-form{padding:16px;background:rgba(155,111,212,.04);border:1px dashed rgba(155,111,212,.2);border-radius:12px;display:flex;flex-direction:column;gap:10px;}
+.add-member-title{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--md);}
+.add-member-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.am-input{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:8px;padding:9px 12px;color:var(--white);font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .3s;width:100%;}
+.am-input:focus{border-color:var(--md);}
+.am-input::placeholder{color:rgba(196,176,232,.2);}
+.am-btn{padding:9px 20px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--white);cursor:pointer;transition:all .3s;box-shadow:0 0 14px var(--glow);}
+.am-btn:hover{box-shadow:0 0 24px var(--glowbr);}
+
+/* Leads table */
+.leads-table{width:100%;border-collapse:collapse;}
+.leads-table th{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--md);padding:8px 12px;text-align:left;border-bottom:1px solid var(--gb);}
+.leads-table td{padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(180,160,240,.06);vertical-align:top;}
+.leads-table tr:hover td{background:rgba(155,111,212,.04);}
+.lead-name{font-weight:500;color:var(--white);}
+.lead-email{color:var(--md);font-size:12px;}
+.lead-company{color:var(--dim);font-size:11px;}
+.lead-badge{display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;}
+.lead-badge.brief{background:rgba(155,111,212,.14);color:var(--v);}
+.lead-badge.storyboard{background:rgba(109,212,168,.1);color:var(--green);}
+.lead-badge.explore{background:rgba(138,120,184,.1);color:var(--md);}
+.lead-badge.visual{background:rgba(212,169,109,.1);color:var(--gold);}
+.lead-badge.new{background:rgba(109,212,168,.12);color:var(--green);}
+.lead-time{font-size:11px;color:rgba(155,111,212,.4);}
+.export-btn{padding:8px 18px;border:1px solid var(--gb);border-radius:8px;background:transparent;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--mauve);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;margin-bottom:14px;}
+.export-btn:hover{border-color:var(--md);background:rgba(155,111,212,.08);}
+
+/* Conversation log */
+.conv-list{display:flex;flex-direction:column;gap:8px;}
+.conv-item{background:var(--surface);border:1px solid var(--gb);border-radius:10px;overflow:hidden;}
+.conv-item-hdr{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:10px;}
+.conv-item-hdr:hover{background:rgba(155,111,212,.04);}
+.conv-item-info{flex:1;min-width:0;}
+.conv-item-name{font-size:13px;font-weight:500;margin-bottom:2px;}
+.conv-item-meta{font-size:11px;color:var(--md);}
+.conv-item-body{display:none;padding:0 16px 14px;border-top:1px solid var(--gb);max-height:260px;overflow-y:auto;}
+.conv-item-body.open{display:block;}
+.conv-msg{padding:6px 0;border-bottom:1px solid rgba(180,160,240,.05);font-size:12px;line-height:1.6;}
+.conv-msg:last-child{border-bottom:none;}
+.conv-role{font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+.conv-role.ai{color:var(--v);}
+.conv-role.client{color:var(--md);}
+.conv-role.member{color:var(--gold);}
+.conv-text{color:var(--dim);}
+.empty-state{text-align:center;padding:40px 20px;color:var(--dim);}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.25;}
+
+/* ══════════════════════════════ MAIN CHAT AREA */
+.main-wrap{position:relative;z-index:2;width:100%;max-width:820px;margin:0 auto;padding:78px 20px 40px;display:none;flex-direction:column;gap:0;}
+.main-wrap.active{display:flex;}
+
+/* Session header */
+.session-bar{padding:10px 18px;background:var(--glass);border:1px solid var(--gb);border-radius:12px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
+.session-info{display:flex;align-items:center;gap:10px;}
+.session-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:13px;color:var(--white);}
+.session-name{font-size:13px;font-weight:500;}
+.session-sub{font-size:11px;color:var(--md);}
+.session-actions{display:flex;gap:8px;align-items:center;}
+.session-tag{font-size:10px;padding:3px 10px;background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.2);border-radius:100px;color:var(--v);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+
+/* Chat widget */
+.chat-widget{background:var(--glass);border:1px solid var(--gb);border-radius:20px;overflow:hidden;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(155,111,212,.07);}
+.ch-bar{padding:15px 18px;background:rgba(155,111,212,.05);border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:10px;}
+.ch-av{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 0 14px rgba(155,111,212,.35);flex-shrink:0;}
+.ch-info{flex:1;}
+.ch-name{font-size:13px;font-weight:600;}
+.ch-status{font-size:11px;color:var(--green);letter-spacing:.05em;}
+.ch-status::before{content:'● ';}
+.ch-meta{display:flex;gap:8px;}
+.ch-phase{font-size:10px;padding:3px 9px;background:rgba(155,111,212,.12);border-radius:100px;color:var(--md);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.ch-msgs{height:400px;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;}
+@media(min-width:600px){.ch-msgs{height:460px;}}
+.ch-msgs::-webkit-scrollbar{width:3px;}
+.ch-msgs::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+.msg{display:flex;gap:9px;align-items:flex-start;animation:msgIn .35s cubic-bezier(.2,1,.4,1);}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.msg.user{flex-direction:row-reverse;}
+.msg-av{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.msg.bot .msg-av{background:rgba(155,111,212,.13);}
+.msg.user .msg-av{background:rgba(155,111,212,.22);}
+.msg-bub{max-width:84%;padding:10px 14px;font-size:13px;line-height:1.65;}
+.msg.bot .msg-bub{background:rgba(155,111,212,.09);border:1px solid rgba(155,111,212,.15);border-radius:3px 13px 13px 13px;color:var(--white);}
+.msg.user .msg-bub{background:linear-gradient(135deg,rgba(155,111,212,.26),rgba(100,70,170,.34));border:1px solid rgba(155,111,212,.24);border-radius:13px 3px 13px 13px;color:var(--white);}
+.msg-bub strong{color:var(--mauve);font-weight:500;}
+.msg-bub em{color:var(--md);}
+.tdots{display:flex;gap:4px;padding:3px 0;}
+.tdot{width:5px;height:5px;background:var(--md);border-radius:50%;animation:tdot .8s ease-in-out infinite;}
+.tdot:nth-child(2){animation-delay:.15s;}.tdot:nth-child(3){animation-delay:.3s;}
+@keyframes tdot{0%,80%,100%{transform:scale(.8);opacity:.5;}40%{transform:scale(1);opacity:1;}}
+
+/* Concept panel */
+.concept-panel{display:none;padding:14px 18px;background:rgba(155,111,212,.04);border-top:1px solid var(--gb);flex-direction:column;gap:9px;}
+.concept-panel.open{display:flex;}
+.cp-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mauve);}
+.cp-form{display:flex;flex-direction:column;gap:7px;}
+.cp-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+@media(max-width:440px){.cp-row{grid-template-columns:1fr;}}
+.cf{background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:8px;padding:8px 11px;color:var(--white);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .3s;width:100%;}
+.cf:focus{border-color:var(--md);}
+.cf::placeholder{color:rgba(196,176,232,.2);}
+textarea.cf{resize:none;min-height:56px;}
+.cp-actions{display:flex;gap:7px;}
+.cp-send{flex:1;padding:9px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--white);cursor:pointer;box-shadow:0 0 14px var(--glow);transition:all .3s;}
+.cp-send:hover{box-shadow:0 0 26px var(--glowbr);}
+.cp-cancel{padding:9px 12px;border:1px solid var(--gb);border-radius:8px;background:transparent;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;}
+.cp-cancel:hover{border-color:var(--md);color:var(--mauve);}
+
+/* Chat actions and input */
+.ch-actions{padding:7px 14px;display:flex;gap:5px;flex-wrap:wrap;border-top:1px solid var(--gb);background:rgba(5,4,14,.4);}
+.ca{padding:4px 11px;border:1px solid var(--gb);border-radius:100px;background:transparent;font-size:10px;letter-spacing:.05em;color:var(--md);cursor:pointer;transition:all .3s;white-space:nowrap;font-family:'Barlow',sans-serif;}
+.ca:hover,.ca.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+.ca.send{border-color:rgba(155,111,212,.28);color:var(--mauve);}
+.ca.send:hover{background:rgba(155,111,212,.12);}
+.ch-input-row{padding:11px 14px;display:flex;gap:8px;align-items:center;}
+.ch-input{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--gb);border-radius:10px;padding:10px 14px;color:var(--white);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .3s;}
+.ch-input::placeholder{color:rgba(196,176,232,.2);}
+.ch-input:focus{border-color:var(--md);}
+.ch-send{width:38px;height:38px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);transition:all .3s;flex-shrink:0;}
+.ch-send:hover{box-shadow:0 0 24px var(--glowbr);transform:scale(1.05);}
+.ch-send svg{width:13px;height:13px;stroke:var(--white);fill:none;stroke-width:2;}
+
+/* Output panel */
+.output-panel{margin-top:16px;display:none;}
+.output-panel.active{display:block;}
+.output-card{background:var(--glass);border:1px solid var(--gb);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);}
+.out-hdr{padding:13px 18px;background:rgba(155,111,212,.05);border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between;}
+.out-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.08em;color:var(--mauve);}
+.out-hdr-badge{font-size:10px;padding:3px 9px;background:rgba(155,111,212,.13);border-radius:100px;color:var(--v);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.out-body{padding:18px;font-size:13px;line-height:1.75;color:var(--dim);white-space:pre-wrap;max-height:300px;overflow-y:auto;}
+.out-body::-webkit-scrollbar{width:3px;}
+.out-body::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+.out-actions{padding:12px 18px;border-top:1px solid var(--gb);display:flex;gap:8px;flex-wrap:wrap;}
+.out-btn{padding:8px 16px;border:1px solid var(--gb);border-radius:8px;background:transparent;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--mauve);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;}
+.out-btn:hover{border-color:var(--md);background:rgba(155,111,212,.07);}
+.out-btn.primary{background:linear-gradient(135deg,var(--v),var(--v2));border-color:transparent;color:var(--white);box-shadow:0 0 14px var(--glow);}
+.out-btn.primary:hover{box-shadow:0 0 26px var(--glowbr);}
+
+/* ══════════════════════════════ LANDING */
+.landing{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;position:relative;z-index:2;text-align:center;}
+.orb-wrap{position:relative;width:160px;height:160px;margin:0 auto 36px;flex-shrink:0;}
+.orb{width:160px;height:160px;border-radius:50%;background:radial-gradient(circle at 38% 36%,rgba(155,111,212,.5) 0%,rgba(100,60,180,.2) 40%,transparent 70%);border:1px solid rgba(155,111,212,.18);animation:orbP 6s ease-in-out infinite;}
+@keyframes orbP{0%,100%{transform:scale(1);box-shadow:0 0 60px rgba(155,111,212,.14);}50%{transform:scale(1.04);box-shadow:0 0 90px rgba(155,111,212,.22);}}
+.orb::after{content:'AI';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:38px;letter-spacing:.1em;color:rgba(155,111,212,.55);text-shadow:0 0 40px rgba(155,111,212,.35);}
+.orb-ring{position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(155,111,212,.14);animation:spin 22s linear infinite;}
+.orb-ring::before{content:'';position:absolute;top:-4px;left:50%;width:7px;height:7px;background:var(--v);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 10px var(--v);}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+.landing-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--v);margin-bottom:18px;display:flex;align-items:center;gap:10px;justify-content:center;}
+.landing-kicker::before,.landing-kicker::after{content:'';width:28px;height:1px;background:rgba(155,111,212,.28);}
+.landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,100px);line-height:.9;letter-spacing:.02em;margin-bottom:18px;}
+.line2{background:linear-gradient(135deg,var(--v) 0%,var(--mbr) 45%,var(--blush) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.landing-sub{font-size:clamp(14px,2vw,17px);font-weight:300;line-height:1.75;color:var(--dim);max-width:520px;margin:0 auto 32px;}
+.landing-sub strong{color:var(--mauve);font-weight:500;}
+.feat-pills{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:36px;}
+.pill{padding:5px 13px;background:rgba(155,111,212,.07);border:1px solid rgba(155,111,212,.16);border-radius:100px;font-size:11px;letter-spacing:.06em;color:var(--md);display:flex;align-items:center;gap:5px;}
+.pill-dot{width:4px;height:4px;border-radius:50%;background:var(--green);}
+.cta-start{padding:15px 38px;background:linear-gradient(135deg,var(--v),var(--v2));border-radius:10px;font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--white);border:none;cursor:pointer;box-shadow:0 0 40px rgba(155,111,212,.28);transition:all .3s;}
+.cta-start:hover{box-shadow:0 0 60px rgba(155,111,212,.46);transform:translateY(-2px);}
+.cta-note{margin-top:12px;font-size:11px;color:rgba(155,111,212,.35);letter-spacing:.05em;}
+
+/* ══════════════════════════════ TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9000;padding:12px 16px;background:rgba(109,212,168,.1);border:1px solid rgba(109,212,168,.2);border-radius:12px;backdrop-filter:blur(16px);display:flex;align-items:center;gap:8px;transform:translateY(120%);opacity:0;transition:all .4s cubic-bezier(.2,1,.4,1);max-width:calc(100vw - 40px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-text{font-size:13px;}
+.toast-text strong{color:var(--green);display:block;}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="bgCanvas"></canvas>
+
+<!-- ══════════════════════ NAV ══════════════════════ -->
+<nav>
+  <a href="index.html" class="nav-logo">E<span>O</span>NS</a>
+  <div class="nav-right">
+    <div class="nav-badge">Studio AI</div>
+    <button class="nav-team-btn" onclick="openTeam()">Team Portal</button>
+    <a href="index.html" class="nav-back">Site</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════ EMAIL GATE ══════════════════════ -->
+<div class="overlay" id="gateOverlay">
+  <div class="overlay-bg"></div>
+  <div class="gate-wrap">
+    <!-- Step indicator -->
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dot active" id="sd1">1</div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step-dot" id="sd2">2</div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step-dot" id="sd3">3</div>
+    </div>
+
+    <div class="gate-card">
+      <div class="gate-hdr">
+        <span class="gate-hdr-icon">🎬</span>
+        <div class="gate-hdr-title" id="gateTitle">Meet Your Creative Director</div>
+        <div class="gate-hdr-sub" id="gateSub">The EONS Studio AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.</div>
+      </div>
+      <div class="gate-body">
+
+        <!-- Step 1: Name + Email -->
+        <div class="gate-step active" id="gateStep1">
+          <div class="gate-fields">
+            <div class="gate-field">
+              <label class="gate-label">Your Name</label>
+              <input class="gate-input" id="gName" type="text" placeholder="Alex Rivera" autocomplete="name">
+            </div>
+            <div class="gate-field">
+              <label class="gate-label">Email Address</label>
+              <input class="gate-input" id="gEmail" type="email" placeholder="alex@brand.com" autocomplete="email">
+            </div>
+            <div class="gate-field">
+              <label class="gate-label gate-input-optional">Company / Brand</label>
+              <input class="gate-input" id="gCompany" type="text" placeholder="Your brand or company name">
+            </div>
+          </div>
+          <div class="gate-error" id="gError1">Please enter your name and email to continue.</div>
+          <button class="gate-btn" onclick="gateStep1Next()">Continue →</button>
+          <div class="gate-privacy">No spam. No selling your data. Just great creative work.</div>
+        </div>
+
+        <!-- Step 2: How did you find us -->
+        <div class="gate-step" id="gateStep2">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:16px;line-height:1.6;">How did you hear about EONS Studio AI?</p>
+          <div class="source-grid" id="sourceGrid">
+            <div class="source-card" onclick="selectSource(this,'Instagram')"><div class="source-card-icon">📸</div><div class="source-card-label">Instagram</div></div>
+            <div class="source-card" onclick="selectSource(this,'Google Search')"><div class="source-card-icon">🔍</div><div class="source-card-label">Google Search</div></div>
+            <div class="source-card" onclick="selectSource(this,'LinkedIn')"><div class="source-card-icon">💼</div><div class="source-card-label">LinkedIn</div></div>
+            <div class="source-card" onclick="selectSource(this,'Referral')"><div class="source-card-icon">🤝</div><div class="source-card-label">Referral</div></div>
+            <div class="source-card" onclick="selectSource(this,'Cold Email')"><div class="source-card-icon">📧</div><div class="source-card-label">Cold Email</div></div>
+            <div class="source-card" onclick="selectSource(this,'Other')"><div class="source-card-icon">✨</div><div class="source-card-label">Other</div></div>
+          </div>
+          <div class="gate-error" id="gError2">Please select how you found us.</div>
+          <button class="gate-btn" style="margin-top:16px;" onclick="gateStep2Next()">Continue →</button>
+          <button class="gate-btn-ghost" onclick="gateBack(1)">← Back</button>
+        </div>
+
+        <!-- Step 3: Purpose -->
+        <div class="gate-step" id="gateStep3">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:16px;line-height:1.6;">What are you looking to use the AI for?</p>
+          <div class="purpose-grid" id="purposeGrid">
+            <div class="purpose-card" onclick="selectPurpose(this,'develop-concept')">
+              <span class="purpose-card-icon">💡</span>
+              <div class="purpose-card-title">Develop a Concept</div>
+              <div class="purpose-card-desc">Explore ideas and build a creative direction for a new project</div>
+            </div>
+            <div class="purpose-card" onclick="selectPurpose(this,'generate-brief')">
+              <span class="purpose-card-icon">📋</span>
+              <div class="purpose-card-title">Generate a Brief</div>
+              <div class="purpose-card-desc">Get a professional creative brief ready to share with a team or studio</div>
+            </div>
+            <div class="purpose-card" onclick="selectPurpose(this,'storyboard')">
+              <span class="purpose-card-icon">🎬</span>
+              <div class="purpose-card-title">Write a Storyboard</div>
+              <div class="purpose-card-desc">Build a scene-by-scene storyboard for an animation project</div>
+            </div>
+            <div class="purpose-card" onclick="selectPurpose(this,'research')">
+              <span class="purpose-card-icon">🔍</span>
+              <div class="purpose-card-title">Research & Explore</div>
+              <div class="purpose-card-desc">Learn what 3D animation could do for my brand before committing</div>
+            </div>
+            <div class="purpose-card" onclick="selectPurpose(this,'hire-studio')">
+              <span class="purpose-card-icon">🚀</span>
+              <div class="purpose-card-title">Ready to Hire a Studio</div>
+              <div class="purpose-card-desc">I have a project in mind and want to connect with the EONS team</div>
+            </div>
+            <div class="purpose-card" onclick="selectPurpose(this,'just-exploring')">
+              <span class="purpose-card-icon">👀</span>
+              <div class="purpose-card-title">Just Exploring</div>
+              <div class="purpose-card-desc">Curious about what AI-powered creative tools can do</div>
+            </div>
+          </div>
+          <div class="gate-error" id="gError3">Please select what you're looking to do.</div>
+          <button class="gate-btn" style="margin-top:16px;" onclick="gateComplete()">Start Building →</button>
+          <button class="gate-btn-ghost" onclick="gateBack(2)">← Back</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TEAM PORTAL ══════════════════════ -->
+<div class="overlay" id="teamOverlay">
+  <div class="overlay-bg" onclick="closeTeam()"></div>
+  <div class="team-wrap">
+    <div class="team-card">
+
+      <!-- Team login -->
+      <div class="team-login" id="teamLogin">
+        <div class="team-login-icon">🏢</div>
+        <div class="team-login-title">EONS Team Portal</div>
+        <div class="team-login-sub">Enter the team password to access your workspace</div>
+        <div class="team-pw-wrap">
+          <input class="team-pw" id="teamPw" type="password" placeholder="••••••••" maxlength="40">
+          <div class="team-pw-err" id="teamPwErr">Incorrect password</div>
+          <button class="gate-btn" onclick="checkTeamPw()">Enter Portal →</button>
+        </div>
+      </div>
+
+      <!-- Team dashboard -->
+      <div class="team-dash" id="teamDash">
+        <div class="team-dash-hdr">
+          <div class="team-dash-title">EONS <span style="color:var(--v)">Team Portal</span></div>
+          <button class="team-close-btn" onclick="closeTeam()">✕</button>
+        </div>
+
+        <div class="team-tabs">
+          <button class="ttab on" onclick="switchTeamTab('overview',this)">Overview</button>
+          <button class="ttab" onclick="switchTeamTab('members',this)">Team</button>
+          <button class="ttab" onclick="switchTeamTab('leads',this)">Leads</button>
+          <button class="ttab" onclick="switchTeamTab('convs',this)">Conversations</button>
+        </div>
+
+        <!-- Overview -->
+        <div class="ttab-content on" id="tt-overview">
+          <div class="team-stats" id="teamStats"></div>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.06em;margin-bottom:14px;">Team Members <span style="color:var(--v)" id="onlineCount"></span></h3>
+          <div class="members-grid" id="membersGrid"></div>
+        </div>
+
+        <!-- Members management -->
+        <div class="ttab-content" id="tt-members">
+          <div class="members-grid" id="membersGridFull" style="margin-bottom:20px;"></div>
+          <div class="add-member-form">
+            <div class="add-member-title">+ Add Team Member</div>
+            <div class="add-member-row">
+              <input class="am-input" id="amName" placeholder="Full Name" type="text">
+              <input class="am-input" id="amRole" placeholder="Role (e.g. Animator)" type="text">
+            </div>
+            <input class="am-input" id="amInitials" placeholder="Initials (e.g. RC)" type="text" maxlength="3">
+            <button class="am-btn" onclick="addMember()">Add Member</button>
+          </div>
+        </div>
+
+        <!-- Leads -->
+        <div class="ttab-content" id="tt-leads">
+          <button class="export-btn" onclick="exportLeads()">⬇ Export CSV</button>
+          <div id="leadsTable"></div>
+        </div>
+
+        <!-- Conversations -->
+        <div class="ttab-content" id="tt-convs">
+          <div class="conv-list" id="convListDash"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ LANDING ══════════════════════ -->
+<div class="landing" id="landingView">
+  <div class="orb-wrap">
+    <div class="orb-ring"></div>
+    <div class="orb"></div>
+  </div>
+  <div class="landing-kicker">EONS Animation Studio</div>
+  <h1 class="landing-title">Your 3D Creative<br><span class="line2">Director. Powered By AI.</span></h1>
+  <p class="landing-sub">The first AI built specifically for <strong>3D animation creative development</strong>. Generate professional briefs, cinematic storyboards, and visual direction — powered by real creative expertise.</p>
+  <div class="feat-pills">
+    <div class="pill"><div class="pill-dot"></div>Creative Briefs</div>
+    <div class="pill"><div class="pill-dot"></div>Scene Storyboards</div>
+    <div class="pill"><div class="pill-dot"></div>Visual Direction</div>
+    <div class="pill"><div class="pill-dot"></div>Competitor Analysis</div>
+    <div class="pill"><div class="pill-dot"></div>Production Roadmap</div>
+  </div>
+  <button class="cta-start" onclick="openGate()">Start Building Your Concept →</button>
+  <div class="cta-note">Free · No account required · Concept sent directly to EONS</div>
+</div>
+
+<!-- ══════════════════════ MAIN CHAT ══════════════════════ -->
+<div class="main-wrap" id="mainWrap">
+  <!-- Session bar -->
+  <div class="session-bar" id="sessionBar">
+    <div class="session-info">
+      <div class="session-avatar" id="sessionAv">?</div>
+      <div>
+        <div class="session-name" id="sessionName">Loading...</div>
+        <div class="session-sub" id="sessionSub">EONS Studio AI</div>
+      </div>
+    </div>
+    <div class="session-actions">
+      <div class="session-tag" id="sessionPhaseTag">Explore</div>
+    </div>
+  </div>
+
+  <!-- Chat widget -->
+  <div class="chat-widget">
+    <div class="ch-bar">
+      <div class="ch-av">🎬</div>
+      <div class="ch-info">
+        <div class="ch-name">EONS Studio AI</div>
+        <div class="ch-status">Online — Creative Director Mode</div>
+      </div>
+      <div class="ch-meta">
+        <div class="ch-phase" id="chPhase">Explore</div>
+      </div>
+    </div>
+    <div class="ch-msgs" id="chMsgs"></div>
+    <div class="concept-panel" id="conceptPanel">
+      <div class="cp-title">📤 Send Concept to EONS Studio</div>
+      <div class="cp-form">
+        <textarea class="cf" id="cfNotes" placeholder="Any additional notes or requirements..."></textarea>
+        <div class="cp-actions">
+          <button class="cp-cancel" onclick="closeCP()">Cancel</button>
+          <button class="cp-send" onclick="submitConcept()">Send to Studio →</button>
+        </div>
+      </div>
+    </div>
+    <div class="ch-actions">
+      <button class="ca" id="btnBrief" onclick="triggerBrief()">📋 Brief</button>
+      <button class="ca" id="btnBoard" onclick="triggerBoard()">🎬 Storyboard</button>
+      <button class="ca" id="btnVisual" onclick="triggerVisual()">🎨 Visual Direction</button>
+      <button class="ca" id="btnComp" onclick="triggerComp()">🔍 Competitors</button>
+      <button class="ca send" onclick="openCP()">📤 Send to Studio</button>
+    </div>
+    <div class="ch-input-row">
+      <input class="ch-input" id="chInput" placeholder="Describe your brand or project idea..." type="text">
+      <button class="ch-send" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Output panel -->
+  <div class="output-panel" id="outputPanel">
+    <div class="output-card">
+      <div class="out-hdr">
+        <div class="out-hdr-title" id="outTitle">Document</div>
+        <div class="out-hdr-badge" id="outBadge">Brief</div>
+      </div>
+      <div class="out-body" id="outBody"></div>
+      <div class="out-actions">
+        <button class="out-btn" onclick="copyOut()">📋 Copy</button>
+        <button class="out-btn" onclick="openCP()">📤 Send to EONS</button>
+        <button class="out-btn primary" onclick="continueChat()">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <div class="toast-text"><strong id="toastT"></strong><span id="toastM"></span></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   EONS STUDIO AI v2
+   ─────────────────────────────────────
+   CONFIG — change these values
+══════════════════════════════════════ */
+const TEAM_PASSWORD = 'eons2025'; // ← CHANGE THIS
+
+// Default team members — edit to match your actual team
+const DEFAULT_MEMBERS = [
+  {id:'rc', name:'Ryan Chen',    role:'Founder / CEO',        initials:'RC', color:'#9b6fd4'},
+  {id:'ah', name:'Antwain Harty',role:'Animator Team Lead',   initials:'AH', color:'#7a52b8'},
+  {id:'dl', name:'Dahee Lee',    role:'Junior Animator',      initials:'DL', color:'#6dd4a8'},
+];
+
+/* ══════════════════════════════════════ BG ANIMATION */
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+let W,H,pts=[];
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+resize();addEventListener('resize',resize);
+class Pt{constructor(){this.reset();}reset(){this.x=Math.random()*W;this.y=Math.random()*H;this.sz=Math.random()*1.4+.3;this.vx=(Math.random()-.5)*.28;this.vy=(Math.random()-.5)*.28;this.op=Math.random()*.35+.05;this.h=240+Math.random()*60;}update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>W||this.y<0||this.y>H)this.reset();}draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.sz,0,Math.PI*2);ctx.fillStyle=`hsla(${this.h},55%,68%,${this.op})`;ctx.fill();}}
+for(let i=0;i<100;i++)pts.push(new Pt());
+let t=0;
+function drawBG(){ctx.clearRect(0,0,W,H);t+=.007;
+  const gx1=W*.2+Math.sin(t*.3)*W*.07,gy1=H*.3+Math.cos(t*.2)*H*.05;
+  const g1=ctx.createRadialGradient(gx1,gy1,0,gx1,gy1,W*.32);
+  g1.addColorStop(0,'rgba(100,60,200,.065)');g1.addColorStop(1,'transparent');
+  ctx.fillStyle=g1;ctx.fillRect(0,0,W,H);
+  pts.forEach(p=>{p.update();p.draw();});requestAnimationFrame(drawBG);}
+drawBG();
+
+/* ══════════════════════════════════════ CURSOR */
+const $c=document.getElementById('cur'),$r=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;$c.style.left=mx+'px';$c.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;$r.style.left=rx+'px';$r.style.top=ry+'px';requestAnimationFrame(a);})();
+function curBig(b){$c.classList.toggle('big',b);$r.classList.toggle('big',b);}
+document.querySelectorAll('a,button,.source-card,.purpose-card,.member-card,.member-login-btn').forEach(el=>{el.addEventListener('mouseenter',()=>curBig(true));el.addEventListener('mouseleave',()=>curBig(false));});
+
+/* ══════════════════════════════════════ STATE */
+let currentUser=null; // {name,email,company,source,purpose,isTeamMember,memberId}
+let chatHistory=[];
+let convType='explore';
+let lastDoc='';
+let lastDocType='';
+let gateSource='';
+let gatePurpose='';
+
+/* ══════════════════════════════════════ GATE SYSTEM */
+function openGate(){
+  document.getElementById('gateOverlay').classList.add('active');
+}
+function closeGate(){
+  document.getElementById('gateOverlay').classList.remove('active');
+}
+
+function gateStep1Next(){
+  const name=document.getElementById('gName').value.trim();
+  const email=document.getElementById('gEmail').value.trim();
+  const err=document.getElementById('gError1');
+  if(!name||!email||!email.includes('@')){err.classList.add('show');return;}
+  err.classList.remove('show');
+  setGateStep(2);
+}
+
+function gateStep2Next(){
+  const err=document.getElementById('gError2');
+  if(!gateSource){err.classList.add('show');return;}
+  err.classList.remove('show');
+  setGateStep(3);
+}
+
+function gateComplete(){
+  const err=document.getElementById('gError3');
+  if(!gatePurpose){err.classList.add('show');return;}
+  err.classList.remove('show');
+
+  const name=document.getElementById('gName').value.trim();
+  const email=document.getElementById('gEmail').value.trim();
+  const company=document.getElementById('gCompany').value.trim();
+
+  currentUser={name,email,company,source:gateSource,purpose:gatePurpose,isTeamMember:false,memberId:null,sessionId:Date.now()};
+
+  // Save lead
+  saveLead(currentUser);
+
+  closeGate();
+  launchChat();
+}
+
+function gateBack(step){setGateStep(step);}
+
+function setGateStep(n){
+  document.querySelectorAll('.gate-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('gateStep'+n).classList.add('active');
+  // Update step indicator
+  for(let i=1;i<=3;i++){
+    const dot=document.getElementById('sd'+i);
+    const line=document.getElementById('sl'+(i));
+    dot.classList.toggle('active',i===n);
+    dot.classList.toggle('done',i<n);
+    if(i<3&&line)line.classList.toggle('done',i<n);
+  }
+  // Update title
+  const titles=['','Meet Your Creative Director','How Did You Find Us?','What Are You Building?'];
+  const subs=['','The EONS Studio AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.','Help us understand where our community comes from.','This helps us tailor the AI experience to your exact needs.'];
+  document.getElementById('gateTitle').textContent=titles[n];
+  document.getElementById('gateSub').textContent=subs[n];
+}
+
+function selectSource(card,value){
+  document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');gateSource=value;
+}
+function selectPurpose(card,value){
+  document.querySelectorAll('.purpose-card').forEach(c=>c.classList.remove('selected'));
+  card.classList.add('selected');gatePurpose=value;
+}
+
+/* ══════════════════════════════════════ LEAD + CONV STORAGE */
+function saveLead(user){
+  try{
+    const leads=getLeads();
+    // Don't duplicate same email
+    if(!leads.find(l=>l.email===user.email)){
+      leads.unshift({id:Date.now(),timestamp:new Date().toISOString(),name:user.name,email:user.email,company:user.company||'',source:user.source,purpose:user.purpose,convCount:0,isTeamMember:user.isTeamMember});
+      localStorage.setItem('eons_leads',JSON.stringify(leads));
+    }
+  }catch{}
+}
+function getLeads(){try{return JSON.parse(localStorage.getItem('eons_leads')||'[]');}catch{return[];}}
+function updateLeadConvCount(email){
+  try{const leads=getLeads();const l=leads.find(x=>x.email===email);if(l){l.convCount=(l.convCount||0)+1;localStorage.setItem('eons_leads',JSON.stringify(leads));}}catch{}
+}
+
+function saveConv(conv){
+  try{
+    const convs=getConvs();
+    convs.unshift(conv);
+    if(convs.length>300)convs.splice(300);
+    localStorage.setItem('eons_convs',JSON.stringify(convs));
+    updateLeadConvCount(conv.email||'');
+  }catch{}
+}
+function getConvs(){try{return JSON.parse(localStorage.getItem('eons_convs')||'[]');}catch{return[];}}
+
+/* ══════════════════════════════════════ TEAM PRESENCE */
+function updatePresence(memberId,status){
+  try{
+    const p=JSON.parse(localStorage.getItem('eons_presence')||'{}');
+    p[memberId]={status,lastSeen:Date.now()};
+    localStorage.setItem('eons_presence',JSON.stringify(p));
+  }catch{}
+}
+function getPresence(){
+  try{
+    const p=JSON.parse(localStorage.getItem('eons_presence')||'{}');
+    const now=Date.now();
+    // Consider online if seen within last 3 minutes
+    Object.keys(p).forEach(k=>{if(now-p[k].lastSeen>180000)p[k].status='offline';});
+    return p;
+  }catch{return{};}
+}
+function getMembers(){
+  try{const m=JSON.parse(localStorage.getItem('eons_members')||'null');return m||DEFAULT_MEMBERS;}
+  catch{return DEFAULT_MEMBERS;}
+}
+function saveMembers(members){localStorage.setItem('eons_members',JSON.stringify(members));}
+
+/* ══════════════════════════════════════ TEAM LOGIN */
+function openTeam(){
+  document.getElementById('teamOverlay').classList.add('active');
+  document.getElementById('teamLogin').style.display='flex';
+  document.getElementById('teamDash').style.display='none';
+  document.getElementById('teamPw').value='';
+  setTimeout(()=>document.getElementById('teamPw').focus(),80);
+}
+function closeTeam(){
+  document.getElementById('teamOverlay').classList.remove('active');
+  // Clear presence on close
+  if(currentUser?.memberId)updatePresence(currentUser.memberId,'offline');
+}
+document.getElementById('teamPw').addEventListener('keydown',e=>{if(e.key==='Enter')checkTeamPw();});
+
+function checkTeamPw(){
+  const pw=document.getElementById('teamPw').value;
+  const err=document.getElementById('teamPwErr');
+  if(pw===TEAM_PASSWORD){
+    err.classList.remove('show');
+    document.getElementById('teamLogin').style.display='none';
+    document.getElementById('teamDash').style.display='block';
+    renderTeamDash();
+  }else{
+    err.classList.add('show');
+    document.getElementById('teamPw').value='';
+    document.getElementById('teamPw').focus();
+  }
+}
+
+function renderTeamDash(){
+  renderTeamStats();renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');renderLeads();renderConvsDash();
+  // Refresh presence every 20 seconds
+  clearInterval(window._presenceInterval);
+  window._presenceInterval=setInterval(()=>{renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');},20000);
+}
+
+function renderTeamStats(){
+  const leads=getLeads();const convs=getConvs();
+  const briefs=convs.filter(c=>c.type==='brief'||c.type==='storyboard'||c.type==='visual').length;
+  const today=convs.filter(c=>{const d=new Date(c.timestamp);const now=new Date();return d.toDateString()===now.toDateString();}).length;
+  document.getElementById('teamStats').innerHTML=`
+    <div class="tstat"><div class="tstat-n">${leads.length}</div><div class="tstat-l">Total Leads</div></div>
+    <div class="tstat"><div class="tstat-n" style="color:var(--green)">${today}</div><div class="tstat-l">Today</div></div>
+    <div class="tstat"><div class="tstat-n">${briefs}</div><div class="tstat-l">Briefs & Boards</div></div>
+    <div class="tstat"><div class="tstat-n">${convs.length}</div><div class="tstat-l">Total Chats</div></div>
+  `;
+  const members=getMembers();const presence=getPresence();
+  const online=members.filter(m=>presence[m.id]?.status==='online').length;
+  document.getElementById('onlineCount').textContent=`(${online} online)`;
+}
+
+function renderMembersGrid(containerId){
+  const members=getMembers();const presence=getPresence();
+  const wrap=document.getElementById(containerId);if(!wrap)return;
+  wrap.innerHTML='';
+  members.forEach(m=>{
+    const pres=presence[m.id];
+    const isOnline=pres?.status==='online';
+    const isActive=currentUser?.memberId===m.id;
+    const lastSeen=pres?.lastSeen?timeSince(pres.lastSeen):'Never';
+    const card=document.createElement('div');
+    card.className='member-card'+(isActive?' active-session':'');
+    card.innerHTML=`
+      <div class="member-card-top">
+        <div class="member-avatar" style="background:linear-gradient(135deg,${m.color||'var(--v)'},${m.color||'var(--v2)'}88)">
+          ${m.initials}
+          <div class="presence-dot ${isOnline?'online':''}"></div>
+        </div>
+        <div class="member-info">
+          <div class="member-name">${m.name}</div>
+          <div class="member-role">${m.role}</div>
+        </div>
+      </div>
+      <div class="member-status">
+        <div class="member-status-dot ${isOnline?'online':''}"></div>
+        ${isOnline?'Online now':'Last seen '+lastSeen}
+      </div>
+      ${m.activity?`<div class="member-activity">${m.activity}</div>`:''}
+      ${!isActive?`<button class="member-login-btn" onclick="loginAsMember('${m.id}')">Login as ${m.name.split(' ')[0]} →</button>`:`<div style="font-size:11px;color:var(--green);text-align:center;padding:6px;">● Active session</div>`}
+    `;
+    wrap.appendChild(card);
+  });
+}
+
+function loginAsMember(memberId){
+  const members=getMembers();
+  const member=members.find(m=>m.id===memberId);
+  if(!member)return;
+  currentUser={
+    name:member.name,
+    email:member.id+'@eons.studio',
+    company:'EONS Animation Studio',
+    source:'Team',
+    purpose:'team-member',
+    isTeamMember:true,
+    memberId:member.id,
+    sessionId:Date.now()
+  };
+  // Update presence
+  updatePresence(memberId,'online');
+  // Keep presence alive
+  clearInterval(window._heartbeat);
+  window._heartbeat=setInterval(()=>updatePresence(memberId,'online'),60000);
+  closeTeam();
+  launchChat();
+  toast('Welcome back!',`Logged in as ${member.name}`);
+}
+
+function addMember(){
+  const name=document.getElementById('amName').value.trim();
+  const role=document.getElementById('amRole').value.trim();
+  const initials=document.getElementById('amInitials').value.trim().toUpperCase();
+  if(!name||!initials){toast('Missing info','Please enter a name and initials.');return;}
+  const members=getMembers();
+  const colors=['#9b6fd4','#6dd4a8','#d4a96d','#d4836d','#6d9dd4','#d46d9d'];
+  members.push({id:'m'+Date.now(),name,role:role||'Team Member',initials:initials.slice(0,2),color:colors[members.length%colors.length]});
+  saveMembers(members);
+  document.getElementById('amName').value='';document.getElementById('amRole').value='';document.getElementById('amInitials').value='';
+  renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');
+  toast('Member Added!',`${name} has been added to the team.`);
+}
+
+function renderLeads(){
+  const leads=getLeads();
+  const wrap=document.getElementById('leadsTable');
+  if(!leads.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div>No leads yet. When visitors use the AI, they appear here.</div></div>`;return;}
+  wrap.innerHTML=`<table class="leads-table">
+    <thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Source</th><th>Purpose</th><th>Chats</th><th>Date</th></tr></thead>
+    <tbody>${leads.map(l=>`<tr>
+      <td><div class="lead-name">${l.name}</div></td>
+      <td><div class="lead-email">${l.email}</div></td>
+      <td><div class="lead-company">${l.company||'—'}</div></td>
+      <td><span class="lead-badge explore">${l.source||'—'}</span></td>
+      <td><span class="lead-badge brief">${(l.purpose||'').replace('-',' ')}</span></td>
+      <td style="color:var(--v);font-weight:600;">${l.convCount||0}</td>
+      <td><div class="lead-time">${formatDate(l.timestamp)}</div></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function exportLeads(){
+  const leads=getLeads();
+  if(!leads.length){toast('No leads yet','Start sharing the Studio AI link.');return;}
+  const header='Name,Email,Company,Source,Purpose,Chats,Date';
+  const rows=leads.map(l=>`"${l.name}","${l.email}","${l.company||''}","${l.source||''}","${l.purpose||''}","${l.convCount||0}","${formatDate(l.timestamp)}"`);
+  const csv=[header,...rows].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='eons-leads.csv';a.click();
+  toast('Exported!','eons-leads.csv downloaded.');
+}
+
+function renderConvsDash(){
+  const convs=getConvs();const wrap=document.getElementById('convListDash');
+  if(!convs.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">💬</div><div>No conversations yet.</div></div>`;return;}
+  wrap.innerHTML='';
+  convs.forEach(c=>{
+    const item=document.createElement('div');item.className='conv-item';
+    item.innerHTML=`
+      <div class="conv-item-hdr" onclick="toggleConvItem(this)">
+        <div class="conv-item-info">
+          <div class="conv-item-name">${c.name}${c.company?' — '+c.company:''} ${c.isTeamMember?'<span style="color:var(--gold);font-size:10px;">[TEAM]</span>':''}</div>
+          <div class="conv-item-meta">${c.email} · ${formatDate(c.timestamp)} · <span style="color:var(--v)">${c.type||'explore'}</span></div>
+        </div>
+      </div>
+      <div class="conv-item-body">${fmtTranscript(c.transcript)}</div>
+    `;
+    wrap.appendChild(item);
+  });
+}
+
+function toggleConvItem(hdr){hdr.nextElementSibling.classList.toggle('open');}
+function fmtTranscript(raw){
+  if(!raw)return '<div class="conv-msg"><div class="conv-text">No transcript.</div></div>';
+  return raw.split('\n\n').filter(Boolean).map(b=>{
+    if(b.startsWith('USER: '))return `<div class="conv-msg"><div class="conv-role client">Client</div><div class="conv-text">${b.replace('USER: ','').replace(/</g,'&lt;')}</div></div>`;
+    if(b.startsWith('ASSISTANT: '))return `<div class="conv-msg"><div class="conv-role ai">EONS AI</div><div class="conv-text">${b.replace('ASSISTANT: ','').replace(/</g,'&lt;')}</div></div>`;
+    if(b.startsWith('MEMBER: '))return `<div class="conv-msg"><div class="conv-role member">Team</div><div class="conv-text">${b.replace('MEMBER: ','').replace(/</g,'&lt;')}</div></div>`;
+    return `<div class="conv-msg"><div class="conv-text">${b.replace(/</g,'&lt;')}</div></div>`;
+  }).join('');
+}
+
+function switchTeamTab(tab,btn){
+  document.querySelectorAll('.ttab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.ttab-content').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('tt-'+tab).classList.add('on');
+  if(tab==='leads')renderLeads();
+  if(tab==='convs')renderConvsDash();
+  if(tab==='members'){renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');}
+  if(tab==='overview')renderTeamStats();
+}
+
+/* ══════════════════════════════════════ CHAT LAUNCH */
+function launchChat(){
+  document.getElementById('landingView').style.display='none';
+  document.getElementById('mainWrap').classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+  // Update session bar
+  const initials=currentUser.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sessionAv').textContent=initials;
+  document.getElementById('sessionName').textContent=currentUser.name;
+  document.getElementById('sessionSub').textContent=currentUser.isTeamMember?'Team Session · EONS Studio AI':'EONS Studio AI · Your Creative Director';
+  if(chatHistory.length===0)initChat();
+}
+
+/* ══════════════════════════════════════ ENHANCED SYSTEM PROMPT */
+const SYSTEM=`You are the EONS Studio AI — a senior 3D animation creative director and brand strategist with deep expertise in 3D animation production, brand visual identity, and creative strategy.
+
+ABOUT EONS: NYC-based 3D animation studio. Team: Ryan Chen (Founder/CEO, 3D generalist, brand strategy), Antwain Harty (Animator Team Lead, generalist), Dahee Lee (Junior Animator, generalist). Packages: Pilot ($800+, 5-7 days), Foundation ($2,500+, 2-3 weeks), Growth ($6,000+, 4-6 weeks), Authority (custom).
+
+DEEP EXPERTISE:
+3D TECHNIQUES: Hero macro shots, liquid simulations, particle systems, caustic lighting, subsurface scattering for product materials, chromatic aberration, depth of field pulls, slow motion 120fps, camera path animation, HDRI vs three-point lighting, volumetric fog, procedural texturing, render passes, motion blur.
+VISUAL STYLES: Hyper-realism, dark luxury editorial (Jacquemus/Bottega energy), clean tech (Apple product launch), cinematic lifestyle (Nike/Adidas), ethereal organic (Glossier/Aesop), brutalist geometric (Rick Owens).
+CAMERA LANGUAGE: Macro reveals, orbit around product, push-in hero moment, Dutch angle, overhead flat lay in 3D, parallax layering, subtle handheld shake in 3D.
+BRAND STRATEGY: Visual identity as competitive moat, emotional positioning in 3D, color psychology for materials and lighting, campaign consistency across deliverables.
+
+CAPABILITIES:
+1. EXPLORE — Ask specific questions that surface insights clients haven't articulated. Not "what's your brand?" but "who is the person buying this, what does she believe about herself, and what should she feel in the first 3 seconds?"
+2. BRIEF — Complete professional brief: Project Objective, Target Audience (psychographic not just demographic), Brand Tone (3 adjectives + what it's NOT), Visual Style Direction with specific techniques, Animation Approach, Key Messages hierarchy, Deliverables Spec per platform, Production Complexity Notes, Recommended Package with justification.
+3. STORYBOARD — Scene-by-scene with: shot type/camera angle (use cinematography terms), animation action with specific 3D technique references, lighting/atmosphere notes, text/sound notes, production complexity rating (Simple/Moderate/Complex).
+4. VISUAL DIRECTION — Color temperature + palette rationale, animation pace, camera movement vocabulary, lighting philosophy, material/texture direction, music mood with specific artist references, 3-5 real aesthetic references with explanations, what to AVOID.
+5. COMPETITOR ANALYSIS — Ask for industry + competitors. Identify what each communicates visually, find unclaimed visual territory, build business case for 3D animation filling that gap.
+6. PACKAGE FIT — Recommend ONE specific package with justification based on scope conversation. Never just list all packages.
+
+CONVERSATION INTELLIGENCE:
+- Reference earlier context naturally: "you mentioned your launch is in 6 weeks — that puts this in the Foundation timeline"
+- Build on answers: if they say "luxury" ask "Bottega Veneta quiet luxury or Balmain maximalist luxury? The production approach is completely different"
+- Notice gaps: "you've described the product well but I notice you haven't mentioned who's buying it — that changes everything"
+- Push back when warranted: "I'd push back on 15 seconds here — this story needs 30 seconds to land"
+
+TONE: Confident senior creative director. Have opinions and share them. Never say "great idea!" or "certainly!" Short (2-4 sentences) for conversation. Rich and detailed only for documents. When concept is ready, naturally suggest sending to the EONS team.`;
+
+/* ══════════════════════════════════════ AI CHAT ENGINE */
+function addMsg(role,text){
+  const c=document.getElementById('chMsgs');
+  const d=document.createElement('div');
+  d.className='msg '+(role==='assistant'?'bot':'user');
+  const content=text.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+  d.innerHTML=`<div class="msg-av">${role==='assistant'?'🎬':currentUser?.name?.[0]||'👤'}</div><div class="msg-bub">${content}</div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function showTyping(){
+  const c=document.getElementById('chMsgs');
+  const d=document.createElement('div');d.id='typing';d.className='msg bot';
+  d.innerHTML=`<div class="msg-av">🎬</div><div class="msg-bub"><div class="tdots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+}
+function hideTyping(){document.getElementById('typing')?.remove();}
+
+async function callAI(msgs,maxT=1200){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxT,system:SYSTEM,messages:msgs})});
+  const d=await r.json();
+  return d.content?.[0]?.text||'Something went wrong — email eonstudioanimation@gmail.com';
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('chInput');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';inp.disabled=true;document.querySelector('.ch-send').disabled=true;
+  addMsg('user',txt);chatHistory.push({role:'user',content:txt});
+  showTyping();
+  try{
+    const rep=await callAI(chatHistory);
+    hideTyping();chatHistory.push({role:'assistant',content:rep});addMsg('assistant',rep);updatePhase();
+  }catch{hideTyping();addMsg('assistant','Connection issue — email us at eonstudioanimation@gmail.com');}
+  inp.disabled=false;document.querySelector('.ch-send').disabled=false;inp.focus();
+}
+document.getElementById('chInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+
+async function triggerAction(btnId,type,prompt,docTitle,badge,maxT=1500){
+  document.getElementById(btnId).classList.add('on');
+  document.getElementById('chPhase').textContent=docTitle;
+  document.getElementById('sessionPhaseTag').textContent=docTitle;
+  convType=type;
+  const msg=chatHistory.length>0?prompt:'Please describe your brand or product first so I can build this for you.';
+  chatHistory.push({role:'user',content:msg});addMsg('user',msg);
+  showTyping();
+  try{
+    const rep=await callAI(chatHistory,maxT);
+    hideTyping();chatHistory.push({role:'assistant',content:rep});
+    if(maxT>=1300){
+      lastDoc=rep;lastDocType=badge;
+      document.getElementById('outTitle').textContent=docTitle;
+      document.getElementById('outBadge').textContent=badge;
+      document.getElementById('outBody').textContent=rep;
+      document.getElementById('outputPanel').classList.add('active');
+      document.getElementById('outputPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+    }else{addMsg('assistant',rep);}
+    updatePhase();
+  }catch{hideTyping();addMsg('assistant','Connection issue — please try again.');}
+}
+async function triggerBrief(){await triggerAction('btnBrief','brief','Based on our conversation, generate a complete professional creative brief with all sections: Project Objective, Target Audience, Brand Tone, Visual Style Direction, Animation Approach, Key Messages, Deliverables Spec, Production Complexity Notes, and Recommended Package.','Creative Brief','BRIEF',1600);}
+async function triggerBoard(){await triggerAction('btnBoard','storyboard','Write a detailed cinematic storyboard for this project — every scene with shot type, camera angle, animation action with specific 3D technique references, lighting notes, sound/text notes, and production complexity rating.','Storyboard','STORYBOARD',1600);}
+async function triggerVisual(){await triggerAction('btnVisual','visual','Generate a complete Visual Direction Document: color temperature and palette rationale, animation pace, camera movement vocabulary, lighting philosophy, material and texture direction, music mood with specific artist references, 3-5 aesthetic reference points with explanations, and what to explicitly avoid.','Visual Direction','VISUAL DIR',1400);}
+async function triggerComp(){await triggerAction('btnComp','competitor','Conduct a competitor visual gap analysis. If you don\'t know my competitors yet, ask. Then identify what each communicates visually, find the unclaimed visual territory, and build a business case for how 3D animation fills that gap.','Competitor Analysis','GAP ANALYSIS',1200);}
+
+function updatePhase(){
+  const p=document.getElementById('chPhase'),s=document.getElementById('sessionPhaseTag');
+  const phase=chatHistory.length>=10?'Ready':chatHistory.length>=6?'Building':chatHistory.length>=2?'Developing':'Explore';
+  p.textContent=phase;s.textContent=phase;
+}
+
+function initChat(){
+  // Personalize opening based on purpose
+  const purposeMessages={
+    'develop-concept':`I'm the EONS Studio AI — your creative director for this session. You're looking to develop a concept, so let's dig deep before we build anything. Tell me about the brand or product. Don't be generic — what makes it different, who's the person buying it, and what do you want them to feel?`,
+    'generate-brief':`I'm the EONS Studio AI. You're here to generate a brief, so let's make it a real one — not a template. Tell me about the project and I'll ask the questions that actually matter before we produce the document.`,
+    'storyboard':`I'm the EONS Studio AI. You want a storyboard — good. But a great storyboard starts with understanding the brand and the emotional goal of the piece. Tell me about the product or campaign and I'll build you something a senior animator could actually use.`,
+    'research':`I'm the EONS Studio AI. You're in research mode — smart. Let me show you what 3D animation can do for a brand like yours. Tell me about your product or company and I'll walk you through the possibilities.`,
+    'hire-studio':`I'm the EONS Studio AI. You're ready to move — I like that. Tell me about your project and I'll help you build out a proper brief so when you talk to the EONS team, you're walking in with a real concept, not just an idea.`,
+    'just-exploring':`I'm the EONS Studio AI — happy to show you around. I don't give generic answers. Tell me about a brand you admire or a product you'd love to see brought to life in 3D, and I'll show you what this AI can actually do.`,
+  };
+  const opening=purposeMessages[currentUser?.purpose]||purposeMessages['just-exploring'];
+  addMsg('assistant',opening);
+  chatHistory.push({role:'assistant',content:opening});
+}
+
+/* ══════════════════════════════════════ CONCEPT SUBMISSION */
+let builtConcept='';
+function openCP(){
+  builtConcept=chatHistory.map(m=>`${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
+  if(lastDoc)builtConcept+=`\n\n════ ${lastDocType} ════\n\n${lastDoc}`;
+  document.getElementById('conceptPanel').classList.add('open');
+}
+function closeCP(){document.getElementById('conceptPanel').classList.remove('open');}
+
+async function submitConcept(){
+  const notes=document.getElementById('cfNotes').value.trim();
+  const btn=document.querySelector('.cp-send');
+  btn.textContent='Sending...';btn.disabled=true;
+
+  const fullTranscript=builtConcept+(notes?'\n\nNOTES: '+notes:'');
+
+  // Save conversation
+  saveConv({
+    id:Date.now(),timestamp:new Date().toISOString(),
+    name:currentUser.name,email:currentUser.email,company:currentUser.company||'',
+    source:currentUser.source,purpose:currentUser.purpose,
+    type:convType,transcript:fullTranscript,
+    isTeamMember:currentUser.isTeamMember,memberId:currentUser.memberId||null
+  });
+
+  // Mailto
+  const subj=encodeURIComponent(`New EONS Studio AI Concept — ${currentUser.company||currentUser.name}`);
+  const body=encodeURIComponent(`STUDIO AI CONCEPT SUBMISSION\n\nName: ${currentUser.name}\nEmail: ${currentUser.email}\nCompany: ${currentUser.company||'N/A'}\nSource: ${currentUser.source}\nPurpose: ${currentUser.purpose}\nNotes: ${notes||'None'}\n\n${builtConcept}`);
+  window.open(`mailto:eonstudioanimation@gmail.com?subject=${subj}&body=${body}`,'_blank');
+
+  setTimeout(()=>{
+    closeCP();
+    toast('Concept Sent! 🎬','The EONS team will reach out within 24 hours.');
+    addMsg('assistant',`Your concept is packaged and on its way, **${currentUser.name}**. The EONS team will reach out to **${currentUser.email}** within 24 hours. Looking forward to building this with you. 🎬`);
+    btn.textContent='Send to Studio →';btn.disabled=false;
+  },500);
+}
+
+/* ══════════════════════════════════════ OUTPUT PANEL */
+function copyOut(){navigator.clipboard.writeText(lastDoc).then(()=>toast('Copied!','Document copied to clipboard.'));}
+function continueChat(){
+  document.getElementById('outputPanel').classList.remove('active');
+  addMsg('assistant',`Your ${lastDocType.toLowerCase()} is ready in the panel above. Want me to refine any section, generate a different document, or are you ready to send this to the EONS team?`);
+}
+
+/* ══════════════════════════════════════ UTILS */
+function formatDate(ts){try{return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch{return'—';}}
+function timeSince(ms){const s=Math.floor((Date.now()-ms)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+
+function toast(title,msg){
+  document.getElementById('toastT').textContent=title;
+  document.getElementById('toastM').textContent=msg;
+  const t=document.getElementById('toast');t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+/* ══════════════════════════════════════ HASH ROUTING */
+window.addEventListener('hashchange',()=>{if(location.hash==='#team')openTeam();});
+if(location.hash==='#team')openTeam();
+</script>
+</body>
+</html>

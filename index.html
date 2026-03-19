@@ -1767,7 +1767,7 @@ const ANTHROPIC_KEY='sk-ant-api03-zB9kB-TXRQjTwJdDXzOWN0fhTNMzfXkg6wMAWV2zAFcsZa
 async function callAI(msgs){
   const key=ANTHROPIC_KEY!=='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'?ANTHROPIC_KEY:localStorage.getItem('eons_api_key')||'';
   if(!key){
-    addMsg('assistant','To use the AI, add your Anthropic API key to index.html — search for YOUR_KEY_HERE and replace it. Get a free key at console.anthropic.com');
+    addMsg('assistant','To use the AI, add your Anthropic API key to index.html — search for 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 and replace it. Get a free key at console.anthropic.com');
     return null;
   }
   const r=await fetch('https://api.anthropic.com/v1/messages',{

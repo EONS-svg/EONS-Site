@@ -1683,10 +1683,10 @@ function hideTyping(){document.getElementById('typing')?.remove();}
 
 async /* ── PASTE YOUR ANTHROPIC API KEY BELOW ── */
 /* Get it free at console.anthropic.com → API Keys → Create Key */
-const ANTHROPIC_KEY='YOUR_KEY_HERE';
+const ANTHROPIC_KEY='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';
 
 async function callAI(msgs){
-  const key=ANTHROPIC_KEY!=='YOUR_KEY_HERE'?ANTHROPIC_KEY:localStorage.getItem('eons_api_key')||'';
+  const key=ANTHROPIC_KEY!=='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'?ANTHROPIC_KEY:localStorage.getItem('eons_api_key')||'';
   if(!key){
     addMsg('assistant','To use the AI, add your Anthropic API key to index.html — search for YOUR_KEY_HERE and replace it. Get a free key at console.anthropic.com');
     return null;

@@ -1765,7 +1765,7 @@ function hideTyping(){
 const ANTHROPIC_KEY='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';
 
 async function callAI(msgs){
-  const key=ANTHROPIC_KEY!=='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'?ANTHROPIC_KEY:localStorage.getItem('eons_api_key')||'';
+  const key=ANTHROPIC_KEY!=='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'?ANTHROPIC_KEY:localStorage.getItem('eons_api_key')||'';
   if(!key){
     addMsg('assistant','To use the AI, add your Anthropic API key to index.html — search for YOUR_KEY_HERE and replace it. Get a free key at console.anthropic.com');
     return null;
@@ -1874,7 +1874,7 @@ async function submitConcept(){
   },500);
 }
 if(document.getElementById('chatMsgs')){
-  const hasKey=typeof ANTHROPIC_KEY!=='undefined'&&ANTHROPIC_KEY!=='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';
+  const hasKey=typeof ANTHROPIC_KEY!=='undefined'&&ANTHROPIC_KEY!=='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';
   addMsg('assistant',hasKey
     ?"Hey — I'm the EONS Studio AI. Tell me about your brand or product and I'll help you build a full creative concept, storyboard, and brief. When you're ready, hit Send to Studio."
     :"Hey — I'm the EONS Studio AI. To activate me, open index.html and replace YOUR_KEY_HERE with your Anthropic API key. Get one free at console.anthropic.com"

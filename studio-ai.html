@@ -1257,7 +1257,7 @@ const CONFIG = {
   // 2. Sign up free → API Keys → Create Key
   // 3. Paste your key below replacing YOUR_KEY_HERE
   // 4. Save and upload to GitHub
-  anthropic_key: 'YOUR_KEY_HERE',  // ← PASTE YOUR KEY HERE
+  anthropic_key: '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',  // ← PASTE YOUR KEY HERE
 
   // ── STRIPE PAYMENT LINKS ───────────
   stripe: {
@@ -1936,7 +1936,7 @@ function clearApiKey(){
 }
 function showApiKeyPrompt(){
   // If CONFIG key is set, don't show the modal — something else is wrong
-  if(CONFIG.anthropic_key&&CONFIG.anthropic_key!=='YOUR_KEY_HERE'){
+  if(CONFIG.anthropic_key&&CONFIG.anthropic_key!=='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'){
     toast('Connection Error','Check your API key in the CONFIG block or contact EONS.');
     return;
   }

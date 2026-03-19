@@ -1,0 +1,2357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meet EONS AI — Your 3D Creative Director</title>
+<meta name="description" content="The world's first 3D animation creative director powered by AI. Generate professional briefs, cinematic storyboards, and visual direction documents in minutes.">
+<link rel="canonical" href="https://eons.studio/studio-ai">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════ VARIABLES */
+:root{
+  /* Brand colors — constant across modes */
+  --v:#9b6fd4;--v2:#7a52b8;--mauve:#c4b0e8;--md:#8a78b8;--mbr:#d8ccf5;--blush:#e8c0d8;
+  --glow:rgba(155,111,212,.22);--glowbr:rgba(155,111,212,.5);
+  --green:#6dd4a8;--red:#e87070;--gold:#d4a96d;--orange:#d4836d;
+  /* Dark mode (default) */
+  --bg:#05040e;--bg2:#0c0820;
+  --surface:rgba(155,111,212,.06);--surface2:rgba(155,111,212,.1);
+  --glass:rgba(12,8,28,.82);--gb:rgba(180,160,240,.12);--gbb:rgba(210,190,255,.26);
+  --white:#f0ecfa;--dim:rgba(196,176,232,.4);--dim2:rgba(196,176,232,.6);
+  --text:#f0ecfa;--text2:rgba(196,176,232,.7);
+  --border:rgba(180,160,240,.12);--border2:rgba(180,160,240,.22);
+  --input-bg:rgba(255,255,255,.04);
+  --msg-ai:rgba(155,111,212,.09);--msg-ai-border:rgba(155,111,212,.15);
+  --msg-user:rgba(155,111,212,.2);--msg-user-border:rgba(155,111,212,.24);
+  --sidebar-bg:rgba(5,4,14,.96);--nav-bg:rgba(5,4,14,.85);
+  --shadow:rgba(0,0,0,.4);
+}
+[data-theme="light"]{
+  /* Muted warm grey-lavender — not blinding white */
+  --bg:#e8e4f0;--bg2:#ddd8ec;
+  --surface:rgba(155,111,212,.08);--surface2:rgba(155,111,212,.13);
+  --glass:rgba(232,228,240,.92);--gb:rgba(130,90,190,.16);--gbb:rgba(130,90,190,.28);
+  /* Strong dark text for readability */
+  --white:#12082a;--dim:rgba(40,20,80,.65);--dim2:rgba(40,20,80,.85);
+  --text:#12082a;--text2:rgba(40,20,80,.75);
+  --border:rgba(130,90,190,.2);--border2:rgba(130,90,190,.35);
+  --input-bg:rgba(255,255,255,.85);
+  --msg-ai:rgba(155,111,212,.1);--msg-ai-border:rgba(155,111,212,.22);
+  --msg-user:rgba(155,111,212,.18);--msg-user-border:rgba(155,111,212,.28);
+  --sidebar-bg:rgba(224,220,236,.98);--nav-bg:rgba(224,220,236,.94);
+  --shadow:rgba(80,50,140,.15);
+  --glow:rgba(155,111,212,.18);--glowbr:rgba(155,111,212,.4);
+  --md:#6b44a8;--mauve:#5a3490;--mbr:#7a52b8;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden;min-height:100vh;cursor:none;}
+@media(pointer:coarse){body{cursor:auto;}}
+
+/* ══════════════════════════════ CURSOR */
+#cur,#cur-ring{position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);border-radius:50%;}
+#cur{width:8px;height:8px;background:var(--v);mix-blend-mode:screen;transition:width .2s,height .2s;}
+#cur-ring{width:32px;height:32px;border:1px solid rgba(155,111,212,.3);z-index:9998;transition:all .25s;}
+#cur.big{width:13px;height:13px;}#cur-ring.big{width:50px;height:50px;}
+@media(pointer:coarse){#cur,#cur-ring{display:none;}}
+
+/* ══════════════════════════════ BG CANVAS */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ══════════════════════════════ NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;background:var(--nav-bg);backdrop-filter:blur(24px);border-bottom:1px solid var(--gb);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:var(--text);text-decoration:none;}
+.nav-logo span{color:var(--v);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+
+/* ── GLOWING STUDIO AI NAV BADGE ── */
+.nav-ai-badge{
+  padding:6px 14px;
+  background:rgba(155,111,212,.1);
+  border:1px solid rgba(155,111,212,.35);
+  border-radius:100px;
+  font-size:11px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;
+  color:var(--mauve);
+  font-family:'JetBrains Mono',monospace;
+  position:relative;
+  animation:navGlow 3s ease-in-out infinite;
+  cursor:default;
+}
+.nav-ai-badge::before{
+  content:'';
+  position:absolute;inset:-1px;
+  border-radius:100px;
+  background:linear-gradient(135deg,rgba(155,111,212,.4),rgba(120,80,200,.2),rgba(155,111,212,.4));
+  z-index:-1;
+  animation:navGlow 3s ease-in-out infinite;
+  filter:blur(6px);
+}
+.nav-ai-badge-dot{
+  display:inline-block;
+  width:5px;height:5px;
+  background:var(--green);
+  border-radius:50%;
+  margin-right:6px;
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes navGlow{
+  0%,100%{box-shadow:0 0 8px rgba(155,111,212,.3),0 0 20px rgba(155,111,212,.1);}
+  50%{box-shadow:0 0 16px rgba(155,111,212,.5),0 0 40px rgba(155,111,212,.2);}
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(.8);}}
+
+.nav-team-btn{padding:6px 14px;border:1px solid var(--border);border-radius:6px;background:transparent;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--md);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;white-space:nowrap;}
+.nav-team-btn:hover{border-color:var(--md);color:var(--mauve);background:rgba(155,111,212,.08);}
+.nav-back{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .3s;white-space:nowrap;}
+.nav-back:hover{color:var(--mauve);}
+.nav-back::before{content:'← ';}
+
+/* ══════════════════════════════ OVERLAYS */
+.overlay{display:none;position:fixed;inset:0;z-index:2000;overflow-y:auto;}
+.overlay.active{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:80px 20px 40px;}
+.overlay-bg{position:fixed;inset:0;background:var(--sidebar-bg);backdrop-filter:blur(32px);}
+
+/* ══════════════════════════════ EMAIL GATE */
+.gate-wrap{position:relative;z-index:1;width:100%;max-width:520px;}
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:36px;}
+.step-dot{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--md);transition:all .4s;position:relative;z-index:1;background:var(--bg);}
+.step-dot.active{border-color:var(--v);color:var(--v);box-shadow:0 0 14px rgba(155,111,212,.3);}
+.step-dot.done{background:var(--v);border-color:var(--v);color:var(--text);}
+.step-line{width:44px;height:1px;background:var(--gb);transition:background .4s;}
+.step-line.done{background:var(--v);}
+.gate-card{background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(24px);box-shadow:0 0 80px rgba(155,111,212,.08);}
+.gate-hdr{padding:24px 28px 0;text-align:center;}
+.gate-hdr-icon{font-size:32px;margin-bottom:12px;display:block;}
+.gate-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em;margin-bottom:6px;}
+.gate-hdr-sub{font-size:13px;color:var(--dim2);line-height:1.6;}
+.gate-body{padding:22px 28px 26px;}
+.gate-step{display:none;animation:stepIn .4s cubic-bezier(.2,1,.4,1);}
+.gate-step.active{display:block;}
+@keyframes stepIn{from{opacity:0;transform:translateX(16px);}to{opacity:1;transform:translateX(0);}}
+.gate-fields{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+.gate-field{display:flex;flex-direction:column;gap:5px;}
+.gate-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--md);}
+.gate-input{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:11px 15px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .3s;width:100%;}
+.gate-input:focus{border-color:var(--md);}
+.gate-input::placeholder{color:rgba(196,176,232,.2);}
+.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.source-card{padding:11px 13px;background:rgba(155,111,212,.05);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:9px;}
+.source-card:hover{border-color:rgba(155,111,212,.3);background:rgba(155,111,212,.09);}
+.source-card.selected{border-color:var(--v);background:rgba(155,111,212,.14);box-shadow:0 0 14px rgba(155,111,212,.1);}
+.source-card-icon{font-size:16px;flex-shrink:0;}
+.source-card-label{font-size:12px;font-weight:500;color:var(--mauve);}
+.source-card.selected .source-card-label{color:var(--text);}
+.purpose-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.purpose-card{padding:14px 12px;background:rgba(155,111,212,.05);border:1px solid var(--border);border-radius:12px;cursor:pointer;transition:all .3s;text-align:left;}
+.purpose-card:hover{border-color:rgba(155,111,212,.3);background:rgba(155,111,212,.09);transform:translateY(-2px);}
+.purpose-card.selected{border-color:var(--v);background:rgba(155,111,212,.14);}
+.purpose-card-icon{font-size:20px;margin-bottom:7px;display:block;}
+.purpose-card-title{font-size:12px;font-weight:600;color:var(--mauve);margin-bottom:3px;}
+.purpose-card.selected .purpose-card-title{color:var(--text);}
+.purpose-card-desc{font-size:11px;color:var(--dim);line-height:1.5;}
+.gate-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:10px;font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text);cursor:pointer;box-shadow:0 0 26px var(--glow);transition:all .3s;margin-top:8px;}
+.gate-btn:hover{box-shadow:0 0 42px var(--glowbr);transform:translateY(-1px);}
+.gate-btn-ghost{width:100%;padding:9px;background:transparent;border:1px solid var(--border);border-radius:10px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;margin-top:5px;}
+.gate-btn-ghost:hover{border-color:var(--md);color:var(--mauve);}
+.gate-error{font-size:12px;color:var(--red);margin-top:5px;display:none;}
+.gate-error.show{display:block;}
+.gate-privacy{text-align:center;margin-top:14px;font-size:11px;color:rgba(155,111,212,.3);letter-spacing:.04em;}
+
+/* ══════════════════════════════ PAYWALL MODAL */
+#paywallOverlay .overlay-bg{background:rgba(5,4,14,.97);}
+.paywall-wrap{position:relative;z-index:1;width:100%;max-width:800px;}
+.paywall-hdr{text-align:center;margin-bottom:32px;}
+.paywall-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--v);margin-bottom:12px;display:flex;align-items:center;gap:8px;justify-content:center;}
+.paywall-kicker::before,.paywall-kicker::after{content:'';width:24px;height:1px;background:rgba(155,111,212,.3);}
+.paywall-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,6vw,64px);letter-spacing:.03em;line-height:.92;margin-bottom:12px;}
+.paywall-title .grad{background:linear-gradient(135deg,var(--v),var(--mbr),var(--blush));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.paywall-sub{font-size:15px;color:var(--dim);line-height:1.7;max-width:480px;margin:0 auto;}
+.paywall-free-used{display:inline-block;margin-top:12px;padding:6px 16px;background:rgba(232,112,112,.1);border:1px solid rgba(232,112,112,.25);border-radius:100px;font-size:12px;color:var(--red);letter-spacing:.06em;}
+
+/* Pricing cards */
+.pricing-cards{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:24px;}
+@media(min-width:600px){.pricing-cards{grid-template-columns:repeat(3,1fr);}}
+.pc{padding:24px 20px;background:var(--surface);border:1px solid var(--border);border-radius:16px;transition:all .4s;position:relative;text-align:left;}
+.pc:hover{border-color:rgba(155,111,212,.3);transform:translateY(-3px);}
+.pc.hot{border-color:rgba(155,111,212,.45);background:rgba(155,111,212,.09);box-shadow:0 0 40px rgba(155,111,212,.08);}
+.pc-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);padding:3px 12px;background:linear-gradient(135deg,var(--v),var(--v2));border-radius:100px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text);white-space:nowrap;}
+.pc-tier{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.1em;color:var(--md);margin-bottom:5px;}
+.pc-price{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.02em;line-height:1;margin-bottom:3px;}
+.pc-price span{font-size:14px;color:var(--dim);}
+.pc-period{font-size:11px;color:var(--md);letter-spacing:.06em;margin-bottom:16px;}
+.pc-feats{list-style:none;margin-bottom:20px;}
+.pc-feats li{font-size:12px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--gb);display:flex;align-items:center;gap:7px;}
+.pc-feats li::before{content:'→';color:var(--v);font-size:10px;}
+.pc-btn{width:100%;padding:11px;background:transparent;border:1px solid var(--gbb);border-radius:8px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mauve);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;}
+.pc.hot .pc-btn{background:linear-gradient(135deg,var(--v),var(--v2));border-color:transparent;color:var(--text);box-shadow:0 0 18px var(--glow);}
+.pc-btn:hover{box-shadow:0 0 24px var(--glowbr);}
+.paywall-close{display:block;text-align:center;margin-top:12px;font-size:12px;color:rgba(155,111,212,.35);letter-spacing:.06em;cursor:pointer;transition:color .3s;}
+.paywall-close:hover{color:var(--mauve);}
+
+/* Credits badge */
+.credits-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.22);border-radius:100px;font-size:11px;color:var(--mauve);font-family:'JetBrains Mono',monospace;letter-spacing:.06em;}
+.credits-badge.low{background:rgba(232,112,112,.1);border-color:rgba(232,112,112,.25);color:var(--red);}
+.credits-badge-dot{width:5px;height:5px;border-radius:50%;background:var(--green);}
+.credits-badge.low .credits-badge-dot{background:var(--red);}
+
+/* ══════════════════════════════ TEAM PORTAL */
+.team-wrap{position:relative;z-index:1;width:100%;max-width:960px;}
+.team-card{background:var(--glass);border:1px solid var(--border);border-radius:20px;overflow:hidden;backdrop-filter:blur(24px);}
+.team-login{padding:48px 32px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.team-login-icon{font-size:36px;}
+.team-login-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.06em;}
+.team-login-sub{font-size:13px;color:var(--dim);max-width:280px;}
+.team-pw-wrap{display:flex;flex-direction:column;gap:9px;width:100%;max-width:260px;}
+.team-pw{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 15px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;outline:none;text-align:center;letter-spacing:.2em;transition:border-color .3s;width:100%;}
+.team-pw:focus{border-color:var(--md);}
+.team-pw-err{font-size:12px;color:var(--red);display:none;}
+.team-pw-err.show{display:block;}
+.team-dash{display:none;}
+.team-dash-hdr{padding:18px 22px;border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.team-dash-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;}
+.team-close-btn{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--dim);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;font-size:14px;}
+.team-close-btn:hover{border-color:var(--md);color:var(--text);}
+.team-tabs{display:flex;gap:0;padding:0 22px;border-bottom:1px solid var(--gb);flex-wrap:wrap;}
+.ttab{padding:10px 16px;border:none;border-bottom:2px solid transparent;background:transparent;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;margin-bottom:-1px;white-space:nowrap;}
+.ttab.on{color:var(--v);border-bottom-color:var(--v);}
+.ttab:hover{color:var(--mauve);}
+.ttab-content{display:none;padding:18px 22px;}
+.ttab-content.on{display:block;}
+.team-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+@media(max-width:600px){.team-stats{grid-template-columns:repeat(2,1fr);}}
+.tstat{padding:13px;background:var(--surface);border:1px solid var(--border);border-radius:12px;text-align:center;}
+.tstat-n{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--v);}
+.tstat-l{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);margin-top:2px;}
+.members-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px;}
+@media(min-width:600px){.members-grid{grid-template-columns:repeat(3,1fr);}}
+.member-card{padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:13px;display:flex;flex-direction:column;gap:9px;transition:all .3s;}
+.member-card:hover{border-color:rgba(155,111,212,.26);}
+.member-card-top{display:flex;align-items:center;gap:9px;}
+.member-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:14px;color:var(--text);flex-shrink:0;position:relative;}
+.presence-dot{position:absolute;bottom:0;right:0;width:9px;height:9px;border-radius:50%;border:2px solid var(--bg);background:var(--md);}
+.presence-dot.online{background:var(--green);box-shadow:0 0 5px rgba(109,212,168,.5);}
+.member-info{flex:1;min-width:0;}
+.member-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.member-role{font-size:10px;color:var(--md);letter-spacing:.06em;text-transform:uppercase;}
+.member-status{font-size:11px;color:var(--dim);display:flex;align-items:center;gap:5px;}
+.member-status-dot{width:5px;height:5px;border-radius:50%;background:var(--md);flex-shrink:0;}
+.member-status-dot.online{background:var(--green);}
+.member-login-btn{width:100%;padding:7px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text);cursor:pointer;transition:all .3s;box-shadow:0 0 12px var(--glow);}
+.member-login-btn:hover{box-shadow:0 0 22px var(--glowbr);}
+.member-card.active-session{border-color:rgba(155,111,212,.38);background:rgba(155,111,212,.07);}
+.add-member-form{padding:14px;background:rgba(155,111,212,.04);border:1px dashed rgba(155,111,212,.18);border-radius:12px;display:flex;flex-direction:column;gap:9px;}
+.add-member-title{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--md);}
+.add-member-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.am-input{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .3s;width:100%;}
+.am-input:focus{border-color:var(--md);}
+.am-input::placeholder{color:rgba(196,176,232,.2);}
+.am-btn{padding:8px 18px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text);cursor:pointer;transition:all .3s;box-shadow:0 0 12px var(--glow);}
+.am-btn:hover{box-shadow:0 0 22px var(--glowbr);}
+.leads-table{width:100%;border-collapse:collapse;}
+.leads-table th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);padding:7px 10px;text-align:left;border-bottom:1px solid var(--gb);}
+.leads-table td{padding:9px 10px;font-size:12px;border-bottom:1px solid rgba(180,160,240,.05);vertical-align:top;}
+.leads-table tr:hover td{background:rgba(155,111,212,.03);}
+.lead-name{font-weight:500;}
+.lead-email{color:var(--md);font-size:11px;}
+.lead-badge{display:inline-block;padding:2px 7px;border-radius:100px;font-size:9px;letter-spacing:.08em;text-transform:uppercase;}
+.lead-badge.free{background:rgba(109,212,168,.1);color:var(--green);}
+.lead-badge.creator{background:rgba(155,111,212,.14);color:var(--v);}
+.lead-badge.brand{background:rgba(212,169,109,.1);color:var(--gold);}
+.lead-badge.studio{background:rgba(224,184,208,.12);color:var(--blush);}
+.export-btn{padding:7px 16px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--mauve);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;margin-bottom:12px;}
+.export-btn:hover{border-color:var(--md);background:rgba(155,111,212,.07);}
+.conv-list{display:flex;flex-direction:column;gap:7px;}
+.conv-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.conv-item-hdr{padding:11px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;gap:8px;}
+.conv-item-hdr:hover{background:rgba(155,111,212,.04);}
+.conv-item-info{flex:1;min-width:0;}
+.conv-item-name{font-size:12px;font-weight:500;margin-bottom:2px;}
+.conv-item-meta{font-size:10px;color:var(--md);}
+.conv-item-body{display:none;padding:0 14px 12px;border-top:1px solid var(--gb);max-height:240px;overflow-y:auto;}
+.conv-item-body.open{display:block;}
+.conv-msg{padding:5px 0;border-bottom:1px solid rgba(180,160,240,.05);font-size:11px;line-height:1.6;}
+.conv-msg:last-child{border-bottom:none;}
+.conv-role{font-size:9px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px;}
+.conv-role.ai{color:var(--v);}
+.conv-role.client{color:var(--md);}
+.conv-role.member{color:var(--gold);}
+.conv-text{color:var(--dim);}
+.empty-state{text-align:center;padding:36px 20px;color:var(--dim);}
+.empty-icon{font-size:28px;margin-bottom:10px;opacity:.22;}
+
+/* ══════════════════════════════ LANDING PAGE */
+.landing{min-height:100vh;min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 40px;position:relative;z-index:2;text-align:center;overflow:hidden;}
+
+/* Interactive orb - reacts to mouse */
+.orb-scene{position:relative;width:200px;height:200px;margin:0 auto 40px;flex-shrink:0;perspective:600px;}
+.orb-wrap{position:relative;width:200px;height:200px;transform-style:preserve-3d;transition:transform .1s ease-out;}
+.orb{width:200px;height:200px;border-radius:50%;background:radial-gradient(circle at 38% 36%,rgba(155,111,212,.55) 0%,rgba(100,60,180,.22) 40%,transparent 70%);border:1px solid rgba(155,111,212,.2);position:relative;animation:orbP 6s ease-in-out infinite;}
+@keyframes orbP{0%,100%{box-shadow:0 0 60px rgba(155,111,212,.18),0 0 120px rgba(155,111,212,.08);}50%{box-shadow:0 0 90px rgba(155,111,212,.28),0 0 180px rgba(155,111,212,.12);}}
+.orb-inner{position:absolute;inset:14px;border-radius:50%;background:radial-gradient(circle at 40% 38%,rgba(200,160,255,.18) 0%,transparent 60%);border:1px solid rgba(155,111,212,.09);}
+.orb-label{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:2px;}
+.orb-ai-text{font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:.1em;color:rgba(155,111,212,.6);text-shadow:0 0 40px rgba(155,111,212,.4);}
+.orb-sub-text{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.2em;text-transform:uppercase;color:rgba(155,111,212,.35);}
+.orb-ring{position:absolute;inset:-22px;border-radius:50%;border:1px dashed rgba(155,111,212,.15);animation:spin 22s linear infinite;}
+.orb-ring::before{content:'';position:absolute;top:-4px;left:50%;width:7px;height:7px;background:var(--v);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 10px var(--v);}
+.orb-ring2{position:absolute;inset:-38px;border-radius:50%;border:1px dashed rgba(155,111,212,.07);animation:spin 38s linear infinite reverse;}
+.orb-ring2::before{content:'';position:absolute;bottom:-3px;left:50%;width:5px;height:5px;background:var(--mbr);border-radius:50%;transform:translateX(-50%);box-shadow:0 0 7px var(--mbr);}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+/* Floating particles around orb */
+.orb-particle{position:absolute;width:3px;height:3px;background:var(--v);border-radius:50%;animation:floatParticle var(--dur,8s) ease-in-out infinite;opacity:0;}
+@keyframes floatParticle{0%{opacity:0;transform:translate(0,0) scale(0);}20%{opacity:.6;}50%{opacity:.3;}80%{opacity:.6;}100%{opacity:0;transform:translate(var(--tx,20px),var(--ty,-40px)) scale(1.5);}}
+
+.landing-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--v);margin-bottom:18px;display:flex;align-items:center;gap:10px;justify-content:center;}
+.landing-kicker::before,.landing-kicker::after{content:'';width:28px;height:1px;background:rgba(155,111,212,.28);}
+.landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,9vw,104px);line-height:.9;letter-spacing:.02em;margin-bottom:18px;}
+.line2{background:linear-gradient(135deg,var(--v) 0%,var(--mbr) 45%,var(--blush) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.landing-sub{font-size:clamp(14px,2vw,17px);font-weight:300;line-height:1.75;color:var(--dim2);max-width:520px;margin:0 auto 28px;}
+.landing-sub strong{color:var(--mauve);font-weight:500;}
+
+/* Live counter */
+.live-counter{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;background:rgba(155,111,212,.07);border:1px solid rgba(155,111,212,.18);border-radius:100px;margin-bottom:28px;}
+.lc-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;flex-shrink:0;}
+.lc-text{font-size:12px;color:var(--dim);}
+.lc-num{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--mauve);font-weight:500;}
+
+.feat-pills{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:32px;}
+.pill{padding:5px 13px;background:rgba(155,111,212,.07);border:1px solid rgba(155,111,212,.16);border-radius:100px;font-size:11px;letter-spacing:.06em;color:var(--md);display:flex;align-items:center;gap:5px;transition:all .3s;cursor:default;}
+.pill:hover{border-color:rgba(155,111,212,.35);background:rgba(155,111,212,.12);color:var(--mauve);}
+.pill-dot{width:4px;height:4px;border-radius:50%;background:var(--green);}
+.cta-start{padding:15px 40px;background:linear-gradient(135deg,var(--v),var(--v2));border-radius:10px;font-size:14px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text);border:none;cursor:pointer;box-shadow:0 0 40px rgba(155,111,212,.28);transition:all .3s;position:relative;overflow:hidden;}
+.cta-start::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);opacity:0;transition:opacity .3s;}
+.cta-start:hover{box-shadow:0 0 64px rgba(155,111,212,.46);transform:translateY(-2px);}
+.cta-start:hover::after{opacity:1;}
+.cta-note{margin-top:11px;font-size:11px;color:rgba(155,111,212,.32);letter-spacing:.05em;}
+
+/* ── SCROLL SECTIONS ── */
+.scroll-section{padding:60px 24px;position:relative;z-index:2;max-width:960px;margin:0 auto;}
+
+/* Capability cards - animated on scroll */
+.caps-hdr{text-align:center;margin-bottom:10px;}
+.caps-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,4vw,52px);letter-spacing:.04em;}
+.caps-sub{font-size:14px;color:var(--dim2);margin-bottom:32px;text-align:center;}
+.caps-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+@media(min-width:600px){.caps-grid{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:900px){.caps-grid{grid-template-columns:repeat(3,1fr);}}
+.cap-card{padding:22px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;transition:all .5s cubic-bezier(.2,1,.4,1);cursor:default;position:relative;overflow:hidden;}
+.cap-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(155,111,212,.08),transparent);opacity:0;transition:opacity .4s;}
+.cap-card:hover{border-color:rgba(155,111,212,.35);transform:translateY(-4px);box-shadow:0 0 32px rgba(155,111,212,.08);}
+.cap-card:hover::before{opacity:1;}
+.cap-icon{font-size:24px;margin-bottom:11px;display:block;transition:transform .3s;}
+.cap-card:hover .cap-icon{transform:scale(1.15);}
+.cap-title{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.06em;margin-bottom:7px;}
+.cap-desc{font-size:13px;line-height:1.7;color:var(--dim2);}
+.cap-tag{display:inline-block;margin-top:9px;padding:3px 9px;background:rgba(155,111,212,.1);border-radius:100px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);}
+
+/* Interactive demo preview */
+.demo-section{padding:60px 24px;position:relative;z-index:2;max-width:760px;margin:0 auto;}
+.demo-hdr{text-align:center;margin-bottom:28px;}
+.demo-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,4vw,44px);letter-spacing:.04em;margin-bottom:8px;}
+.demo-sub{font-size:14px;color:var(--dim);}
+.demo-widget{background:var(--glass);border:1px solid var(--border);border-radius:16px;overflow:hidden;backdrop-filter:blur(20px);}
+.demo-tabs{display:flex;border-bottom:1px solid var(--gb);}
+.demo-tab{flex:1;padding:12px;background:transparent;border:none;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;border-bottom:2px solid transparent;}
+.demo-tab.on{color:var(--v);border-bottom-color:var(--v);background:rgba(155,111,212,.04);}
+.demo-tab:hover{color:var(--mauve);}
+.demo-content{padding:20px;min-height:200px;font-size:13px;line-height:1.75;color:var(--text);display:none;}
+.demo-content.on{display:block;}
+.demo-content h4{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.08em;color:var(--mbr);margin:10px 0 5px;}
+.demo-content h4:first-child{margin-top:0;}
+.demo-content strong{color:var(--mauve);font-weight:500;}
+.demo-content ul{padding-left:16px;margin:5px 0;}
+.demo-content li{margin-bottom:3px;}
+.demo-cta{padding:14px 20px;border-top:1px solid var(--gb);text-align:center;}
+.demo-cta-text{font-size:13px;color:var(--dim);margin-bottom:12px;}
+.demo-cta-btn{padding:11px 28px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text);cursor:pointer;box-shadow:0 0 24px var(--glow);transition:all .3s;}
+.demo-cta-btn:hover{box-shadow:0 0 40px var(--glowbr);transform:translateY(-1px);}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.reveal-delay-1{transition-delay:.1s;}
+.reveal-delay-2{transition-delay:.2s;}
+.reveal-delay-3{transition-delay:.3s;}
+.reveal-delay-4{transition-delay:.4s;}
+.reveal-delay-5{transition-delay:.5s;}
+
+/* ══════════════════════════════ CHAT AREA */
+.main-wrap{position:fixed;inset:0;top:58px;z-index:2;display:none;flex-direction:column;}
+.main-wrap.active{display:flex;}
+.chat-main{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;}
+.session-bar{padding:10px 16px;background:var(--glass);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px);}
+.session-info{display:flex;align-items:center;gap:9px;}
+.session-av{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:12px;color:var(--text);}
+.session-name{font-size:13px;font-weight:500;}
+.session-sub{font-size:11px;color:var(--md);}
+.session-right{display:flex;gap:8px;align-items:center;}
+
+/* ══ NOTION/CLAUDE STYLE CHAT ══ */
+.chat-widget{background:transparent;border:none;overflow:visible;display:flex;flex-direction:column;flex:1;min-height:0;}
+.ch-bar{padding:12px 20px;background:var(--nav-bg);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;backdrop-filter:blur(20px);}
+.ch-av{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'Bebas Neue',sans-serif;color:#fff;letter-spacing:.04em;box-shadow:0 0 10px rgba(155,111,212,.3);flex-shrink:0;}
+.ch-info{flex:1;}
+.ch-name{font-size:13px;font-weight:600;color:var(--text);}
+.ch-status{font-size:11px;color:var(--green);}
+.ch-status::before{content:'● ';font-size:8px;}
+.ch-meta{display:flex;gap:8px;align-items:center;}
+.ch-phase{font-size:10px;padding:2px 8px;background:rgba(155,111,212,.1);border-radius:100px;color:var(--md);letter-spacing:.08em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.ch-msgs{flex:1;overflow-y:auto;padding:24px 16px 16px;display:flex;flex-direction:column;gap:0;min-height:0;}
+.ch-msgs::-webkit-scrollbar{width:3px;}
+.ch-msgs::-webkit-scrollbar-thumb{background:rgba(155,111,212,.15);border-radius:2px;}
+.msg{display:flex;gap:14px;align-items:flex-start;padding:10px 16px;border-radius:10px;animation:msgIn .4s cubic-bezier(.16,1,.3,1);margin-bottom:2px;transition:background .25s;}
+.msg:hover{background:var(--surface);}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px) scale(.99);}to{opacity:1;transform:translateY(0) scale(1);}}
+.msg.user{}
+.msg-av{width:22px;height:22px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:'Bebas Neue',sans-serif;letter-spacing:.04em;margin-top:2px;}
+.msg.bot .msg-av{background:linear-gradient(135deg,var(--v),var(--v2));color:#fff;}
+.msg.user .msg-av{background:var(--surface2);color:var(--md);}
+.msg-content{flex:1;min-width:0;}
+.msg-sender{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px;}
+.msg.bot .msg-sender{color:var(--v);}
+.msg.user .msg-sender{color:var(--md);}
+.msg-bub{font-size:14px;line-height:1.8;color:var(--text);background:none;border:none;padding:0;max-width:100%;}
+.msg-bub strong{color:var(--mauve);font-weight:600;}
+.msg-bub em{color:var(--dim2);}
+.tdots{display:flex;gap:4px;padding:3px 0;}
+.tdot{width:5px;height:5px;background:var(--md);border-radius:50%;animation:tdot .8s ease-in-out infinite;}
+.tdot:nth-child(2){animation-delay:.15s;}.tdot:nth-child(3){animation-delay:.3s;}
+@keyframes tdot{0%,80%,100%{transform:scale(.8);opacity:.5;}40%{transform:scale(1);opacity:1;}}
+.concept-panel{display:none;padding:13px 16px;background:rgba(155,111,212,.04);border-top:1px solid var(--gb);flex-direction:column;gap:8px;}
+.concept-panel.open{display:flex;}
+.cp-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mauve);}
+.cp-form{display:flex;flex-direction:column;gap:7px;}
+.cf{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:border-color .3s;width:100%;}
+.cf:focus{border-color:var(--md);}
+.cf::placeholder{color:rgba(196,176,232,.2);}
+textarea.cf{resize:none;min-height:56px;}
+.cp-actions{display:flex;gap:7px;}
+.cp-send{flex:1;padding:9px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text);cursor:pointer;box-shadow:0 0 13px var(--glow);transition:all .3s;}
+.cp-send:hover{box-shadow:0 0 24px var(--glowbr);}
+.cp-cancel{padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);cursor:pointer;transition:all .3s;}
+.cp-cancel:hover{border-color:var(--md);color:var(--mauve);}
+.ch-actions{padding:6px 16px;display:flex;gap:5px;flex-wrap:wrap;border-top:1px solid var(--border);background:var(--nav-bg);}
+.ca{padding:4px 11px;border:1px solid var(--border);border-radius:100px;background:transparent;font-size:10px;letter-spacing:.05em;color:var(--md);cursor:pointer;transition:border-color .3s,color .3s,background .3s;white-space:nowrap;font-family:'Barlow',sans-serif;}
+.ca:hover,.ca.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.07);}
+.ca.send{border-color:var(--border);color:var(--mauve);}
+.ca.send:hover{background:rgba(155,111,212,.08);}
+.ca.locked{opacity:.45;cursor:not-allowed;}
+.ca.locked::after{content:'🔒';font-size:8px;margin-left:4px;}
+.ch-input-row{padding:10px 16px 14px;display:flex;gap:10px;align-items:flex-end;background:var(--nav-bg);}
+.ch-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:11px 16px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:border-color .3s,box-shadow .3s;line-height:1.5;}
+.ch-input::placeholder{color:var(--dim);}
+.ch-input:focus{border-color:rgba(155,111,212,.5);box-shadow:0 0 0 4px rgba(155,111,212,.1),0 2px 12px rgba(155,111,212,.08);}
+.ch-send{width:36px;height:36px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px var(--glow);transition:all .3s;flex-shrink:0;}
+.ch-send:hover{box-shadow:0 0 28px var(--glowbr),0 4px 16px rgba(155,111,212,.25);transform:translateY(-2px) scale(1.04);}
+.ch-send svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2;}
+
+.output-panel{margin-top:14px;display:none;}
+.output-panel.active{display:block;}
+.out-card{background:var(--glass);border:1px solid var(--border);border-radius:14px;overflow:hidden;backdrop-filter:blur(20px);}
+.out-hdr{padding:12px 16px;background:rgba(155,111,212,.05);border-bottom:1px solid var(--gb);display:flex;align-items:center;justify-content:space-between;}
+.out-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:.08em;color:var(--mauve);}
+.out-hdr-badge{font-size:10px;padding:3px 9px;background:rgba(155,111,212,.12);border-radius:100px;color:var(--v);letter-spacing:.1em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;}
+.out-body{padding:16px;font-size:13px;line-height:1.75;color:var(--dim);white-space:pre-wrap;max-height:280px;overflow-y:auto;}
+.out-body::-webkit-scrollbar{width:3px;}
+.out-body::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+.out-actions{padding:11px 16px;border-top:1px solid var(--gb);display:flex;gap:7px;flex-wrap:wrap;}
+.out-btn{padding:7px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--mauve);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;}
+.out-btn:hover{border-color:var(--md);background:rgba(155,111,212,.07);}
+.out-btn.primary{background:linear-gradient(135deg,var(--v),var(--v2));border-color:transparent;color:var(--text);box-shadow:0 0 13px var(--glow);}
+.out-btn.primary:hover{box-shadow:0 0 24px var(--glowbr);}
+
+/* ══════════════════════════════ TOAST */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9000;padding:12px 16px;background:rgba(109,212,168,.1);border:1px solid rgba(109,212,168,.2);border-radius:12px;backdrop-filter:blur(16px);display:flex;align-items:center;gap:8px;transform:translateY(120%);opacity:0;transition:all .4s cubic-bezier(.2,1,.4,1);max-width:calc(100vw - 40px);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-text{font-size:13px;}
+.toast-text strong{color:var(--green);display:block;}
+
+/* Footer */
+.page-footer{padding:24px;border-top:1px solid var(--gb);text-align:center;position:relative;z-index:2;}
+.page-footer a{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.12em;color:var(--text);text-decoration:none;}
+.page-footer a span{color:var(--v);}
+.page-footer p{font-size:11px;color:var(--dim);margin-top:5px;}
+
+/* ── API KEY MODAL ── */
+#apiKeyModal{display:none;position:fixed;inset:0;z-index:9900;background:var(--sidebar-bg);backdrop-filter:blur(24px);align-items:center;justify-content:center;}
+#apiKeyModal.open{display:flex;}
+.ak-card{background:var(--glass);border:1px solid rgba(155,111,212,.3);border-radius:18px;padding:32px;width:100%;max-width:440px;margin:20px;}
+.ak-icon{font-size:32px;margin-bottom:14px;display:block;text-align:center;}
+.ak-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.06em;text-align:center;margin-bottom:6px;}
+.ak-sub{font-size:13px;color:rgba(196,176,232,.5);text-align:center;line-height:1.6;margin-bottom:20px;}
+.ak-input{width:100%;background:var(--input-bg);border:1px solid rgba(180,160,240,.15);border-radius:10px;padding:12px 15px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:border-color .3s;margin-bottom:6px;font-family:'JetBrains Mono',monospace;}
+.ak-input:focus{border-color:rgba(155,111,212,.5);}
+.ak-input::placeholder{color:rgba(196,176,232,.2);font-family:'JetBrains Mono',monospace;}
+.ak-error{font-size:11px;color:#e87070;margin-bottom:10px;display:none;}
+.ak-actions{display:flex;gap:8px;margin-top:14px;}
+.ak-save{flex:1;padding:12px;background:linear-gradient(135deg,#9b6fd4,#7a52b8);border:none;border-radius:9px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text);cursor:pointer;box-shadow:0 0 20px rgba(155,111,212,.25);transition:all .3s;}
+.ak-save:hover{box-shadow:0 0 36px rgba(155,111,212,.45);}
+.ak-dismiss{padding:12px 18px;background:transparent;border:1px solid rgba(180,160,240,.15);border-radius:9px;font-size:12px;color:rgba(196,176,232,.4);cursor:pointer;transition:all .3s;font-family:'Barlow',sans-serif;}
+.ak-dismiss:hover{border-color:rgba(196,176,232,.3);color:rgba(196,176,232,.7);}
+.ak-note{font-size:11px;color:rgba(155,111,212,.35);text-align:center;margin-top:12px;line-height:1.6;}
+.ak-note a{color:rgba(155,111,212,.6);text-decoration:none;}
+.ak-note a:hover{color:#9b6fd4;}
+
+/* ── BILLING TOGGLE ── */
+.billing-toggle{display:flex;justify-content:center;gap:0;margin-bottom:24px;
+  background:rgba(155,111,212,.07);border:1px solid var(--border);border-radius:100px;
+  padding:4px;grid-column:1/-1;}
+.bt-btn{padding:8px 22px;border:none;border-radius:100px;font-size:12px;font-weight:600;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--md);cursor:pointer;
+  transition:all .3s;background:transparent;font-family:'Barlow',sans-serif;}
+.bt-btn.on{background:linear-gradient(135deg,var(--v),var(--v2));color:var(--text);
+  box-shadow:0 0 14px var(--glow);}
+.bt-save{display:inline-block;padding:2px 7px;background:rgba(109,212,168,.15);
+  border-radius:100px;font-size:9px;color:var(--green);margin-left:5px;letter-spacing:.06em;}
+.pc-price-wrap{margin-bottom:4px;}
+.pc-annual-note{font-size:11px;color:var(--green);margin-bottom:10px;letter-spacing:.04em;}
+@media(min-width:600px){.pricing-cards{grid-template-columns:repeat(2,1fr);}}
+@media(min-width:900px){.pricing-cards{grid-template-columns:repeat(4,1fr);}}
+
+/* ── SIDEBAR + CHAT LAYOUT ── */
+.chat-layout{display:flex;gap:0;height:calc(100vh - 72px);position:relative;}
+.chat-sidebar{width:260px;flex-shrink:0;background:var(--sidebar-bg);
+  border-right:1px solid var(--gb);display:flex;flex-direction:column;
+  overflow:hidden;transition:width .3s;position:relative;z-index:10;}
+.chat-sidebar.collapsed{width:0;}
+@media(max-width:768px){.chat-sidebar{position:fixed;left:0;top:58px;bottom:0;z-index:500;
+  transform:translateX(-100%);transition:transform .3s;}
+  .chat-sidebar.open{transform:translateX(0);}}
+.sidebar-hdr{padding:14px 16px;border-bottom:1px solid var(--gb);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sidebar-hdr-title{font-size:11px;font-weight:600;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--md);}
+.sidebar-new-btn{padding:5px 10px;background:linear-gradient(135deg,var(--v),var(--v2));
+  border:none;border-radius:6px;font-size:10px;font-weight:600;letter-spacing:.07em;
+  text-transform:uppercase;color:var(--text);cursor:pointer;transition:all .3s;
+  box-shadow:0 0 10px var(--glow);font-family:'Barlow',sans-serif;white-space:nowrap;}
+.sidebar-new-btn:hover{box-shadow:0 0 18px var(--glowbr);}
+.sidebar-search{padding:10px 12px;border-bottom:1px solid var(--gb);flex-shrink:0;}
+.sidebar-search-input{width:100%;background:var(--input-bg);border:1px solid var(--border);
+  border-radius:8px;padding:7px 10px;color:var(--text);font-family:'Barlow',sans-serif;
+  font-size:12px;outline:none;transition:border-color .3s;}
+.sidebar-search-input:focus{border-color:var(--md);}
+.sidebar-search-input::placeholder{color:rgba(196,176,232,.2);}
+.sidebar-list{flex:1;overflow-y:auto;padding:8px 8px;}
+.sidebar-list::-webkit-scrollbar{width:3px;}
+.sidebar-list::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+.sidebar-group-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+  color:rgba(155,111,212,.3);padding:8px 8px 4px;font-family:'JetBrains Mono',monospace;}
+.sidebar-item{padding:9px 10px;border-radius:8px;cursor:pointer;transition:all .3s;
+  margin-bottom:2px;position:relative;}
+.sidebar-item:hover{background:rgba(155,111,212,.08);}
+.sidebar-item.active{background:rgba(155,111,212,.12);border:1px solid rgba(155,111,212,.2);}
+.sidebar-item-title{font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;margin-bottom:2px;}
+.sidebar-item-meta{font-size:10px;color:var(--md);}
+.sidebar-item-del{position:absolute;right:8px;top:50%;transform:translateY(-50%);
+  width:18px;height:18px;border-radius:4px;border:none;background:transparent;
+  color:rgba(232,112,112,.4);cursor:pointer;display:none;font-size:11px;
+  align-items:center;justify-content:center;}
+.sidebar-item:hover .sidebar-item-del{display:flex;}
+.sidebar-item-del:hover{color:var(--red);background:rgba(232,112,112,.1);}
+.sidebar-empty{text-align:center;padding:32px 16px;color:rgba(155,111,212,.25);font-size:12px;}
+.sidebar-toggle{position:fixed;left:260px;top:50%;transform:translateY(-50%);
+  width:18px;height:40px;background:rgba(155,111,212,.12);border:1px solid var(--border);
+  border-left:none;border-radius:0 6px 6px 0;cursor:pointer;z-index:11;
+  display:flex;align-items:center;justify-content:center;transition:all .3s;
+  font-size:10px;color:var(--md);}
+.sidebar-toggle:hover{background:rgba(155,111,212,.2);color:var(--mauve);}
+.sidebar-toggle.collapsed{left:0;}
+@media(max-width:768px){.sidebar-toggle{display:none;}}
+.mob-sidebar-btn{display:none;width:34px;height:34px;border:1px solid var(--border);
+  border-radius:8px;background:transparent;color:var(--md);cursor:pointer;
+  align-items:center;justify-content:center;font-size:15px;transition:all .3s;}
+@media(max-width:768px){.mob-sidebar-btn{display:flex;}}
+.mob-sidebar-btn:hover{border-color:var(--md);color:var(--mauve);}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(5,4,14,.6);
+  z-index:499;backdrop-filter:blur(4px);}
+.sidebar-overlay.open{display:block;}
+
+/* ── MAIN CHAT AREA ── */
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+/* ── PDF/DOCUMENT UPLOAD ── */
+.doc-upload-bar{padding:8px 13px;background:rgba(155,111,212,.04);
+  border-top:1px solid var(--gb);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.doc-upload-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;
+  background:rgba(155,111,212,.08);border:1px solid rgba(155,111,212,.2);
+  border-radius:100px;font-size:11px;color:var(--mauve);cursor:pointer;
+  transition:all .3s;font-family:'Barlow',sans-serif;}
+.doc-upload-btn:hover{background:rgba(155,111,212,.14);border-color:var(--v);}
+.doc-upload-btn input{display:none;}
+.doc-tag{display:flex;align-items:center;gap:5px;padding:4px 10px;
+  background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.2);
+  border-radius:100px;font-size:10px;color:var(--mauve);max-width:160px;}
+.doc-tag-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.doc-tag-del{cursor:pointer;opacity:.6;font-size:10px;flex-shrink:0;}
+.doc-tag-del:hover{opacity:1;color:var(--red);}
+.doc-locked{display:flex;align-items:center;gap:6px;font-size:11px;
+  color:rgba(155,111,212,.35);padding:5px 0;}
+
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;
+  background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:border-color .3s,background .3s;}
+.theme-toggle:hover{border-color:var(--v);background:rgba(155,111,212,.08);}
+
+/* ── LIGHT MODE OVERRIDES — particles need different opacity ── */
+[data-theme="light"] #bgCanvas{opacity:.2;}
+[data-theme="light"] .nav-ai-badge{background:rgba(155,111,212,.08);border-color:rgba(155,111,212,.25);}
+[data-theme="light"] .landing-title{color:var(--text);}
+[data-theme="light"] .line2{-webkit-text-fill-color:transparent;background:linear-gradient(135deg,var(--v) 0%,var(--v2) 100%);-webkit-background-clip:text;background-clip:text;}
+[data-theme="light"] .orb{background:radial-gradient(circle at 38% 36%,rgba(155,111,212,.3) 0%,rgba(100,60,180,.12) 40%,transparent 70%);}
+[data-theme="light"] .pc{background:rgba(255,255,255,.9);box-shadow:0 2px 20px var(--shadow);}
+[data-theme="light"] .pc.hot{background:rgba(255,255,255,.95);}
+[data-theme="light"] .cap-card{background:rgba(255,255,255,.85);box-shadow:0 2px 16px var(--shadow);}
+[data-theme="light"] .demo-widget{background:rgba(255,255,255,.9);box-shadow:0 4px 24px var(--shadow);}
+[data-theme="light"] .gate-card{background:rgba(255,255,255,.95);}
+[data-theme="light"] .sidebar-item:hover{background:rgba(155,111,212,.07);}
+[data-theme="light"] .msg:hover{background:rgba(155,111,212,.04);}
+[data-theme="light"] .ch-input{background:#fff;border-color:rgba(155,111,212,.2);}
+
+/* ── LIGHT MODE SPECIFIC OVERRIDES ── */
+[data-theme="light"] .source-card-label{color:var(--text);}
+[data-theme="light"] .purpose-card-title{color:var(--text);}
+[data-theme="light"] .purpose-card-desc{color:var(--dim2);}
+[data-theme="light"] .gate-hdr-title{color:var(--text);}
+[data-theme="light"] .gate-label{color:var(--md);}
+[data-theme="light"] .landing-title{color:var(--text);}
+[data-theme="light"] .pc-feats li{color:var(--dim2);}
+[data-theme="light"] .pc-price{color:var(--text);}
+[data-theme="light"] .pc-period{color:var(--md);}
+[data-theme="light"] .pc-tier{color:var(--md);}
+[data-theme="light"] .sidebar-item-title{color:var(--text);}
+[data-theme="light"] .sidebar-item-meta{color:var(--md);}
+[data-theme="light"] .sidebar-hdr-title{color:var(--md);}
+[data-theme="light"] .demo-content h4{color:var(--v);}
+[data-theme="light"] .conv-item-name{color:var(--text);}
+[data-theme="light"] .session-name{color:var(--text);}
+[data-theme="light"] .ch-name{color:var(--text);}
+[data-theme="light"] .msg-bub{color:var(--text);}
+[data-theme="light"] .msg-sender{color:var(--md);}
+[data-theme="light"] .msg.bot .msg-sender{color:var(--v);}
+[data-theme="light"] .credits-badge{background:rgba(155,111,212,.1);color:var(--v);}
+[data-theme="light"] .nav-ai-badge{color:var(--v);}
+[data-theme="light"] .btab-content,.demo-sub{color:var(--dim2);}
+[data-theme="light"] .lc-text{color:var(--dim2);}
+[data-theme="light"] .lc-num{color:var(--text);}
+[data-theme="light"] .cta-note{color:var(--dim);}
+[data-theme="light"] .pill{color:var(--md);}
+[data-theme="light"] .feat-pill{color:var(--md);}
+
+/* ══ EONS THINKING ANIMATION ══ */
+.eons-thinking{display:flex;align-items:center;gap:10px;padding:4px 0;}
+.eons-think-orbs{display:flex;gap:5px;align-items:center;}
+.eons-orb{width:7px;height:7px;border-radius:50%;background:var(--v);
+  animation:eonsOrb 1.4s ease-in-out infinite;box-shadow:0 0 8px var(--v);}
+.eons-orb:nth-child(1){animation-delay:0s;}
+.eons-orb:nth-child(2){animation-delay:.18s;background:var(--mauve);}
+.eons-orb:nth-child(3){animation-delay:.36s;background:rgba(155,111,212,.5);}
+@keyframes eonsOrb{
+  0%,80%,100%{transform:scale(.7) translateY(0);opacity:.4;}
+  40%{transform:scale(1.1) translateY(-4px);opacity:1;box-shadow:0 0 14px var(--v);}
+}
+.eons-think-label{font-size:11px;color:var(--md);letter-spacing:.12em;
+  text-transform:uppercase;font-family:'JetBrains Mono',monospace;
+  transition:opacity .4s ease;}
+@keyframes thinkPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+.typewriter-cursor{display:inline-block;width:2px;height:1em;
+  background:var(--v);margin-left:2px;vertical-align:text-bottom;
+  animation:blink .7s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="bgCanvas"></canvas>
+
+<!-- ══════════════════════ NAV ══════════════════════ -->
+<nav>
+  <a href="index.html" class="nav-logo">E<span>O</span>NS</a>
+  <div class="nav-right">
+    <button class="mob-sidebar-btn" id="mobSidebarBtn" onclick="openSidebar()" style="display:none;">☰</button>
+    <div class="nav-ai-badge"><span class="nav-ai-badge-dot"></span>EONS AI</div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <span id="themeIcon">☀️</span>
+    </button>
+    <button class="nav-team-btn" onclick="openTeam()">🏢 Team</button>
+    <a href="index.html" class="nav-back">Site</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════ EMAIL GATE ══════════════════════ -->
+<div class="overlay" id="gateOverlay">
+  <div class="overlay-bg"></div>
+  <div class="gate-wrap">
+    <div class="step-indicator" id="stepInd">
+      <div class="step-dot active" id="sd1">1</div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step-dot" id="sd2">2</div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step-dot" id="sd3">3</div>
+    </div>
+    <div class="gate-card">
+      <div class="gate-hdr">
+        <span class="gate-hdr-icon">🎬</span>
+        <div class="gate-hdr-title" id="gTitle">Meet Your Creative Director</div>
+        <div class="gate-hdr-sub" id="gSub">The EONS AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.</div>
+      </div>
+      <div class="gate-body">
+        <div class="gate-step active" id="gs1">
+          <div class="gate-fields">
+            <div class="gate-field"><label class="gate-label">Your Name</label><input class="gate-input" id="gName" type="text" placeholder="Alex Rivera" autocomplete="name"></div>
+            <div class="gate-field"><label class="gate-label">Email Address</label><input class="gate-input" id="gEmail" type="email" placeholder="alex@brand.com" autocomplete="email"></div>
+            <div class="gate-field"><label class="gate-label" style="display:flex;justify-content:space-between;"><span>Company / Brand</span><span style="color:rgba(155,111,212,.4);font-size:9px;">OPTIONAL</span></label><input class="gate-input" id="gCompany" type="text" placeholder="Your brand or company name"></div>
+          </div>
+          <div class="gate-error" id="ge1">Please enter your name and a valid email.</div>
+          <button class="gate-btn" onclick="gs1Next()">Continue →</button>
+          <div class="gate-privacy">No spam. No selling your data. Ever.</div>
+        </div>
+        <div class="gate-step" id="gs2">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:14px;">How did you hear about EONS AI?</p>
+          <div class="source-grid" id="sourceGrid">
+            <div class="source-card" onclick="selSrc(this,'Instagram')"><div class="source-card-icon">📸</div><div class="source-card-label">Instagram</div></div>
+            <div class="source-card" onclick="selSrc(this,'Google')"><div class="source-card-icon">🔍</div><div class="source-card-label">Google Search</div></div>
+            <div class="source-card" onclick="selSrc(this,'LinkedIn')"><div class="source-card-icon">💼</div><div class="source-card-label">LinkedIn</div></div>
+            <div class="source-card" onclick="selSrc(this,'Referral')"><div class="source-card-icon">🤝</div><div class="source-card-label">Referral</div></div>
+            <div class="source-card" onclick="selSrc(this,'Cold Email')"><div class="source-card-icon">📧</div><div class="source-card-label">Cold Email</div></div>
+            <div class="source-card" onclick="selSrc(this,'Other')"><div class="source-card-icon">✨</div><div class="source-card-label">Other</div></div>
+          </div>
+          <div class="gate-error" id="ge2">Please select how you found us.</div>
+          <button class="gate-btn" style="margin-top:14px;" onclick="gs2Next()">Continue →</button>
+          <button class="gate-btn-ghost" onclick="goStep(1)">← Back</button>
+        </div>
+        <div class="gate-step" id="gs3">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:14px;">What are you looking to use the AI for?</p>
+          <div class="purpose-grid" id="purposeGrid">
+            <div class="purpose-card" onclick="selPurp(this,'develop-concept')"><span class="purpose-card-icon">💡</span><div class="purpose-card-title">Develop a Concept</div><div class="purpose-card-desc">Explore ideas and build creative direction</div></div>
+            <div class="purpose-card" onclick="selPurp(this,'generate-brief')"><span class="purpose-card-icon">📋</span><div class="purpose-card-title">Generate a Brief</div><div class="purpose-card-desc">Get a professional creative brief ready to share</div></div>
+            <div class="purpose-card" onclick="selPurp(this,'storyboard')"><span class="purpose-card-icon">🎬</span><div class="purpose-card-title">Write a Storyboard</div><div class="purpose-card-desc">Scene-by-scene storyboard for an animation</div></div>
+            <div class="purpose-card" onclick="selPurp(this,'research')"><span class="purpose-card-icon">🔍</span><div class="purpose-card-title">Research & Explore</div><div class="purpose-card-desc">See what 3D animation could do for my brand</div></div>
+            <div class="purpose-card" onclick="selPurp(this,'hire-studio')"><span class="purpose-card-icon">🚀</span><div class="purpose-card-title">Ready to Hire</div><div class="purpose-card-desc">I have a project and want to connect with EONS</div></div>
+            <div class="purpose-card" onclick="selPurp(this,'just-exploring')"><span class="purpose-card-icon">👀</span><div class="purpose-card-title">Just Exploring</div><div class="purpose-card-desc">Curious about AI-powered creative tools</div></div>
+          </div>
+          <div class="gate-error" id="ge3">Please select what you're looking to do.</div>
+          <button class="gate-btn" style="margin-top:14px;" onclick="gsComplete()">Start Building →</button>
+          <button class="gate-btn-ghost" onclick="goStep(2)">← Back</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ PAYWALL ══════════════════════ -->
+<div class="overlay" id="paywallOverlay">
+  <div class="overlay-bg"></div>
+  <div class="paywall-wrap">
+    <div class="paywall-hdr">
+      <div class="paywall-kicker">Unlock Full Access</div>
+      <h2 class="paywall-title">You've Used Your<br><span class="grad">Free Generations</span></h2>
+      <p class="paywall-sub">You've explored the AI and used your 2 free generations. Upgrade to keep building — briefs, storyboards, visual direction, and competitor analysis without limits.</p>
+      <div class="paywall-free-used">✓ 2/2 free generations used</div>
+    </div>
+    <div class="pricing-cards">
+
+      <!-- Billing toggle -->
+      <div class="billing-toggle" id="billingToggle">
+        <button class="bt-btn on" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="bt-btn" id="btnAnnual" onclick="setBilling('annual')">
+          Annual <span class="bt-save">Save 20%</span>
+        </button>
+      </div>
+
+      <!-- Free -->
+      <div class="pc">
+        <div class="pc-tier">Free</div>
+        <div class="pc-price-wrap">
+          <div class="pc-price">$0</div>
+          <div class="pc-period">Forever</div>
+        </div>
+        <ul class="pc-feats">
+          <li>Unlimited explore chat</li>
+          <li>2 document generations</li>
+          <li>Concept submission to EONS</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start Free →</button>
+      </div>
+
+      <!-- Creator -->
+      <div class="pc">
+        <div class="pc-tier">Creator</div>
+        <div class="pc-price-wrap">
+          <div class="pc-price" id="price-creator">$25<span>/mo</span></div>
+          <div class="pc-period" id="period-creator">Billed monthly</div>
+          <div class="pc-annual-note" id="annual-creator" style="display:none;">$240/yr — save $60</div>
+        </div>
+        <ul class="pc-feats">
+          <li>15 document generations/mo</li>
+          <li>All document types</li>
+          <li>Import PDFs &amp; documents</li>
+          <li>Unlimited explore chat</li>
+          <li>Concept submission to EONS</li>
+        </ul>
+        <button class="pc-btn" onclick="goStripe('creator')">Get Creator →</button>
+      </div>
+
+      <!-- Brand — Most Popular -->
+      <div class="pc hot">
+        <div class="pc-badge">Most Popular</div>
+        <div class="pc-tier">Brand</div>
+        <div class="pc-price-wrap">
+          <div class="pc-price" id="price-brand">$49<span>/mo</span></div>
+          <div class="pc-period" id="period-brand">Billed monthly</div>
+          <div class="pc-annual-note" id="annual-brand" style="display:none;">$470/yr — save $118</div>
+        </div>
+        <ul class="pc-feats">
+          <li>Unlimited document generations</li>
+          <li>All document types</li>
+          <li>Import PDFs &amp; documents</li>
+          <li>Conversation history</li>
+          <li>Priority concept submission</li>
+          <li>15% discount on EONS projects</li>
+        </ul>
+        <button class="pc-btn" onclick="goStripe('brand')">Get Brand →</button>
+      </div>
+
+      <!-- Studio -->
+      <div class="pc">
+        <div class="pc-tier">Studio</div>
+        <div class="pc-price-wrap">
+          <div class="pc-price" id="price-studio">$75<span>/mo</span></div>
+          <div class="pc-period" id="period-studio">Billed monthly</div>
+          <div class="pc-annual-note" id="annual-studio" style="display:none;">$840/yr — save $60</div>
+        </div>
+        <ul class="pc-feats">
+          <li>Everything in Brand</li>
+          <li>White-label brief exports</li>
+          <li>Direct EONS team Slack access</li>
+          <li>Present briefs to your clients</li>
+          <li>For agencies &amp; studios</li>
+        </ul>
+        <button class="pc-btn" onclick="goStripe('studio')">Get Studio →</button>
+      </div>
+
+    </div></div>
+    <div class="paywall-close" onclick="closePaywall()">Continue with free explore only →</div>
+  </div>
+</div>
+
+<!-- ══════════════════════ TEAM PORTAL ══════════════════════ -->
+<div class="overlay" id="teamOverlay">
+  <div class="overlay-bg" onclick="closeTeam()"></div>
+  <div class="team-wrap">
+    <div class="team-card">
+      <div class="team-login" id="teamLogin">
+        <div class="team-login-icon">🏢</div>
+        <div class="team-login-title">EONS Team Portal</div>
+        <div class="team-login-sub">Enter the team password to access your workspace</div>
+        <div class="team-pw-wrap">
+          <input class="team-pw" id="teamPw" type="password" placeholder="••••••••" maxlength="40">
+          <div class="team-pw-err" id="teamPwErr">Incorrect password</div>
+          <button class="gate-btn" onclick="checkTeamPw()">Enter Portal →</button>
+        </div>
+      </div>
+      <div class="team-dash" id="teamDash">
+        <div class="team-dash-hdr">
+          <div class="team-dash-title">EONS <span style="color:var(--v)">Team Portal</span></div>
+          <button class="team-close-btn" onclick="closeTeam()">✕</button>
+        </div>
+        <div class="team-tabs">
+          <button class="ttab on" onclick="switchTTab('overview',this)">Overview</button>
+          <button class="ttab" onclick="switchTTab('members',this)">Team</button>
+          <button class="ttab" onclick="switchTTab('leads',this)">Leads</button>
+          <button class="ttab" onclick="switchTTab('convs',this)">Conversations</button>
+        </div>
+        <div class="ttab-content on" id="tt-overview">
+          <div class="team-stats" id="teamStats"></div>
+          <h3 style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.06em;margin-bottom:12px;">Team <span style="color:var(--v)" id="onlineCount"></span></h3>
+          <div class="members-grid" id="membersGrid"></div>
+        </div>
+        <div class="ttab-content" id="tt-members">
+          <div class="members-grid" id="membersGridFull" style="margin-bottom:18px;"></div>
+          <div class="add-member-form">
+            <div class="add-member-title">+ Add Team Member</div>
+            <div class="add-member-row">
+              <input class="am-input" id="amName" placeholder="Full Name" type="text">
+              <input class="am-input" id="amRole" placeholder="Role" type="text">
+            </div>
+            <input class="am-input" id="amInitials" placeholder="Initials (e.g. RC)" type="text" maxlength="3">
+            <button class="am-btn" onclick="addMember()">Add Member</button>
+          </div>
+        </div>
+        <div class="ttab-content" id="tt-leads">
+          <button class="export-btn" onclick="exportLeads()">⬇ Export CSV</button>
+          <div id="leadsTable"></div>
+        </div>
+        <div class="ttab-content" id="tt-convs">
+          <div class="conv-list" id="convListDash"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ LANDING ══════════════════════ -->
+<div id="landingView">
+  <div class="landing">
+    <div class="orb-scene" id="orbScene">
+      <div class="orb-wrap" id="orbWrap">
+        <div class="orb-ring2"></div>
+        <div class="orb-ring"></div>
+        <div class="orb">
+          <div class="orb-inner"></div>
+          <div class="orb-label">
+            <div class="orb-ai-text">AI</div>
+            <div class="orb-sub-text">Studio</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="landing-kicker">EONS Animation Studio</div>
+    <h1 class="landing-title">Your 3D Creative<br><span class="line2">Director. Powered By AI.</span></h1>
+    <p class="landing-sub">The first AI built specifically for <strong>3D animation creative development</strong>. Generate professional briefs, storyboards, and visual direction — powered by real expertise.</p>
+    <div class="live-counter">
+      <div class="lc-dot"></div>
+      <div class="lc-text"><span class="lc-num" id="liveNum">2,847</span> briefs generated and counting</div>
+    </div>
+    <div class="feat-pills">
+      <div class="pill"><div class="pill-dot"></div>Creative Briefs</div>
+      <div class="pill"><div class="pill-dot"></div>Storyboards</div>
+      <div class="pill"><div class="pill-dot"></div>Visual Direction</div>
+      <div class="pill"><div class="pill-dot"></div>Competitor Analysis</div>
+      <div class="pill"><div class="pill-dot"></div>Production Roadmap</div>
+    </div>
+    <button class="cta-start" onclick="openGate()">Start Building Your Concept →</button>
+    <div class="cta-note">2 free generations · No account required · Concept sent directly to EONS</div>
+  </div>
+
+  <!-- Capability cards -->
+  <section class="scroll-section">
+    <div class="caps-hdr">
+      <h2 class="caps-title reveal">What The <span style="color:var(--v)">AI Does</span></h2>
+      <p class="caps-sub reveal">Six capabilities built on real 3D animation expertise — not generic AI</p>
+    </div>
+    <div class="caps-grid">
+      <div class="cap-card reveal reveal-delay-1"><span class="cap-icon">📋</span><div class="cap-title">Creative Brief</div><div class="cap-desc">Complete professional brief covering objective, audience, tone, visual style, animation approach, and deliverable specs.</div><span class="cap-tag">Full Document</span></div>
+      <div class="cap-card reveal reveal-delay-2"><span class="cap-icon">🎬</span><div class="cap-title">Scene Storyboard</div><div class="cap-desc">Scene-by-scene with shot types, camera movement, animation techniques, lighting notes, and production complexity ratings.</div><span class="cap-tag">Cinematic Detail</span></div>
+      <div class="cap-card reveal reveal-delay-3"><span class="cap-icon">🎨</span><div class="cap-title">Visual Direction</div><div class="cap-desc">Color temperature, animation pace, camera vocabulary, lighting philosophy, music mood, and real-world aesthetic references.</div><span class="cap-tag">Brand-Specific</span></div>
+      <div class="cap-card reveal reveal-delay-4"><span class="cap-icon">🔍</span><div class="cap-title">Competitor Analysis</div><div class="cap-desc">Identifies what competitors' visual identity is missing and builds the business case for 3D animation filling that gap.</div><span class="cap-tag">Strategic</span></div>
+      <div class="cap-card reveal reveal-delay-5"><span class="cap-icon">🗺</span><div class="cap-title">Production Roadmap</div><div class="cap-desc">Prioritized production plan with timeline, budget allocation, and complexity breakdown per asset.</div><span class="cap-tag">Scope Intelligence</span></div>
+      <div class="cap-card reveal reveal-delay-1"><span class="cap-icon">📤</span><div class="cap-title">Studio Submission</div><div class="cap-desc">Submit your full concept directly to the EONS team — packaged as a professional brief with your full conversation transcript.</div><span class="cap-tag">Seamless Handoff</span></div>
+    </div>
+  </section>
+
+  <!-- Interactive demo preview -->
+  <section class="demo-section">
+    <div class="demo-hdr">
+      <h2 class="demo-title reveal">See A Real <span style="color:var(--v)">Output</span></h2>
+      <p class="demo-sub reveal">This is what the AI actually generates — not a mockup</p>
+    </div>
+    <div class="demo-widget reveal">
+      <div class="demo-tabs">
+        <button class="demo-tab on" onclick="switchDemo('brief',this)">Brief Sample</button>
+        <button class="demo-tab" onclick="switchDemo('storyboard',this)">Storyboard Sample</button>
+        <button class="demo-tab" onclick="switchDemo('visual',this)">Visual Direction</button>
+      </div>
+      <div class="demo-content on" id="demo-brief">
+        <h4>Project Objective</h4>
+        <p>Launch a 30-second hero video for a vegan lip gloss brand targeting Gen Z women aged 18-26. The goal is to drive direct-to-consumer conversions from paid social — specifically TikTok and Instagram Reels — with a secondary use case as a paid ad creative.</p>
+        <h4>Target Audience</h4>
+        <p>She's 22, aesthetics-driven, shops DTC brands she discovers on TikTok. She believes beauty should be clean and intentional — not performative. She scrolls fast. You have 1.5 seconds to earn her attention.</p>
+        <h4>Brand Tone</h4>
+        <p><strong>Clean. Confident. Sensory.</strong> NOT clinical, NOT maximalist, NOT aspirational in a distant way. The brand should feel like something she already owns.</p>
+        <h4>Visual Style Direction</h4>
+        <p>Macro product hero shot — tight on the applicator pulling away from the tube, revealing a liquid gloss strand in slow motion. Subsurface scattering on the gloss material to show translucency. Warm studio lighting with a single rim light for product edge definition.</p>
+        <h4>Recommended Package</h4>
+        <p><strong>Foundation — $2,500+</strong> — This scope needs a hero asset plus vertical cut-downs. The 2-3 week timeline fits the detail level required on the macro liquid simulation.</p>
+      </div>
+      <div class="demo-content" id="demo-storyboard">
+        <h4>Scene 01 — 0:00–0:03 · SIMPLE</h4>
+        <p><strong>Shot:</strong> Extreme close-up macro. Black void. Slow push-in toward product.<br><strong>Animation:</strong> Product materializes via particle dissolution. Camera slowly pushes in at 0.2x speed.<br><strong>Light:</strong> Single key light from 45° above right. No fill. Deep shadows.<br><strong>Sound:</strong> Silence, then a single low ambient tone fades in.</p>
+        <h4>Scene 02 — 0:03–0:10 · COMPLEX</h4>
+        <p><strong>Shot:</strong> Macro hero. Applicator pulls away from tube.<br><strong>Animation:</strong> Liquid simulation — gloss strand stretches and breaks in ultra slow motion at 120fps. Subsurface scattering active on gloss material showing translucency and depth.<br><strong>Light:</strong> Three-point studio. Rim light on gloss strand to catch the break moment.<br><strong>Sound:</strong> Subtle liquid texture sound designed, pitched down.</p>
+        <h4>Scene 03 — 0:10–0:18 · MODERATE</h4>
+        <p><strong>Shot:</strong> Medium product shot. Tube floating. Slow orbit clockwise.<br><strong>Animation:</strong> Camera orbits 180°. Product rotates opposite direction at 0.5x speed. Color name fades in via opacity — <em>Vulnerable</em>.<br><strong>Light:</strong> Soft environmental HDRI. Single accent light from below for brand warmth.<br><strong>Sound:</strong> Music enters — slow tempo, 72bpm, warm synth.</p>
+      </div>
+      <div class="demo-content" id="demo-visual">
+        <h4>Color Temperature</h4>
+        <p><strong>Warm neutral.</strong> 5200K. Not clinical white, not golden hour. Think clean studio with personality. The product colors should be the hero — everything else supports them.</p>
+        <h4>Animation Pace</h4>
+        <p><strong>Slow burn.</strong> 4-6 cuts per minute maximum. Each cut is earned. This isn't a fast-paced ad — it's a moment. The viewer should feel like they've been given permission to look closely.</p>
+        <h4>Music Direction</h4>
+        <p><strong>Reference:</strong> Caroline Polachek — Sunset (instrumental section), or FKA Twigs — Cellophane (stripped). Warm, minimal, slightly melancholic. 70-80bpm. No drums until the final reveal.</p>
+        <h4>What To Avoid</h4>
+        <p>No confetti particles. No rainbow prismatic lens flares. No fast-cut energy. No stock music. Nothing that looks like every other DTC beauty ad from 2021. This brand is quieter and more confident than that.</p>
+      </div>
+      <div class="demo-cta">
+        <div class="demo-cta-text">The AI generates documents like this for your specific brand — in minutes</div>
+        <button class="demo-cta-btn" onclick="openGate()">Build Mine Now →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- EONS AI Subscription Tiers -->
+  <section class="scroll-section" style="max-width:960px;">
+    <div style="text-align:center;margin-bottom:10px;">
+      <div class="landing-kicker" style="justify-content:center;">EONS AI Access</div>
+      <h2 class="caps-title reveal">Simple <span style="color:var(--v)">Pricing</span></h2>
+      <p class="caps-sub reveal">Start free. Upgrade for unlimited creative power.</p>
+    </div>
+    <div class="pricing-cards reveal" style="grid-template-columns:repeat(4,1fr);">
+
+      <!-- Free -->
+      <div class="pc">
+        <div class="pc-tier">Free</div>
+        <div class="pc-price">$0</div>
+        <div class="pc-period">Forever</div>
+        <ul class="pc-feats">
+          <li>Unlimited explore chat</li>
+          <li>2 document generations</li>
+          <li>Concept submission to EONS</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start Free →</button>
+      </div>
+
+      <!-- Creator -->
+      <div class="pc">
+        <div class="pc-tier">Creator</div>
+        <div class="pc-price" id="lp-price-creator">$25<span>/mo</span></div>
+        <div class="pc-period">or $20/mo billed annually</div>
+        <ul class="pc-feats">
+          <li>15 document generations/mo</li>
+          <li>Import PDFs &amp; documents</li>
+          <li>All document types</li>
+          <li>Concept submission to EONS</li>
+        </ul>
+        <button class="pc-btn" onclick="showPaywall()">Get Creator →</button>
+      </div>
+
+      <!-- Brand -->
+      <div class="pc hot">
+        <div class="pc-badge">Most Popular</div>
+        <div class="pc-tier">Brand</div>
+        <div class="pc-price" id="lp-price-brand">$49<span>/mo</span></div>
+        <div class="pc-period">or $39/mo billed annually</div>
+        <ul class="pc-feats">
+          <li>Unlimited document generations</li>
+          <li>Import PDFs &amp; documents</li>
+          <li>Conversation history</li>
+          <li>15% discount on EONS projects</li>
+        </ul>
+        <button class="pc-btn" onclick="showPaywall()">Get Brand →</button>
+      </div>
+
+      <!-- Studio -->
+      <div class="pc">
+        <div class="pc-tier">Studio</div>
+        <div class="pc-price" id="lp-price-studio">$75<span>/mo</span></div>
+        <div class="pc-period">or $70/mo annually ($840/yr)</div>
+        <ul class="pc-feats">
+          <li>Everything in Brand</li>
+          <li>White-label brief exports</li>
+          <li>Direct EONS Slack access</li>
+          <li>For agencies &amp; studios</li>
+        </ul>
+        <button class="pc-btn" onclick="showPaywall()">Get Studio →</button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Pricing preview on landing -->
+  <section class="scroll-section" style="max-width:1000px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <h2 class="caps-title reveal">Investment <span style="color:var(--v)">Packages</span></h2>
+      <p class="caps-sub reveal">Visual systems for growth — structured around business outcomes, not deliverables.</p>
+    </div>
+    <div class="pricing-cards reveal" style="grid-template-columns:repeat(2,1fr);">
+
+      <!-- Pilot -->
+      <div class="pc">
+        <div class="pc-tier">Pilot</div>
+        <div class="pc-price">$5.5K<span>–$7K</span></div>
+        <div class="pc-period">2–3 weeks · Proof of concept</div>
+        <ul class="pc-feats">
+          <li>Entry-level brand animation</li>
+          <li>One hero asset + platform cuts</li>
+          <li>Standard production track</li>
+          <li>Strategic brief + concept session</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start with Pilot →</button>
+      </div>
+
+      <!-- Foundation -->
+      <div class="pc">
+        <div class="pc-tier">Foundation</div>
+        <div class="pc-price">$6.5K<span>–$8.5K</span></div>
+        <div class="pc-period">3–4 weeks · Core brand animation</div>
+        <ul class="pc-feats">
+          <li>Core brand animation system</li>
+          <li>Multi-asset delivery suite</li>
+          <li>Standard or accelerated track</li>
+          <li>Positioning + visual direction</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start with Foundation →</button>
+      </div>
+
+      <!-- Growth — Most Popular -->
+      <div class="pc hot">
+        <div class="pc-badge">Most Popular</div>
+        <div class="pc-tier">Growth</div>
+        <div class="pc-price">$12K<span>–$18K</span></div>
+        <div class="pc-period">5–6 weeks · Campaign-ready asset system</div>
+        <ul class="pc-feats">
+          <li>Full campaign asset system</li>
+          <li>Multi-format + platform-ready</li>
+          <li>AI-accelerated production track</li>
+          <li>Performance outcome layer</li>
+          <li>Scalable creative infrastructure</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start with Growth →</button>
+      </div>
+
+      <!-- Authority -->
+      <div class="pc">
+        <div class="pc-tier">Authority</div>
+        <div class="pc-price">$22K<span>–$35K</span></div>
+        <div class="pc-period">8–10 weeks · Brand infrastructure</div>
+        <ul class="pc-feats">
+          <li>Full brand infrastructure build</li>
+          <li>Multi-video system + identity</li>
+          <li>Authority outcome layer</li>
+          <li>Long-term visual partner track</li>
+          <li>Executive-level strategic oversight</li>
+        </ul>
+        <button class="pc-btn" onclick="openGate()">Start with Authority →</button>
+      </div>
+
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:12px;color:var(--dim);line-height:1.7;">
+      All packages begin with a free strategy session via EONS AI. Outcome Layers — Launch, AI Simplification,
+      Performance, and Authority — available as additions to any package.
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    <a href="index.html">E<span>O</span>NS</a>
+    <p>© 2025 EONS Animation Studio · New York City · eonstudioanimation@gmail.com</p>
+  </footer>
+</div>
+
+<!-- ══════════════════════ CHAT AREA ══════════════════════ -->
+<!-- Sidebar overlay for mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- Sidebar toggle button -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()">◀</button>
+
+<div class="main-wrap" id="mainWrap">
+<div class="chat-layout">
+
+  <!-- ══ CONVERSATION SIDEBAR ══ -->
+  <div class="chat-sidebar" id="chatSidebar">
+    <div class="sidebar-hdr">
+      <div class="sidebar-hdr-title">History</div>
+      <button class="sidebar-new-btn" onclick="newConversation()">+ New</button>
+    </div>
+    <div class="sidebar-search">
+      <input class="sidebar-search-input" id="sidebarSearch" type="text"
+        placeholder="Search conversations..." oninput="renderSidebar()">
+    </div>
+    <div class="sidebar-list" id="sidebarList"></div>
+  </div>
+
+  <!-- ══ MAIN CHAT COLUMN ══ -->
+  <div class="chat-main">
+  <div class="session-bar">
+    <div class="session-info">
+      <div class="session-av" id="sessionAv">?</div>
+      <div>
+        <div class="session-name" id="sessionName">Loading...</div>
+        <div class="session-sub" id="sessionSub">EONS AI</div>
+      </div>
+    </div>
+    <div class="session-right">
+      <div class="credits-badge" id="creditsBadge"><div class="credits-badge-dot"></div><span id="creditsText">2 free left</span></div>
+    </div>
+  </div>
+  <div class="chat-widget">
+    <div class="ch-bar">
+      <div class="ch-av">🎬</div>
+      <div class="ch-info"><div class="ch-name">EONS AI</div><div class="ch-status">Online — Creative Director Mode</div></div>
+      <div class="ch-meta"><div class="ch-phase" id="chPhase">Explore</div></div>
+    </div>
+    <div class="ch-msgs" id="chMsgs"></div>
+    <div class="concept-panel" id="conceptPanel">
+      <div class="cp-title">📤 Send Concept to EONS Studio</div>
+      <div class="cp-form">
+        <textarea class="cf" id="cfNotes" placeholder="Any additional notes or requirements..."></textarea>
+        <div class="cp-actions">
+          <button class="cp-cancel" onclick="closeCP()">Cancel</button>
+          <button class="cp-send" onclick="submitConcept()">Send to Studio →</button>
+        </div>
+      </div>
+    </div>
+    <div class="ch-actions">
+      <button class="ca" id="btnBrief" onclick="tryGenerate('brief')">📋 Brief</button>
+      <button class="ca" id="btnBoard" onclick="tryGenerate('storyboard')">🎬 Storyboard</button>
+      <button class="ca" id="btnVisual" onclick="tryGenerate('visual')">🎨 Visual Direction</button>
+      <button class="ca" id="btnComp" onclick="tryGenerate('competitor')">🔍 Competitors</button>
+      <button class="ca send" onclick="openCP()">📤 Send to Studio</button>
+    </div>
+    <!-- Document upload bar — visible for Creator+ tiers -->
+    <div class="doc-upload-bar" id="docUploadBar" style="display:none;">
+      <label class="doc-upload-btn">
+        <input type="file" id="docFileInput" accept=".pdf,.doc,.docx,.txt"
+          multiple onchange="handleDocUpload(this)">
+        📎 Attach PDF / Doc
+      </label>
+      <div id="docTagsWrap" style="display:flex;gap:5px;flex-wrap:wrap;flex:1;"></div>
+    </div>
+    <div class="doc-upload-bar" id="docLockedBar">
+      <div class="doc-locked">🔒 PDF &amp; document import — Creator plan and above</div>
+    </div>
+    <div class="ch-input-row">
+      <input class="ch-input" id="chInput" placeholder="Tell me about your brand..." type="text">
+      <button class="ch-send" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="output-panel" id="outputPanel">
+    <div class="out-card">
+      <div class="out-hdr"><div class="out-hdr-title" id="outTitle">Document</div><div class="out-hdr-badge" id="outBadge">Brief</div></div>
+      <div class="out-body" id="outBody"></div>
+      <div class="out-actions">
+        <button class="out-btn" onclick="copyOut()">📋 Copy</button>
+        <button class="out-btn" onclick="openCP()">📤 Send to EONS</button>
+        <button class="out-btn primary" onclick="continueChat()">Continue →</button>
+      </div>
+    </div>
+  </div>
+  </div><!-- end chat-main -->
+</div><!-- end chat-layout -->
+</div><!-- end mainWrap -->
+
+<div class="toast" id="toast">
+  <div class="toast-text"><strong id="toastT"></strong><span id="toastM"></span></div>
+</div>
+
+<script>
+/* ══════════════════════════════════════
+   EONS STUDIO AI v3
+   ─────────────────────────────────────
+   ⚙️  CONFIGURATION — EDIT THESE VALUES
+══════════════════════════════════════ */
+const CONFIG = {
+  // ── ANTHROPIC API KEY ──────────────
+  // 1. Go to console.anthropic.com
+  // 2. Sign up free → API Keys → Create Key
+  // 3. Paste your key below replacing YOUR_KEY_HERE
+  // 4. Save and upload to GitHub
+  anthropic_key: 'YOUR_KEY_HERE',  // ← PASTE YOUR KEY HERE
+
+  // ── STRIPE PAYMENT LINKS ───────────
+  stripe: {
+    creator: 'https://buy.stripe.com/YOUR_CREATOR_LINK',
+    brand:   'https://buy.stripe.com/YOUR_BRAND_LINK',
+    studio:  'https://buy.stripe.com/YOUR_STUDIO_LINK',
+  },
+  free_generations: 2,
+};
+
+/* ── SECURITY CONFIG ─────────────────────────────────────────
+   TO CHANGE YOUR TEAM PASSWORD:
+   1. Go to: https://emn178.github.io/online-tools/sha256.html
+   2. Type: eons_studio_2025_nyc + your new password (no spaces)
+      Example: if new password is "mynewpass", type:
+               eons_studio_2025_nycmynewpass
+   3. Copy the SHA-256 hash
+   4. Paste it below replacing the existing hash
+   5. Save and re-upload to GitHub
+
+   Current password: (see your setup notes)
+────────────────────────────────────────────────────────────── */
+const SECURITY = {
+  team_hash:       '8a3a32f35784f4867a227fe8b05d7d3c3c629001122c95a6c040162f047c6ef2',
+  salt:            'eons_studio_2025_nyc',
+  max_attempts:    5,
+  lockout_minutes: 15,
+  rate_limit_messages: 30,
+  rate_limit_burst:    6,
+};
+
+/* ── CRYPTO HELPERS */
+async function sha256(msg){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyPassword(input,hash){
+  return (await sha256(SECURITY.salt+input))===hash;
+}
+
+/* ── LOCKOUT */
+function isLockedOut(){
+  try{const l=JSON.parse(localStorage.getItem('eons_lockout')||'null');if(!l)return false;if((Date.now()-l.time)/60000>SECURITY.lockout_minutes){localStorage.removeItem('eons_lockout');return false;}return true;}catch{return false;}
+}
+function getLockoutRemaining(){
+  try{const l=JSON.parse(localStorage.getItem('eons_lockout')||'null');if(!l)return 0;return Math.ceil(Math.max(0,SECURITY.lockout_minutes-(Date.now()-l.time)/60000));}catch{return 0;}
+}
+function recordFailedAttempt(){
+  try{let a=parseInt(localStorage.getItem('eons_fails')||'0')+1;localStorage.setItem('eons_fails',a);if(a>=SECURITY.max_attempts){localStorage.setItem('eons_lockout',JSON.stringify({time:Date.now()}));localStorage.removeItem('eons_fails');}return a;}catch{return 1;}
+}
+function resetFailedAttempts(){localStorage.removeItem('eons_fails');}
+
+/* ── RATE LIMITER */
+const _msgTs=[];
+function checkRateLimit(){
+  const now=Date.now();
+  while(_msgTs.length&&now-_msgTs[0]>3600000)_msgTs.shift();
+  if(_msgTs.length>=SECURITY.rate_limit_messages)return{allowed:false,reason:'hourly'};
+  const burst=_msgTs.filter(t=>now-t<60000);
+  if(burst.length>=SECURITY.rate_limit_burst)return{allowed:false,reason:'burst'};
+  _msgTs.push(now);return{allowed:true};
+}
+
+/* ── INPUT SANITIZER */
+function sanitizeInput(str){
+  return str.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/javascript:/gi,'').replace(/on\w+=/gi,'').trim().slice(0,2000);
+}
+
+/* ══════════════════════════════ BACKGROUND SYSTEM */
+const canvas=document.getElementById('bgCanvas'),ctx=canvas.getContext('2d');
+let W,H;
+function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight;}
+resize();addEventListener('resize',resize);
+
+/* ── DISTANT HORIZON ORBS — large, soft, barely moving ── */
+const ORBS=[
+  {x:.12,y:.68,r:180,opacity:.06,drift:.00008},
+  {x:.78,y:.72,r:220,opacity:.05,drift:.00006},
+  {x:.45,y:.82,r:260,opacity:.04,drift:.00005},
+  {x:.25,y:.88,r:140,opacity:.07,drift:.00009},
+  {x:.88,y:.78,r:160,opacity:.05,drift:.00007},
+  {x:.60,y:.92,r:200,opacity:.04,drift:.00006},
+];
+let orbT=0;
+
+function drawOrbs(){
+  orbT+=0.0004;
+  ORBS.forEach(function(o){
+    const px=(o.x+Math.sin(orbT*o.drift*1000+o.x*10)*.012)*W;
+    const py=(o.y+Math.cos(orbT*o.drift*800+o.y*8)*.008)*H;
+    const r=o.r*(W/1440); // scale with screen
+    // Soft white glow — multiple layers for depth
+    const g=ctx.createRadialGradient(px,py,0,px,py,r);
+    g.addColorStop(0,`rgba(255,255,255,${o.opacity*1.4})`);
+    g.addColorStop(0.3,`rgba(230,220,255,${o.opacity*0.7})`);
+    g.addColorStop(0.7,`rgba(180,160,240,${o.opacity*0.25})`);
+    g.addColorStop(1,`rgba(155,111,212,0)`);
+    ctx.beginPath();
+    ctx.arc(px,py,r,0,Math.PI*2);
+    ctx.fillStyle=g;
+    ctx.fill();
+  });
+}
+
+/* ── VIOLET PARTICLES — fluid 3D floating ── */
+class Particle{
+  constructor(){this.reset(true);}
+  reset(init){
+    // Random position in 3D space
+    this.x=(Math.random()-.5)*2800;
+    this.y=(Math.random()-.5)*2800;
+    this.z=init?Math.random()*900:880+Math.random()*20;
+    // Smooth slow velocity — spherical distribution
+    const sp=0.08+Math.random()*0.18; // much slower
+    const th=Math.random()*Math.PI*2;
+    const ph=Math.acos(2*Math.random()-1);
+    this.vx=sp*Math.sin(ph)*Math.cos(th);
+    this.vy=sp*Math.sin(ph)*Math.sin(th);
+    this.vz=-(0.08+Math.random()*0.18); // slow depth drift
+    this.hue=265+Math.random()*20; // violet range 265-285
+    this.sat=60+Math.random()*25;
+    this.lit=55+Math.random()*25;
+    this.pulse=Math.random()*Math.PI*2;
+    this.pspd=0.006+Math.random()*0.008; // slow pulse
+    this.baseSize=0.4+Math.random()*1.8;
+  }
+  update(){
+    this.x+=this.vx;
+    this.y+=this.vy;
+    this.z+=this.vz;
+    this.pulse+=this.pspd;
+    // Tiny organic drift
+    this.vx+=(Math.random()-.5)*.001;
+    this.vy+=(Math.random()-.5)*.001;
+    this.vx*=.999;this.vy*=.999;
+    if(this.z<1)this.reset();
+  }
+  draw(){
+    const fov=500,sc=fov/(fov+this.z);
+    const px=this.x*sc+W/2,py=this.y*sc+H/2;
+    if(px<-80||px>W+80||py<-80||py>H+80)return;
+    const sz=this.baseSize*sc*2.8;
+    const pulse=0.5+0.45*Math.sin(this.pulse);
+    const op=pulse*Math.pow(sc,.6)*.75;
+    const h=this.hue,s=this.sat,l=this.lit;
+    // Bright core
+    ctx.beginPath();ctx.arc(px,py,sz*.4,0,Math.PI*2);
+    ctx.fillStyle=`hsla(${h},${s}%,${l+18}%,${op*.9})`;ctx.fill();
+    // Glow halo
+    const gm=ctx.createRadialGradient(px,py,0,px,py,sz*2.6);
+    gm.addColorStop(0,`hsla(${h},${s}%,${l}%,${op*.45})`);
+    gm.addColorStop(1,`hsla(${h},40%,20%,0)`);
+    ctx.beginPath();ctx.arc(px,py,sz*2.6,0,Math.PI*2);
+    ctx.fillStyle=gm;ctx.fill();
+    // Outer bloom for close particles
+    if(sz>1.2){
+      const gb=ctx.createRadialGradient(px,py,0,px,py,sz*6);
+      gb.addColorStop(0,`hsla(${h},55%,45%,${op*.08})`);
+      gb.addColorStop(1,`hsla(${h},30%,20%,0)`);
+      ctx.beginPath();ctx.arc(px,py,sz*6,0,Math.PI*2);
+      ctx.fillStyle=gb;ctx.fill();
+    }
+  }
+}
+
+const PARTICLE_COUNT=window.matchMedia('(pointer:coarse)').matches?80:180;
+const particles=[];
+for(let i=0;i<PARTICLE_COUNT;i++)particles.push(new Particle());
+
+// Subtle mouse parallax
+let mouseX=0,mouseY=0;
+addEventListener('mousemove',e=>{
+  mouseX=(e.clientX/W-.5)*.4;
+  mouseY=(e.clientY/H-.5)*.4;
+});
+
+function drawBG(){
+  // Full clear every frame — no artifacts
+  ctx.clearRect(0,0,W,H);
+  // Draw horizon orbs first (background)
+  drawOrbs();
+  // Draw particles on top
+  ctx.save();
+  ctx.translate(mouseX*8,mouseY*8);
+  particles.forEach(p=>{p.update();p.draw();});
+  ctx.restore();
+  requestAnimationFrame(drawBG);
+}
+ctx.fillStyle='#05040e';
+ctx.fillRect(0,0,W,H);
+drawBG();
+
+/* ══════════════════════════════════════ ORB MOUSE INTERACTION */
+const orbScene=document.getElementById('orbScene');
+const orbWrap=document.getElementById('orbWrap');
+if(orbScene&&orbWrap){
+  document.addEventListener('mousemove',e=>{
+    if(!orbScene||document.getElementById('mainWrap').classList.contains('active'))return;
+    const rect=orbScene.getBoundingClientRect();
+    const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+    const dx=(e.clientX-cx)/window.innerWidth,dy=(e.clientY-cy)/window.innerHeight;
+    orbWrap.style.transform=`rotateY(${dx*18}deg) rotateX(${-dy*18}deg)`;
+  });
+  document.addEventListener('mouseleave',()=>{orbWrap.style.transform='rotateY(0deg) rotateX(0deg)';});
+}
+
+/* Floating particles around orb */
+function spawnOrbParticles(){
+  const scene=document.getElementById('orbScene');if(!scene)return;
+  for(let i=0;i<8;i++){
+    const p=document.createElement('div');
+    p.className='orb-particle';
+    p.style.cssText=`left:${50+Math.random()*60-30}%;top:${50+Math.random()*60-30}%;--dur:${6+Math.random()*6}s;--tx:${(Math.random()-.5)*80}px;--ty:${-20-Math.random()*60}px;animation-delay:${Math.random()*6}s;`;
+    scene.appendChild(p);
+  }
+}
+spawnOrbParticles();
+
+/* ══════════════════════════════════════ LIVE COUNTER */
+function animateCounter(){
+  const el=document.getElementById('liveNum');if(!el)return;
+  let base=parseInt(localStorage.getItem('eons_gen_count')||'2847');
+  el.textContent=base.toLocaleString();
+  // Slowly increment every few minutes for realism
+  setInterval(()=>{
+    base+=Math.floor(Math.random()*3);
+    localStorage.setItem('eons_gen_count',base);
+    el.textContent=base.toLocaleString();
+  },45000);
+}
+animateCounter();
+
+/* ══════════════════════════════════════ CURSOR */
+const $c=document.getElementById('cur'),$r=document.getElementById('cur-ring');
+let mx=0,my=0,rx=0,ry=0;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;$c.style.left=mx+'px';$c.style.top=my+'px';});
+(function a(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;$r.style.left=rx+'px';$r.style.top=ry+'px';requestAnimationFrame(a);})();
+function curBig(b){$c.classList.toggle('big',b);$r.classList.toggle('big',b);}
+document.querySelectorAll('a,button,.source-card,.purpose-card,.cap-card,.pc,.member-card,.demo-tab,.pill').forEach(el=>{el.addEventListener('mouseenter',()=>curBig(true));el.addEventListener('mouseleave',()=>curBig(false));});
+
+/* ══════════════════════════════════════ SCROLL REVEAL */
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible');}),{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+
+/* ══════════════════════════════════════ DEMO TABS */
+function switchDemo(tab,btn){
+  document.querySelectorAll('.demo-tab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.demo-content').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('demo-'+tab).classList.add('on');
+}
+
+/* ══════════════════════════════════════ STATE */
+let currentUser=null;
+let chatHistory=[];
+let convType='explore';
+let lastDoc='',lastDocType='';
+let gateSource='',gatePurpose='';
+let generationsUsed=0;
+let userTier='free'; // free | creator | brand | studio
+
+/* ══════════════════════════════════════ CREDITS SYSTEM */
+function getGenerationsUsed(){
+  try{return parseInt(localStorage.getItem('eons_gens_used')||'0');}catch{return 0;}
+}
+function incrementGenerations(){
+  generationsUsed++;
+  localStorage.setItem('eons_gens_used',generationsUsed);
+  updateCreditsDisplay();
+  // Increment global counter
+  let base=parseInt(localStorage.getItem('eons_gen_count')||'2847');
+  localStorage.setItem('eons_gen_count',base+1);
+  const el=document.getElementById('liveNum');if(el)el.textContent=(base+1).toLocaleString();
+}
+function canGenerate(){
+  if(userTier==='brand'||userTier==='studio')return true;
+  if(userTier==='creator')return generationsUsed<7;
+  return generationsUsed<CONFIG.free_generations;
+}
+function updateCreditsDisplay(){
+  const badge=document.getElementById('creditsBadge');
+  const text=document.getElementById('creditsText');
+  if(!badge||!text)return;
+  if(userTier==='brand'||userTier==='studio'){
+    text.textContent='Unlimited';badge.classList.remove('low');
+  }else if(userTier==='creator'){
+    const left=7-generationsUsed;
+    text.textContent=left+' left';
+    badge.classList.toggle('low',left<=2);
+  }else{
+    const left=CONFIG.free_generations-generationsUsed;
+    text.textContent=left>0?left+' free left':'Upgrade to continue';
+    badge.classList.toggle('low',left<=1);
+  }
+}
+
+/* ══════════════════════════════════════ STRIPE */
+function goStripe(tier){
+  const url=CONFIG.stripe[tier];
+  if(!url||url.includes('YOUR_')){
+    toast('Setup Required','Add your Stripe Payment Links to the CONFIG block at the top of the JS.');
+    return;
+  }
+  window.open(url,'_blank');
+}
+function closePaywall(){document.getElementById('paywallOverlay').classList.remove('active');}
+function showPaywall(){document.getElementById('paywallOverlay').classList.add('active');}
+
+/* ══════════════════════════════════════ GATE */
+function openGate(){document.getElementById('gateOverlay').classList.add('active');}
+function closeGate(){document.getElementById('gateOverlay').classList.remove('active');}
+function gs1Next(){
+  const name=document.getElementById('gName').value.trim();
+  const email=document.getElementById('gEmail').value.trim();
+  const err=document.getElementById('ge1');
+  if(!name||!email||!email.includes('@')){err.classList.add('show');return;}
+  err.classList.remove('show');goStep(2);
+}
+function gs2Next(){
+  if(!gateSource){document.getElementById('ge2').classList.add('show');return;}
+  document.getElementById('ge2').classList.remove('show');goStep(3);
+}
+function gsComplete(){
+  if(!gatePurpose){document.getElementById('ge3').classList.add('show');return;}
+  document.getElementById('ge3').classList.remove('show');
+  const name=document.getElementById('gName').value.trim();
+  const email=document.getElementById('gEmail').value.trim();
+  const company=document.getElementById('gCompany').value.trim();
+  currentUser={name,email,company,source:gateSource,purpose:gatePurpose,isTeamMember:false,memberId:null,sessionId:Date.now()};
+  generationsUsed=getGenerationsUsed();
+  saveLead(currentUser);
+  closeGate();
+  launchChat();
+}
+function goStep(n){
+  document.querySelectorAll('.gate-step').forEach(s=>s.classList.remove('active'));
+  document.getElementById('gs'+n).classList.add('active');
+  for(let i=1;i<=3;i++){
+    document.getElementById('sd'+i).classList.toggle('active',i===n);
+    document.getElementById('sd'+i).classList.toggle('done',i<n);
+    if(i<3)document.getElementById('sl'+i).classList.toggle('done',i<n);
+  }
+  const titles={1:'Meet Your Creative Director',2:'How Did You Find Us?',3:'What Are You Building?'};
+  const subs={1:'The EONS AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.',2:'Help us understand where our community comes from.',3:'This helps us tailor the AI experience to your exact needs.'};
+  document.getElementById('gTitle').textContent=titles[n];
+  document.getElementById('gSub').textContent=subs[n];
+}
+function selSrc(card,v){document.querySelectorAll('.source-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');gateSource=v;}
+function selPurp(card,v){document.querySelectorAll('.purpose-card').forEach(c=>c.classList.remove('selected'));card.classList.add('selected');gatePurpose=v;}
+
+/* ══════════════════════════════════════ STORAGE */
+function saveLead(u){
+  try{
+    const leads=getLeads();
+    if(!leads.find(l=>l.email===u.email)){
+      leads.unshift({id:Date.now(),timestamp:new Date().toISOString(),name:u.name,email:u.email,company:u.company||'',source:u.source,purpose:u.purpose,tier:userTier,convCount:0,isTeamMember:u.isTeamMember});
+      localStorage.setItem('eons_leads',JSON.stringify(leads));
+    }
+  }catch{}
+}
+function getLeads(){try{return JSON.parse(localStorage.getItem('eons_leads')||'[]');}catch{return[];}}
+function getConvs(){try{return JSON.parse(localStorage.getItem('eons_convs')||'[]');}catch{return[];}}
+function saveConv(c){
+  try{const convs=getConvs();convs.unshift(c);if(convs.length>300)convs.splice(300);localStorage.setItem('eons_convs',JSON.stringify(convs));}catch{}
+}
+function updatePresence(id,status){
+  try{const p=JSON.parse(localStorage.getItem('eons_presence')||'{}');p[id]={status,lastSeen:Date.now()};localStorage.setItem('eons_presence',JSON.stringify(p));}catch{}
+}
+function getPresence(){
+  try{const p=JSON.parse(localStorage.getItem('eons_presence')||'{}');const now=Date.now();Object.keys(p).forEach(k=>{if(now-p[k].lastSeen>180000)p[k].status='offline';});return p;}catch{return{};}
+}
+const DEFAULT_MEMBERS=[
+  {id:'rc',name:'Ryan Chen',role:'Founder / CEO',initials:'RC',color:'#9b6fd4'},
+  {id:'ah',name:'Antwain Harty',role:'Animator Team Lead',initials:'AH',color:'#7a52b8'},
+  {id:'dl',name:'Dahee Lee',role:'Junior Animator',initials:'DL',color:'#6dd4a8'},
+];
+function getMembers(){try{return JSON.parse(localStorage.getItem('eons_members')||'null')||DEFAULT_MEMBERS;}catch{return DEFAULT_MEMBERS;}}
+function saveMembers(m){localStorage.setItem('eons_members',JSON.stringify(m));}
+
+/* ══════════════════════════════════════ TEAM PORTAL */
+function openTeam(){
+  document.getElementById('teamOverlay').classList.add('active');
+  document.getElementById('teamLogin').style.display='flex';
+  document.getElementById('teamDash').style.display='none';
+  document.getElementById('teamPw').value='';
+  setTimeout(()=>document.getElementById('teamPw').focus(),80);
+}
+function closeTeam(){document.getElementById('teamOverlay').classList.remove('active');if(currentUser?.memberId)updatePresence(currentUser.memberId,'offline');}
+document.getElementById('teamPw').addEventListener('keydown',e=>{if(e.key==='Enter')checkTeamPw();});
+function checkTeamPw(){
+  const pw=document.getElementById('teamPw').value;
+  const err=document.getElementById('teamPwErr');
+
+  if(isLockedOut()){
+    err.textContent=`Too many attempts. Locked out for ${getLockoutRemaining()} more minute(s).`;
+    err.classList.add('show');
+    document.getElementById('teamPw').value='';
+    return;
+  }
+
+  verifyPassword(pw,SECURITY.team_hash).then(valid=>{
+    if(valid){
+      resetFailedAttempts();
+      err.classList.remove('show');
+      document.getElementById('teamLogin').style.display='none';
+      document.getElementById('teamDash').style.display='block';
+      renderTeamDash();
+    }else{
+      const attempts=recordFailedAttempt();
+      const remaining=SECURITY.max_attempts-attempts;
+      if(isLockedOut()){
+        err.textContent=`Too many failed attempts. Locked out for ${SECURITY.lockout_minutes} minutes.`;
+      }else{
+        err.textContent=`Incorrect password. ${remaining} attempt(s) remaining.`;
+      }
+      err.classList.add('show');
+      document.getElementById('teamPw').value='';
+      document.getElementById('teamPw').focus();
+    }
+  });
+}
+function renderTeamDash(){renderTeamStats();renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');}
+function renderTeamStats(){
+  const leads=getLeads();const convs=getConvs();
+  const today=convs.filter(c=>{try{return new Date(c.timestamp).toDateString()===new Date().toDateString();}catch{return false;}}).length;
+  const rich=convs.filter(c=>['brief','storyboard','visual','competitor'].includes(c.type)).length;
+  document.getElementById('teamStats').innerHTML=`
+    <div class="tstat"><div class="tstat-n">${leads.length}</div><div class="tstat-l">Total Leads</div></div>
+    <div class="tstat"><div class="tstat-n" style="color:var(--green)">${today}</div><div class="tstat-l">Today</div></div>
+    <div class="tstat"><div class="tstat-n">${rich}</div><div class="tstat-l">Docs Generated</div></div>
+    <div class="tstat"><div class="tstat-n">${convs.length}</div><div class="tstat-l">Total Chats</div></div>
+  `;
+  const members=getMembers();const presence=getPresence();
+  const online=members.filter(m=>presence[m.id]?.status==='online').length;
+  document.getElementById('onlineCount').textContent=`(${online} online)`;
+}
+function renderMembersGrid(id){
+  const members=getMembers();const presence=getPresence();
+  const wrap=document.getElementById(id);if(!wrap)return;
+  wrap.innerHTML='';
+  members.forEach(m=>{
+    const isOnline=presence[m.id]?.status==='online';
+    const isActive=currentUser?.memberId===m.id;
+    const lastSeen=presence[m.id]?.lastSeen?timeSince(presence[m.id].lastSeen):'Never';
+    const card=document.createElement('div');
+    card.className='member-card'+(isActive?' active-session':'');
+    card.innerHTML=`
+      <div class="member-card-top">
+        <div class="member-avatar" style="background:linear-gradient(135deg,${m.color||'var(--v)'},${m.color||'var(--v)'}88)">
+          ${m.initials}<div class="presence-dot ${isOnline?'online':''}"></div>
+        </div>
+        <div class="member-info"><div class="member-name">${m.name}</div><div class="member-role">${m.role}</div></div>
+      </div>
+      <div class="member-status"><div class="member-status-dot ${isOnline?'online':''}"></div>${isOnline?'Online now':'Last seen '+lastSeen}</div>
+      ${!isActive?`<button class="member-login-btn" onclick="loginAsMember('${m.id}')">Login as ${m.name.split(' ')[0]} →</button>`:`<div style="font-size:10px;color:var(--green);text-align:center;padding:5px;">● Active session</div>`}
+    `;
+    wrap.appendChild(card);
+  });
+}
+function loginAsMember(id){
+  const m=getMembers().find(x=>x.id===id);if(!m)return;
+  currentUser={name:m.name,email:m.id+'@eons.studio',company:'EONS Animation Studio',source:'Team',purpose:'team-member',isTeamMember:true,memberId:m.id,sessionId:Date.now()};
+  userTier='brand'; // Team members get unlimited
+  generationsUsed=0;
+  updatePresence(id,'online');
+  clearInterval(window._hb);
+  window._hb=setInterval(()=>updatePresence(id,'online'),60000);
+  closeTeam();launchChat();
+  toast('Welcome!','Logged in as '+m.name);
+}
+function addMember(){
+  const name=document.getElementById('amName').value.trim();
+  const role=document.getElementById('amRole').value.trim();
+  const initials=document.getElementById('amInitials').value.trim().toUpperCase();
+  if(!name||!initials){toast('Missing info','Enter a name and initials.');return;}
+  const members=getMembers();
+  const colors=['#9b6fd4','#6dd4a8','#d4a96d','#d46d9d','#6d9dd4','#d4836d'];
+  members.push({id:'m'+Date.now(),name,role:role||'Team Member',initials:initials.slice(0,2),color:colors[members.length%colors.length]});
+  saveMembers(members);
+  document.getElementById('amName').value='';document.getElementById('amRole').value='';document.getElementById('amInitials').value='';
+  renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');
+  toast('Member Added!',name+' added to the team.');
+}
+function switchTTab(tab,btn){
+  document.querySelectorAll('.ttab').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.ttab-content').forEach(c=>c.classList.remove('on'));
+  btn.classList.add('on');document.getElementById('tt-'+tab).classList.add('on');
+  if(tab==='leads')renderLeads();
+  if(tab==='convs')renderConvsDash();
+  if(tab==='members'){renderMembersGrid('membersGrid');renderMembersGrid('membersGridFull');}
+  if(tab==='overview')renderTeamStats();
+}
+function renderLeads(){
+  const leads=getLeads();const wrap=document.getElementById('leadsTable');
+  if(!leads.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">📭</div><div>No leads yet.</div></div>`;return;}
+  wrap.innerHTML=`<table class="leads-table"><thead><tr><th>Name</th><th>Email</th><th>Company</th><th>Source</th><th>Purpose</th><th>Tier</th><th>Docs</th><th>Date</th></tr></thead><tbody>${leads.map(l=>`<tr><td><div class="lead-name">${l.name}</div></td><td><div class="lead-email">${l.email}</div></td><td>${l.company||'—'}</td><td><span class="lead-badge free">${l.source||'—'}</span></td><td>${(l.purpose||'').replace('-',' ')}</td><td><span class="lead-badge ${l.tier||'free'}">${l.tier||'free'}</span></td><td style="color:var(--v);font-weight:600">${l.convCount||0}</td><td style="font-size:11px;color:rgba(155,111,212,.4)">${formatDate(l.timestamp)}</td></tr>`).join('')}</tbody></table>`;
+}
+function exportLeads(){
+  const leads=getLeads();if(!leads.length){toast('No leads yet','Share the Studio AI link to start collecting leads.');return;}
+  const csv=['Name,Email,Company,Source,Purpose,Tier,Docs Generated,Date',...leads.map(l=>`"${l.name}","${l.email}","${l.company||''}","${l.source||''}","${l.purpose||''}","${l.tier||'free'}","${l.convCount||0}","${formatDate(l.timestamp)}"`)].join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);a.download='eons-leads.csv';a.click();
+  toast('Exported!','eons-leads.csv downloaded.');
+}
+function renderConvsDash(){
+  const convs=getConvs();const wrap=document.getElementById('convListDash');
+  if(!convs.length){wrap.innerHTML=`<div class="empty-state"><div class="empty-icon">💬</div><div>No conversations yet.</div></div>`;return;}
+  wrap.innerHTML='';
+  convs.forEach(c=>{
+    const item=document.createElement('div');item.className='conv-item';
+    item.innerHTML=`<div class="conv-item-hdr" onclick="this.nextElementSibling.classList.toggle('open')"><div class="conv-item-info"><div class="conv-item-name">${c.name}${c.company?' — '+c.company:''} ${c.isTeamMember?'<span style="color:var(--gold);font-size:9px">[TEAM]</span>':''}</div><div class="conv-item-meta">${c.email} · ${formatDate(c.timestamp)} · <span style="color:var(--v)">${c.type||'explore'}</span></div></div></div><div class="conv-item-body">${fmtT(c.transcript)}</div>`;
+    wrap.appendChild(item);
+  });
+}
+function fmtT(raw){
+  if(!raw)return '<div class="conv-msg"><div class="conv-text">No transcript.</div></div>';
+  return raw.split('\n\n').filter(Boolean).map(b=>{
+    if(b.startsWith('USER: '))return `<div class="conv-msg"><div class="conv-role client">Client</div><div class="conv-text">${b.replace('USER: ','').replace(/</g,'&lt;')}</div></div>`;
+    if(b.startsWith('ASSISTANT: '))return `<div class="conv-msg"><div class="conv-role ai">EONS AI</div><div class="conv-text">${b.replace('ASSISTANT: ','').replace(/</g,'&lt;')}</div></div>`;
+    return `<div class="conv-msg"><div class="conv-text">${b.replace(/</g,'&lt;')}</div></div>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════ CHAT LAUNCH */
+function launchChat(){
+  // Check API key on launch
+  if(!getApiKey()){
+    setTimeout(()=>showApiKeyPrompt(), 800);
+  }
+  document.getElementById('landingView').style.display='none';
+  document.body.style.overflow='hidden'; // prevent scroll when in chat mode
+  document.getElementById('mainWrap').classList.add('active');
+  const initials=currentUser.name.split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
+  document.getElementById('sessionAv').textContent=initials;
+  document.getElementById('sessionName').textContent=currentUser.name;
+  document.getElementById('sessionSub').textContent=currentUser.isTeamMember?'Team Session — EONS AI':'EONS AI — Your Creative Director';
+  updateCreditsDisplay();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(chatHistory.length===0)initChat();
+  // Load conversation history into sidebar
+  loadConversations();
+  renderSidebar();
+  // Show document upload based on tier
+  updateDocUploadVisibility();
+  // Show mobile sidebar button when chat is active
+  const mb=document.getElementById('mobSidebarBtn');
+  if(mb)mb.style.display='flex';
+}
+
+/* ══════════════════════════════════════ SYSTEM PROMPT */
+const SYSTEM=`You are EONS AI — a senior creative director, brand strategist, and consumer psychologist embedded inside EONS Animation Studio. You combine deep 3D animation expertise with executive-level brand thinking and intuitive client psychology.
+
+ABOUT EONS: NYC-based strategy-led motion studio delivering visual systems for growth — not just animation. Team: Ryan Chen (Founder/CEO), Antwain Harty (Animator Team Lead), Dahee Lee (Junior Animator).
+
+PACKAGES (strategic pivot):
+Pilot ($5.5K–$7K, 2–3 weeks) — Proof of concept. Entry-level brand animation.
+Foundation ($6.5K–$8.5K, 3–4 weeks) — Core brand animation system.
+Growth ($12K–$18K, 5–6 weeks) — Campaign-ready asset system. Most common.
+Authority ($22K–$35K, 8–10 weeks) — Full brand infrastructure + multi-video systems.
+Outcome Layers: Launch, AI Simplification, Performance, Authority — added to any package.
+Target clients: Funded startups (Seed–Series B), AI/SaaS companies, DTC/CPG brands, marketing leaders with allocated budgets.
+
+CONSUMER PSYCHOLOGY FRAMEWORK
+People buy on emotion and justify with logic. The stated problem is never the real one. "We need a video" means "we fear being ignored in market." Always surface the emotional core.
+
+BUYER ARCHETYPES — identify which one you are talking to:
+The Visionary: Has a picture in their head, can't articulate it. Ask what brand they love and why. Mirror their language.
+The Analyst: Wants ROI before creative. Lead with business outcome, not aesthetic.
+The Collaborator: Wants to feel heard. Ask more than you answer.
+The Delegator: Wants to hand off and trust. Show confidence, give one recommendation not options.
+The Skeptic: Has been burned before. Name failure modes proactively.
+
+PERCEPTIVE LISTENING — what to notice:
+Hedging language (kind of, sort of, maybe) = uncertain about their brief, not the animation.
+Comparing to big competitor = they fear being mistaken for small.
+Emphasizing speed = there is an undisclosed deadline driving the conversation.
+Saying "simple" = they usually mean "clear." Ask what complex looks like to them.
+Cannot answer "who is this for" = the brief does not exist yet. Help them build it.
+Silence after a specific question = you have touched something important. Stay there.
+
+BRAND STRATEGY FRAMEWORK
+Visual identity is a competitive moat. 3D animation signals: this company invests in its brand, takes itself seriously, has real budget. The goal is visual differentiation — not being the best, being the most distinct.
+
+STRATEGIC REFRAME TECHNIQUE — redirect from output to outcome:
+"We need a product video" → "What does success look like 6 months after this goes live?"
+"We want something cinematic" → "What feeling do you want your customer to have in the first 3 seconds?"
+"We need it to stand out" → "Stand out from what? Who are you next to in your customer's mind?"
+
+VISUAL STRATEGY QUESTIONS:
+Who is the person this reaches, and what does she believe about herself before she sees this?
+What are the 3 brands she respects most — and what do they have in common visually?
+If your brand were a material, what would it be made of and why?
+What is the one frame that does all the work?
+What would a version of this that costs 10x more look like?
+
+3D ANIMATION EXPERTISE
+Techniques: Hero macro shots, liquid simulations, particle systems, caustic lighting, subsurface scattering, chromatic aberration, depth of field, slow motion 120fps, HDRI vs three-point lighting, volumetric fog, procedural texturing, motion blur.
+Styles: Dark luxury editorial (Jacquemus/Bottega), clean tech (Apple), cinematic lifestyle (Nike/Adidas), ethereal organic (Glossier/Aesop), brutalist geometric.
+Camera: Macro reveals, orbit shots, push-in hero, parallax layering, handheld shake in 3D.
+
+CONVERSATION INTELLIGENCE:
+Reference earlier context naturally. Build on answers — if they say luxury, ask which kind. Push back with evidence when warranted. When you sense hesitation, name it. Recommend ONE package with specific justification. Never list all packages. Never say "great idea!" or "certainly!" Short (2–4 sentences) for conversation. Rich only for documents. When concept is ready, suggest sending to EONS.`;
+
+/* ══════════════════════════════════════ CHAT ENGINE */
+function formatMsgText(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g,'<em>$1</em>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+}
+function addMsg(role,text,noTypewriter){
+  const c=document.getElementById('chMsgs');
+  const d=document.createElement('div');
+  d.className='msg '+(role==='assistant'?'bot':'user');
+  const senderName=role==='assistant'?'EONS AI':(currentUser?.name||'You');
+  const avText=role==='assistant'?'AI':(currentUser?.name?.[0]||'U');
+  if(role==='assistant'&&!noTypewriter){
+    d.innerHTML='<div class="msg-av">'+avText+'</div><div class="msg-content"><div class="msg-sender">'+senderName+'</div><div class="msg-bub" id="tw_'+Date.now()+'"><p></p></div></div>';
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+    const bub=d.querySelector('.msg-bub p');
+    const cursor=document.createElement('span');
+    cursor.className='typewriter-cursor';
+    bub.appendChild(cursor);
+    let i=0,last=0;
+    function typeChar(ts){
+      const ch=text[i]||'';
+      const delay=ch===' '?18:ch===','||ch==='.'||ch==='!'||ch==='?'?65:28;
+      if(ts-last>=delay){
+        if(i<text.length){
+          cursor.before(document.createTextNode(text[i]));
+          i++;last=ts;
+          if(i%4===0)c.scrollTop=c.scrollHeight;
+        }else{
+          cursor.remove();
+          d.querySelector('.msg-bub').innerHTML='<p>'+formatMsgText(text)+'</p>';
+          c.scrollTop=c.scrollHeight;
+          return;
+        }
+      }
+      requestAnimationFrame(typeChar);
+    }
+    requestAnimationFrame(typeChar);
+  }else{
+    d.innerHTML='<div class="msg-av">'+avText+'</div><div class="msg-content"><div class="msg-sender">'+senderName+'</div><div class="msg-bub"><p>'+formatMsgText(text)+'</p></div></div>';
+    c.appendChild(d);c.scrollTop=c.scrollHeight;
+  }
+}
+function showTyping(){
+  const c=document.getElementById('chMsgs');
+  const d=document.createElement('div');d.id='typing';d.className='msg bot';
+  const labels=['Directing...','Building the world...','Framing the shot...','Composing...','Thinking in 3D...','Crafting the vision...','Reading the brief...','Finding the angle...'];
+  if(!this._thinkIdx)this._thinkIdx=0;
+  const label=labels[this._thinkIdx%labels.length];this._thinkIdx++;
+  d.innerHTML=`<div class="msg-av">AI</div><div class="msg-content"><div class="msg-sender">EONS AI</div><div class="msg-bub"><div class="eons-thinking"><div class="eons-think-orbs"><div class="eons-orb"></div><div class="eons-orb"></div><div class="eons-orb"></div></div><span class="eons-think-label" id="thinkLabel">${label}</span></div></div></div>`;
+  c.appendChild(d);c.scrollTop=c.scrollHeight;
+  this._thinkInterval=setInterval(function(){
+    const lbl=document.getElementById('thinkLabel');
+    if(lbl){lbl.style.opacity='0';setTimeout(function(){if(lbl){lbl.textContent=labels[Math.floor(Math.random()*labels.length)];lbl.style.opacity='1';}},300);}
+  },2000);
+}
+function hideTyping(){
+  clearInterval(this._thinkInterval);
+  document.getElementById('typing')?.remove();
+}
+
+/* ── API KEY MANAGEMENT ── */
+function getApiKey(){
+  return localStorage.getItem('eons_ai_api_key')||'';
+}
+function setApiKey(key){
+  localStorage.setItem('eons_ai_api_key', key.trim());
+}
+function clearApiKey(){
+  localStorage.removeItem('eons_ai_api_key');
+}
+function showApiKeyPrompt(){
+  // If CONFIG key is set, don't show the modal — something else is wrong
+  if(CONFIG.anthropic_key&&CONFIG.anthropic_key!=='YOUR_KEY_HERE'){
+    toast('Connection Error','Check your API key in the CONFIG block or contact EONS.');
+    return;
+  }
+  document.getElementById('apiKeyModal').classList.add('open');
+}
+function saveApiKey(){
+  const key=document.getElementById('apiKeyInput').value.trim();
+  if(!key.startsWith('sk-ant-')){
+    document.getElementById('apiKeyError').style.display='block';
+    return;
+  }
+  setApiKey(key);
+  document.getElementById('apiKeyModal').classList.remove('open');
+  document.getElementById('apiKeyInput').value='';
+  toast('API Key Saved!','The AI is now connected and ready.');
+}
+function dismissApiKey(){
+  document.getElementById('apiKeyModal').classList.remove('open');
+}
+
+async function sendMsg(){
+  const inp=document.getElementById('chInput');
+  let txt=inp.value.trim();if(!txt)return;
+
+  // Rate limit check
+  const limit=checkRateLimit();
+  if(!limit.allowed){
+    const msg=limit.reason==='burst'
+      ?'Slow down — give me a moment to think.'
+      :'You\'ve hit the hourly limit. Come back soon or reach out at eonstudioanimation@gmail.com.';
+    addMsg('assistant',msg);
+    inp.value='';
+    return;
+  }
+
+  // Sanitize
+  txt=sanitizeInput(txt);
+
+  inp.value='';inp.disabled=true;document.querySelector('.ch-send').disabled=true;
+  // Append any attached document context to the message sent to AI
+  const docCtx=getDocContext();
+  const msgWithDocs=docCtx?txt+docCtx:txt;
+  addMsg('user',txt); // show clean message to user
+  chatHistory.push({role:'user',content:msgWithDocs}); // send with doc context to AI
+  showTyping();
+  try{
+    const [rep]=await Promise.all([callAI(chatHistory),new Promise(r=>setTimeout(r,600))]);
+    hideTyping();if(!rep)return;chatHistory.push({role:'assistant',content:rep});addMsg('assistant',rep);updatePhase();saveCurrentConversation();}
+  catch{hideTyping();addMsg('assistant','Connection issue — email eonstudioanimation@gmail.com');}
+  inp.disabled=false;document.querySelector('.ch-send').disabled=false;inp.focus();
+  // Auto-save conversation to history
+  saveCurrentConversation();
+}
+document.getElementById('chInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}});
+
+function tryGenerate(type){
+  if(!canGenerate()){showPaywall();return;}
+  switch(type){
+    case 'brief':triggerBrief();break;
+    case 'storyboard':triggerBoard();break;
+    case 'visual':triggerVisual();break;
+    case 'competitor':triggerComp();break;
+  }
+}
+
+async function triggerAction(btnId,type,prompt,docTitle,badge,maxT=1500){
+  document.getElementById(btnId)?.classList.add('on');
+  document.getElementById('chPhase').textContent=docTitle;
+  convType=type;
+  const msg=chatHistory.length>0?prompt:'Please describe your brand or product first.';
+  chatHistory.push({role:'user',content:msg});addMsg('user',msg);
+  showTyping();
+  try{
+    const rep=await callAI(chatHistory,maxT);
+    hideTyping();chatHistory.push({role:'assistant',content:rep});
+    lastDoc=rep;lastDocType=badge;
+    document.getElementById('outTitle').textContent=docTitle;
+    document.getElementById('outBadge').textContent=badge;
+    document.getElementById('outBody').textContent=rep;
+    document.getElementById('outputPanel').classList.add('active');
+    document.getElementById('outputPanel').scrollIntoView({behavior:'smooth',block:'nearest'});
+    incrementGenerations();updatePhase();
+    if(!canGenerate()&&userTier==='free'){
+      setTimeout(()=>{addMsg('assistant','You\'ve used your 2 free generations — I hope they were valuable. To keep building, upgrade to a plan. Hit the credits badge above or the Send to Studio button to connect with the EONS team directly.');},1000);
+    }
+  }catch{hideTyping();addMsg('assistant','Connection issue — please try again.');}
+}
+async function triggerBrief(){await triggerAction('btnBrief','brief','Based on our conversation, generate a complete professional creative brief: Project Objective, Target Audience (psychographic), Brand Tone (3 adjectives + what it\'s NOT), Visual Style Direction with specific 3D techniques, Animation Approach, Key Messages, Deliverables Spec per platform, Production Complexity Notes, and Recommended Package with justification.','Creative Brief','BRIEF',1600);}
+async function triggerBoard(){await triggerAction('btnBoard','storyboard','Write a detailed cinematic storyboard — every scene with shot type, camera angle using cinematography terms, animation action with specific 3D technique references, lighting notes, sound/text notes, and production complexity rating (Simple/Moderate/Complex).','Storyboard','STORYBOARD',1600);}
+async function triggerVisual(){await triggerAction('btnVisual','visual','Generate a complete Visual Direction Document: color temperature and palette rationale, animation pace, camera movement vocabulary, lighting philosophy, material and texture direction, music mood with specific artist references, 3-5 real-world aesthetic references with explanations, and what to explicitly avoid.','Visual Direction','VISUAL DIR',1400);}
+async function triggerComp(){await triggerAction('btnComp','competitor','Conduct a competitor visual gap analysis. Ask for my industry and key competitors if needed. Identify what each owns visually, find the unclaimed territory, and build a business case for 3D animation filling that gap.','Competitor Analysis','GAP ANALYSIS',1200);}
+
+function updatePhase(){
+  const p=document.getElementById('chPhase');
+  p.textContent=chatHistory.length>=10?'Ready':chatHistory.length>=6?'Building':chatHistory.length>=2?'Developing':'Explore';
+}
+
+function initChat(){
+  const openers={
+    'develop-concept':`I'm the EONS AI — your creative director for this session. You're here to develop a concept, so let's go deep before we build anything. Tell me about the brand or product. Don't be generic — what makes it different, who's the person buying it, and what do you want them to feel?`,
+    'generate-brief':`I'm the EONS AI. You want a brief — let's make it a real one. Tell me about the project and I'll ask the questions that actually matter before we produce the document.`,
+    'storyboard':`I'm the EONS AI. You want a storyboard — good. A great storyboard starts with understanding the brand and the emotional goal of the piece. Tell me about the product or campaign.`,
+    'research':`I'm the EONS AI. You're in research mode — smart. Tell me about your product or company and I'll show you specifically what 3D animation could do for a brand like yours.`,
+    'hire-studio':`I'm the EONS AI. You're ready to move — let's make sure you walk into the EONS conversation with a real concept, not just an idea. Tell me about the project.`,
+    'just-exploring':`I'm the EONS AI. Tell me about a brand you admire or a product you'd love to see in 3D — I'll show you what this AI can actually do.`,
+    'team-member':`Welcome back. You're logged in as a team member — unlimited generations. What are you working on?`,
+  };
+  const opening=openers[currentUser?.purpose]||openers['just-exploring'];
+  addMsg('assistant',opening);
+  chatHistory.push({role:'assistant',content:opening});
+}
+
+/* ══════════════════════════════════════ CONCEPT SUBMISSION */
+let builtConcept='';
+function openCP(){builtConcept=chatHistory.map(m=>`${m.role.toUpperCase()}: ${m.content}`).join('\n\n');if(lastDoc)builtConcept+=`\n\n════ ${lastDocType} ════\n\n${lastDoc}`;document.getElementById('conceptPanel').classList.add('open');}
+function closeCP(){document.getElementById('conceptPanel').classList.remove('open');}
+async function submitConcept(){
+  const notes=document.getElementById('cfNotes').value.trim();
+  const btn=document.querySelector('.cp-send');btn.textContent='Sending...';btn.disabled=true;
+  const transcript=builtConcept+(notes?'\n\nNOTES: '+notes:'');
+  saveConv({id:Date.now(),timestamp:new Date().toISOString(),name:currentUser.name,email:currentUser.email,company:currentUser.company||'',source:currentUser.source,purpose:currentUser.purpose,type:convType,transcript,isTeamMember:currentUser.isTeamMember,memberId:currentUser.memberId||null,tier:userTier});
+  const subj=encodeURIComponent(`New EONS AI Concept — ${currentUser.company||currentUser.name}`);
+  const body=encodeURIComponent(`STUDIO AI CONCEPT SUBMISSION\n\nName: ${currentUser.name}\nEmail: ${currentUser.email}\nCompany: ${currentUser.company||'N/A'}\nSource: ${currentUser.source}\nPurpose: ${currentUser.purpose}\nTier: ${userTier}\n\n${builtConcept}`);
+  window.open(`mailto:eonstudioanimation@gmail.com?subject=${subj}&body=${body}`,'_blank');
+  setTimeout(()=>{closeCP();toast('Concept Sent! 🎬','EONS team will reach out within 24 hours.');addMsg('assistant',`Sent! **${currentUser.name}**, the EONS team will reach out to **${currentUser.email}** within 24 hours. 🎬`);btn.textContent='Send to Studio →';btn.disabled=false;},500);
+}
+
+/* ══════════════════════════════════════ OUTPUT */
+function copyOut(){navigator.clipboard.writeText(lastDoc).then(()=>toast('Copied!','Document copied to clipboard.'));}
+function continueChat(){document.getElementById('outputPanel').classList.remove('active');addMsg('assistant',`Your ${lastDocType.toLowerCase()} is ready above. Want me to refine any section, generate another document, or are you ready to send this to the EONS team?`);}
+
+/* ══════════════════════════════════════ UTILS */
+function formatDate(ts){try{return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}catch{return'—';}}
+function timeSince(ms){const s=Math.floor((Date.now()-ms)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';}
+function toast(title,msg){document.getElementById('toastT').textContent=title;document.getElementById('toastM').textContent=msg;const t=document.getElementById('toast');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4500);}
+
+/* ══════════════════════════════════════ BILLING TOGGLE */
+let billingMode='monthly';
+function setBilling(mode){
+  billingMode=mode;
+  document.getElementById('btnMonthly').classList.toggle('on',mode==='monthly');
+  document.getElementById('btnAnnual').classList.toggle('on',mode==='annual');
+  // Update prices
+  const prices={
+    creator:{monthly:'$25<span>/mo</span>',annual:'$20<span>/mo</span>',
+             periodM:'Billed monthly',periodA:'Billed annually ($240/yr)',
+             noteA:'Save $60/year vs monthly'},
+    brand:  {monthly:'$49<span>/mo</span>',annual:'$39<span>/mo</span>',
+             periodM:'Billed monthly',periodA:'Billed annually ($470/yr)',
+             noteA:'Save $118/year vs monthly'},
+    studio: {monthly:'$75<span>/mo</span>',annual:'$70<span>/mo</span>',
+             periodM:'Billed monthly',periodA:'Billed annually ($840/yr)',
+             noteA:'Save $60/year vs monthly'},
+  };
+  ['creator','brand','studio'].forEach(tier=>{
+    const isAnnual=mode==='annual';
+    const p=prices[tier];
+    const priceEl=document.getElementById('price-'+tier);
+    const periodEl=document.getElementById('period-'+tier);
+    const noteEl=document.getElementById('annual-'+tier);
+    if(priceEl)priceEl.innerHTML=isAnnual?p.annual:p.monthly;
+    if(periodEl)periodEl.textContent=isAnnual?p.periodA:p.periodM;
+    if(noteEl){noteEl.textContent=isAnnual?p.noteA:'';noteEl.style.display=isAnnual?'block':'none';}
+  });
+  // Update Stripe links based on billing mode
+  // When Stripe is configured, add annual variants here
+}
+
+/* ══════════════════════════════════════ SIDEBAR — CONVERSATION HISTORY */
+let conversations=[]; // [{id,title,timestamp,history,convType,user}]
+let activeConvId=null;
+
+function loadConversations(){
+  try{conversations=JSON.parse(localStorage.getItem('eons_conv_history')||'[]');}
+  catch{conversations=[];}
+}
+function saveConversations(){
+  try{
+    // Keep last 100 conversations
+    if(conversations.length>100)conversations=conversations.slice(0,100);
+    localStorage.setItem('eons_conv_history',JSON.stringify(conversations));
+  }catch{}
+}
+function getConvTitle(history){
+  // Extract a meaningful title from the first user message
+  const firstUser=history.find(m=>m.role==='user');
+  if(!firstUser)return'New Conversation';
+  const t=firstUser.content.replace(/<[^>]+>/g,'').trim();
+  return t.length>45?t.slice(0,45)+'…':t;
+}
+function saveCurrentConversation(){
+  if(!chatHistory||chatHistory.length<2)return;
+  if(!currentUser)return;
+  const title=getConvTitle(chatHistory);
+  if(activeConvId){
+    // Update existing
+    const idx=conversations.findIndex(c=>c.id===activeConvId);
+    if(idx>-1){
+      conversations[idx]={...conversations[idx],history:[...chatHistory],
+        title,timestamp:Date.now(),convType};
+    }
+  }else{
+    // Create new
+    activeConvId='c'+Date.now();
+    conversations.unshift({id:activeConvId,title,timestamp:Date.now(),
+      history:[...chatHistory],convType,user:currentUser?.name||'',
+      purpose:currentUser?.purpose||''});
+  }
+  saveConversations();
+  renderSidebar();
+}
+function loadConversation(id){
+  const conv=conversations.find(c=>c.id===id);
+  if(!conv)return;
+  activeConvId=id;
+  chatHistory=[...conv.history];
+  convType=conv.convType||'explore';
+  // Clear and re-render messages
+  const msgs=document.getElementById('chMsgs');
+  if(msgs){
+    msgs.innerHTML='';
+    chatHistory.forEach(m=>addMsg(m.role,m.content));
+  }
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(el=>{
+    el.classList.toggle('active',el.dataset.id===id);
+  });
+  // Hide output panel
+  document.getElementById('outputPanel').classList.remove('active');
+}
+function deleteConversation(id,e){
+  e.stopPropagation();
+  conversations=conversations.filter(c=>c.id!==id);
+  if(activeConvId===id){activeConvId=null;}
+  saveConversations();
+  renderSidebar();
+}
+function newConversation(){
+  // Save current before starting new
+  saveCurrentConversation();
+  activeConvId=null;
+  chatHistory=[];
+  convType='explore';
+  lastDoc='';lastDocType='';
+  const msgs=document.getElementById('chMsgs');
+  if(msgs)msgs.innerHTML='';
+  document.getElementById('outputPanel').classList.remove('active');
+  // Remove active state from sidebar
+  document.querySelectorAll('.sidebar-item').forEach(el=>el.classList.remove('active'));
+  // Re-init chat with opening message
+  if(currentUser)initChat();
+  toast('New Conversation','Starting fresh.');
+}
+function renderSidebar(){
+  const wrap=document.getElementById('sidebarList');
+  if(!wrap)return;
+  const q=(document.getElementById('sidebarSearch')?.value||'').toLowerCase();
+  const filtered=conversations.filter(c=>
+    !q||c.title.toLowerCase().includes(q)||c.user.toLowerCase().includes(q));
+  if(!filtered.length){
+    wrap.innerHTML='<div class="sidebar-empty">No conversations yet.<br>Start chatting to see history here.</div>';
+    return;
+  }
+  // Group by date
+  const now=Date.now();
+  const today=filtered.filter(c=>now-c.timestamp<86400000);
+  const week=filtered.filter(c=>now-c.timestamp>=86400000&&now-c.timestamp<604800000);
+  const older=filtered.filter(c=>now-c.timestamp>=604800000);
+  let html='';
+  if(today.length){html+='<div class="sidebar-group-label">Today</div>';html+=today.map(convItem).join('');}
+  if(week.length){html+='<div class="sidebar-group-label">This Week</div>';html+=week.map(convItem).join('');}
+  if(older.length){html+='<div class="sidebar-group-label">Older</div>';html+=older.map(convItem).join('');}
+  wrap.innerHTML=html;
+}
+function convItem(c){
+  const isActive=c.id===activeConvId;
+  const date=new Date(c.timestamp).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return`<div class="sidebar-item${isActive?' active':''}" data-id="${c.id}"
+    onclick="loadConversation('${c.id}')">
+    <div class="sidebar-item-title">${c.title.replace(/</g,'&lt;')}</div>
+    <div class="sidebar-item-meta">${date}${c.convType&&c.convType!=='explore'?' · '+c.convType:''}</div>
+    <button class="sidebar-item-del" onclick="deleteConversation('${c.id}',event)" title="Delete">✕</button>
+  </div>`;
+}
+
+/* Sidebar open/close/toggle */
+let sidebarOpen=true;
+function toggleSidebar(){
+  sidebarOpen=!sidebarOpen;
+  const sb=document.getElementById('chatSidebar');
+  const tog=document.getElementById('sidebarToggle');
+  if(sb){sb.classList.toggle('collapsed',!sidebarOpen);}
+  if(tog){tog.textContent=sidebarOpen?'◀':'▶';tog.classList.toggle('collapsed',!sidebarOpen);
+    tog.style.left=sidebarOpen?'260px':'0';}
+}
+function openSidebar(){
+  const sb=document.getElementById('chatSidebar');
+  const ov=document.getElementById('sidebarOverlay');
+  const mb=document.getElementById('mobSidebarBtn');
+  if(sb)sb.classList.add('open');
+  if(ov)ov.classList.add('open');
+}
+function closeSidebar(){
+  const sb=document.getElementById('chatSidebar');
+  const ov=document.getElementById('sidebarOverlay');
+  if(sb)sb.classList.remove('open');
+  if(ov)ov.classList.remove('open');
+}
+
+/* ══════════════════════════════════════ PDF / DOCUMENT HANDLING */
+let attachedDocs=[]; // [{name,content,type}]
+
+function updateDocUploadVisibility(){
+  const canUpload=userTier==='creator'||userTier==='brand'||userTier==='studio'||
+    (currentUser?.isTeamMember);
+  const bar=document.getElementById('docUploadBar');
+  const locked=document.getElementById('docLockedBar');
+  if(bar)bar.style.display=canUpload?'flex':'none';
+  if(locked)locked.style.display=canUpload?'none':'flex';
+}
+async function handleDocUpload(input){
+  const files=Array.from(input.files);
+  if(!files.length)return;
+  for(const file of files){
+    if(file.size>10*1024*1024){toast('File Too Large',file.name+' exceeds 10MB limit.');continue;}
+    const reader=new FileReader();
+    reader.onload=async(e)=>{
+      const content_=e.target.result;
+      let textContent='';
+      if(file.type==='application/pdf'||file.name.endsWith('.pdf')){
+        // Extract readable text from PDF using basic extraction
+        textContent=`[PDF: ${file.name}]
+${extractTextFromPDF(content_)}`;
+      }else{
+        // Plain text/doc
+        textContent=typeof content_==='string'?content_:
+          `[Document: ${file.name}]
+(Binary document — describe its contents in your message)`;
+      }
+      attachedDocs.push({name:file.name,content:textContent,type:file.type});
+      renderDocTags();
+      toast('Document Attached',file.name+' added to context.');
+    };
+    if(file.type==='text/plain'||file.name.endsWith('.txt')){
+      reader.readAsText(file);
+    }else{
+      reader.readAsText(file); // best effort for .docx etc
+    }
+  }
+  input.value=''; // reset input
+}
+function extractTextFromPDF(data){
+  // Basic text extraction from PDF binary — extracts readable strings
+  try{
+    const matches=data.match(/\(([^)]{3,})\)/g)||[];
+    return matches.slice(0,200).map(m=>m.slice(1,-1)).join(' ').slice(0,4000);
+  }catch{return'(Unable to extract text — describe the document contents in your message)';}
+}
+function renderDocTags(){
+  const wrap=document.getElementById('docTagsWrap');
+  if(!wrap)return;
+  wrap.innerHTML=attachedDocs.map((d,i)=>
+    `<div class="doc-tag" title="${d.name}">
+      <span class="doc-tag-name">📄 ${d.name}</span>
+      <span class="doc-tag-del" onclick="removeDoc(${i})">✕</span>
+    </div>`
+  ).join('');
+}
+function removeDoc(i){
+  attachedDocs.splice(i,1);
+  renderDocTags();
+}
+function getDocContext(){if(!attachedDocs.length)return '';const docs=attachedDocs.map(d=>'--- '+d.name+' ---\n'+d.content).join('\n\n');return '\n\n[ATTACHED DOCUMENTS]\n'+docs+'\n[END DOCUMENTS]\n';}
+
+
+/* ══ THEME TOGGLE ══ */
+function initTheme(){
+  const saved=localStorage.getItem('eons_theme')||'dark';
+  document.documentElement.setAttribute('data-theme',saved);
+  updateThemeIcon(saved);
+}
+function toggleTheme(){
+  const current=document.documentElement.getAttribute('data-theme')||'dark';
+  const next=current==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('eons_theme',next);
+  updateThemeIcon(next);
+}
+function updateThemeIcon(theme){
+  const icon=document.getElementById('themeIcon');
+  if(icon)icon.textContent=theme==='dark'?'☀️':'🌙';
+}
+initTheme();
+/* ══════════════════════════════════════ HASH ROUTING */
+window.addEventListener('hashchange',()=>{if(location.hash==='#team')openTeam();});
+if(location.hash==='#team')openTeam();
+</script>
+
+<!-- API KEY MODAL -->
+<div id="apiKeyModal">
+  <div class="ak-card">
+    <span class="ak-icon">🔑</span>
+    <div class="ak-title">Connect Your API Key</div>
+    <div class="ak-sub">The EONS AI needs an Anthropic API key to power the creative director. Your key is stored only in your browser — never sent anywhere except directly to Anthropic.</div>
+    <input class="ak-input" id="apiKeyInput" type="password" placeholder="sk-ant-api03-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveApiKey();">
+    <div class="ak-error" id="apiKeyError">Key must start with sk-ant- — check your Anthropic console.</div>
+    <div class="ak-actions">
+      <button class="ak-dismiss" onclick="dismissApiKey()">Cancel</button>
+      <button class="ak-save" onclick="saveApiKey()">Connect →</button>
+    </div>
+    <div class="ak-note">
+      Get your free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys → Create Key.<br>
+      New accounts get $5 free credit. ~$0.02 per conversation.
+    </div>
+  </div>
+</div>
+</body>
+</html>

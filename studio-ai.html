@@ -1,0 +1,1732 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EONS AI — 3D Animation Creative Director</title>
+<meta name="description" content="AI-powered 3D animation creative director. Generate professional briefs, storyboards, and visual direction in minutes.">
+<link rel="canonical" href="https://eons.studio/studio-ai.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #05040e;
+  --bg2: #0c0820;
+  --surface: rgba(155,111,212,.07);
+  --glass: rgba(12,8,28,.85);
+  --border: rgba(180,160,240,.12);
+  --border2: rgba(180,160,240,.22);
+  --v: #9b6fd4;
+  --v2: #7a52b8;
+  --mauve: #c4b0e8;
+  --md: #8a78b8;
+  --white: #f0ecfa;
+  --dim: rgba(196,176,232,.55);
+  --dim2: rgba(196,176,232,.4);
+  --glow: rgba(155,111,212,.22);
+  --green: #6dd4a8;
+  --red: #e87070;
+  --nav-h: 58px;
+  --text: #f0ecfa;
+  --input-bg: rgba(255,255,255,.04);
+  --sidebar-bg: rgba(5,4,14,.96);
+}
+[data-theme="light"] {
+  --bg: #e8e4f0; --bg2: #ddd8ec;
+  --surface: rgba(155,111,212,.08);
+  --glass: rgba(232,228,240,.92);
+  --border: rgba(130,90,190,.16);
+  --border2: rgba(130,90,190,.3);
+  --text: #1a0e35; --dim: rgba(40,20,80,.7);
+  --dim2: rgba(40,20,80,.5);
+  --input-bg: rgba(255,255,255,.6);
+  --sidebar-bg: rgba(232,228,240,.97);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-weight:300;overflow-x:hidden;min-height:100vh;}
+a{text-decoration:none;color:inherit;}
+button{font-family:'Barlow',sans-serif;}
+
+/* ── CANVAS ── */
+#bgCanvas{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:var(--nav-h);padding:0 24px;display:flex;align-items:center;justify-content:space-between;background:var(--glass);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:var(--white);}
+.nav-logo span{color:var(--v);}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.nav-ai-badge{display:flex;align-items:center;gap:6px;padding:4px 12px;background:rgba(155,111,212,.15);border:1px solid rgba(155,111,212,.3);border-radius:100px;font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--v);}
+.nav-ai-badge-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.theme-toggle{width:32px;height:32px;border:1px solid var(--border);border-radius:8px;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:.3s;}
+.theme-toggle:hover{border-color:var(--v);background:var(--surface);}
+.nav-team-btn{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--md);cursor:pointer;transition:.3s;}
+.nav-team-btn:hover{border-color:var(--v);color:var(--v);}
+.nav-back{font-size:11px;letter-spacing:.1em;color:var(--dim);transition:.3s;}
+.nav-back:hover{color:var(--white);}
+
+/* ── OVERLAY BASE ── */
+.overlay{display:none;position:fixed;inset:0;z-index:2000;overflow-y:auto;}
+.overlay.active{display:flex;align-items:center;justify-content:center;padding:80px 16px 40px;}
+.overlay-bg{position:fixed;inset:0;background:rgba(5,4,14,.85);backdrop-filter:blur(8px);}
+
+/* ── EMAIL GATE ── */
+.gate-wrap{position:relative;z-index:1;width:100%;max-width:520px;}
+.gate-card{background:var(--glass);border:1px solid var(--border2);border-radius:20px;overflow:hidden;backdrop-filter:blur(16px);}
+.step-indicator{display:flex;align-items:center;justify-content:center;gap:0;margin-bottom:24px;}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--dim);transition:.3s;background:var(--bg);}
+.step-dot.active{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.1);}
+.step-dot.done{border-color:var(--v);background:var(--v);color:#fff;}
+.step-line{width:40px;height:2px;background:var(--border);transition:.3s;}
+.step-line.done{background:var(--v);}
+.gate-hdr{padding:28px 28px 0;text-align:center;}
+.gate-hdr-icon{font-size:32px;margin-bottom:12px;display:block;}
+.gate-hdr-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.06em;margin-bottom:8px;}
+.gate-hdr-sub{font-size:13px;color:var(--dim);line-height:1.7;max-width:380px;margin:0 auto;}
+.gate-body{padding:24px 28px 28px;}
+.gate-step{display:none;flex-direction:column;gap:12px;}
+.gate-step.active{display:flex;}
+.gate-field{display:flex;flex-direction:column;gap:5px;}
+.gate-label{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--md);}
+.gate-input{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;outline:none;transition:.3s;width:100%;}
+.gate-input:focus{border-color:var(--v);}
+.gate-input::placeholder{color:var(--dim2);}
+.gate-btn{padding:13px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:10px;font-size:13px;font-weight:600;letter-spacing:.08em;color:#fff;cursor:pointer;transition:.3s;box-shadow:0 0 24px var(--glow);}
+.gate-btn:hover{opacity:.9;transform:translateY(-1px);}
+.gate-btn-ghost{padding:10px;background:transparent;border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--dim);cursor:pointer;transition:.3s;text-align:center;}
+.gate-btn-ghost:hover{border-color:var(--md);color:var(--mauve);}
+.gate-error{font-size:12px;color:var(--red);display:none;padding:4px 0;}
+.gate-error.show{display:block;}
+.gate-privacy{font-size:11px;color:var(--dim2);text-align:center;margin-top:8px;}
+.gate-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:rgba(155,111,212,.04);}
+.gate-toggle-btn{padding:4px 12px;border:1px solid rgba(155,111,212,.3);border-radius:100px;background:transparent;font-size:11px;font-weight:600;color:var(--v);cursor:pointer;transition:.3s;letter-spacing:.06em;}
+.gate-toggle-btn:hover{background:rgba(155,111,212,.1);}
+.gate-returning-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;margin:0 auto 12px;box-shadow:0 0 24px var(--glow);}
+.source-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.source-btn{padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:transparent;font-size:12px;color:var(--dim);cursor:pointer;transition:.3s;text-align:left;display:flex;align-items:center;gap:8px;}
+.source-btn:hover,.source-btn.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+.purpose-grid{display:grid;grid-template-columns:1fr;gap:8px;}
+.purpose-btn{padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:transparent;font-size:13px;color:var(--dim);cursor:pointer;transition:.3s;text-align:left;display:flex;align-items:center;gap:10px;}
+.purpose-btn:hover,.purpose-btn.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+.purpose-btn-icon{font-size:18px;flex-shrink:0;}
+.purpose-btn-text{display:flex;flex-direction:column;gap:2px;}
+.purpose-btn-title{font-weight:500;font-size:13px;}
+.purpose-btn-sub{font-size:11px;color:var(--dim2);}
+
+/* ── LANDING PAGE ── */
+#landingView{position:relative;z-index:2;padding-top:var(--nav-h);}
+.landing{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;position:relative;z-index:2;}
+.landing-kicker{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--md);margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.landing-kicker::before,.landing-kicker::after{content:'';width:28px;height:1px;background:rgba(155,111,212,.28);}
+.landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,9vw,110px);line-height:.9;letter-spacing:.02em;margin-bottom:20px;color:var(--text);}
+.landing-title .grad{background:linear-gradient(135deg,var(--v) 0%,#d8ccf5 50%,#e0b8d0 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.landing-sub{font-size:clamp(14px,2vw,17px);color:var(--dim);line-height:1.75;max-width:520px;margin:0 auto 32px;}
+.landing-sub strong{color:var(--mauve);font-weight:500;}
+.landing-cta{padding:14px 36px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:10px;font-size:14px;font-weight:600;letter-spacing:.08em;color:#fff;cursor:pointer;box-shadow:0 0 32px var(--glow);transition:.3s;margin-bottom:12px;}
+.landing-cta:hover{transform:translateY(-2px);box-shadow:0 0 48px rgba(155,111,212,.5);}
+.landing-note{font-size:11px;color:var(--dim2);letter-spacing:.06em;}
+
+/* Orb animation */
+.orb-scene{width:180px;height:180px;margin:0 auto 36px;perspective:600px;position:relative;}
+.orb-wrap{width:100%;height:100%;position:relative;transform-style:preserve-3d;animation:orbSpin 12s linear infinite;}
+@keyframes orbSpin{from{transform:rotateY(0) rotateX(12deg);}to{transform:rotateY(360deg) rotateX(12deg);}}
+.orb{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(155,111,212,.9),rgba(80,40,140,.6),rgba(20,10,50,.4));box-shadow:0 0 60px rgba(155,111,212,.4),inset 0 0 40px rgba(255,255,255,.08);position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;}
+.orb-inner{width:60%;height:60%;border-radius:50%;background:radial-gradient(circle at 40% 30%,rgba(255,255,255,.15),transparent);border:1px solid rgba(255,255,255,.1);}
+.orb-ring{position:absolute;top:50%;left:50%;width:160px;height:160px;border:1px solid rgba(155,111,212,.2);border-radius:50%;transform:translate(-50%,-50%) rotateX(70deg);animation:ringPulse 3s ease-in-out infinite;}
+@keyframes ringPulse{0%,100%{border-color:rgba(155,111,212,.15);}50%{border-color:rgba(155,111,212,.4);}}
+
+/* Capability cards */
+.scroll-section{padding:70px 24px;max-width:960px;margin:0 auto;position:relative;z-index:2;}
+.caps-hdr{text-align:center;margin-bottom:32px;}
+.caps-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,58px);letter-spacing:.04em;margin-bottom:10px;}
+.caps-sub{font-size:14px;color:var(--dim);line-height:1.7;}
+.caps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+.cap-card{padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:14px;transition:.3s;text-align:left;}
+.cap-card:hover{border-color:rgba(155,111,212,.3);transform:translateY(-3px);}
+.cap-icon{font-size:24px;margin-bottom:10px;display:block;}
+.cap-title{font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.06em;margin-bottom:6px;}
+.cap-desc{font-size:12px;color:var(--dim);line-height:1.6;}
+.cap-tag{display:inline-block;margin-top:8px;padding:2px 8px;background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.2);border-radius:100px;font-size:10px;letter-spacing:.08em;color:var(--md);}
+
+/* Pricing section on landing */
+.pricing-landing{padding:60px 24px;max-width:960px;margin:0 auto;position:relative;z-index:2;text-align:center;}
+.pricing-landing-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,5vw,52px);letter-spacing:.04em;margin-bottom:8px;}
+.pricing-landing-sub{font-size:14px;color:var(--dim);margin-bottom:32px;}
+.billing-toggle{display:inline-flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;margin-bottom:28px;}
+.bt-btn{padding:7px 18px;border:none;border-radius:8px;font-size:12px;font-weight:500;letter-spacing:.06em;color:var(--dim);background:transparent;cursor:pointer;transition:.3s;}
+.bt-btn.on{background:var(--v);color:#fff;}
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;text-align:left;}
+.pc{padding:22px 18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;position:relative;transition:.3s;}
+.pc:hover{border-color:rgba(155,111,212,.3);transform:translateY(-3px);}
+.pc.hot{border-color:rgba(155,111,212,.45);background:rgba(155,111,212,.09);}
+.pc-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);padding:3px 12px;background:linear-gradient(135deg,var(--v),var(--v2));border-radius:100px;font-size:10px;letter-spacing:.1em;color:#fff;white-space:nowrap;}
+.pc-name{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--md);margin-bottom:6px;}
+.pc-price{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.02em;line-height:1;}
+.pc-period{font-size:12px;color:var(--dim);margin-bottom:4px;}
+.pc-annual-note{font-size:11px;color:var(--v);margin-bottom:14px;}
+.pc-feats{list-style:none;margin-bottom:16px;}
+.pc-feats li{font-size:12px;color:var(--dim);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.pc-feats li::before{content:'→';color:var(--v);font-size:9px;}
+.pc-btn{width:100%;padding:9px;background:transparent;border:1px solid var(--border2);border-radius:8px;font-size:11px;font-weight:600;letter-spacing:.08em;color:var(--mauve);cursor:pointer;transition:.3s;}
+.pc.hot .pc-btn{background:linear-gradient(135deg,var(--v),var(--v2));border-color:transparent;color:#fff;box-shadow:0 0 16px var(--glow);}
+
+/* ── CHAT AREA ── */
+#mainWrap{display:none;position:fixed;inset:0;top:var(--nav-h);z-index:2;flex-direction:column;background:var(--bg);}
+.chat-layout{display:flex;height:100%;overflow:hidden;}
+.chat-sidebar{width:240px;flex-shrink:0;border-right:1px solid var(--border);background:var(--sidebar-bg);padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;}
+@media(max-width:768px){.chat-sidebar{display:none;}}
+.sidebar-new-btn{width:100%;padding:9px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:12px;color:var(--mauve);cursor:pointer;transition:.3s;display:flex;align-items:center;gap:6px;justify-content:center;}
+.sidebar-new-btn:hover{border-color:var(--v);color:var(--v);}
+.sidebar-list{display:flex;flex-direction:column;gap:4px;flex:1;}
+.sidebar-item{padding:8px 10px;border-radius:8px;cursor:pointer;transition:.3s;font-size:12px;color:var(--dim);border:1px solid transparent;}
+.sidebar-item:hover{background:var(--surface);color:var(--mauve);}
+.sidebar-item.active{background:rgba(155,111,212,.1);border-color:rgba(155,111,212,.2);color:var(--mauve);}
+.chat-main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.ch-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ch-hdr-av{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--v),var(--v2));display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 0 12px var(--glow);}
+.ch-hdr-info{flex:1;}
+.ch-hdr-name{font-size:13px;font-weight:600;}
+.ch-hdr-status{font-size:11px;color:var(--green);}
+.ch-phase{font-size:10px;padding:3px 9px;background:rgba(155,111,212,.12);border-radius:100px;color:var(--md);letter-spacing:.08em;}
+.credits-badge{font-size:10px;padding:3px 8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--dim);}
+.ch-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;}
+.ch-msgs::-webkit-scrollbar{width:3px;}
+.ch-msgs::-webkit-scrollbar-thumb{background:rgba(155,111,212,.25);border-radius:2px;}
+.ch-msg{display:flex;gap:8px;align-items:flex-start;animation:msgIn .3s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.ch-av{width:26px;height:26px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+.ch-msg.assistant .ch-av{background:rgba(155,111,212,.15);color:var(--v);}
+.ch-msg.user .ch-av{background:rgba(155,111,212,.25);color:var(--white);}
+.ch-content{flex:1;min-width:0;}
+.ch-sender{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);margin-bottom:4px;}
+.ch-text{font-size:13px;line-height:1.75;color:var(--text);}
+.ch-text strong{color:var(--mauve);font-weight:600;}
+.ch-text code{background:rgba(155,111,212,.12);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px;}
+.ch-actions{padding:6px 12px;border-top:1px solid var(--border);display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;}
+.ch-action-btn{padding:4px 10px;border:1px solid var(--border);border-radius:100px;background:transparent;font-size:10px;letter-spacing:.06em;color:var(--md);cursor:pointer;transition:.3s;}
+.ch-action-btn:hover,.ch-action-btn.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+.ch-action-btn.mode-active{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.15);box-shadow:0 0 10px rgba(155,111,212,.15);}
+.mode-badge{position:fixed;top:calc(var(--nav-h) + 8px);left:50%;transform:translateX(-50%);padding:4px 14px;background:rgba(155,111,212,.15);border:1px solid rgba(155,111,212,.3);border-radius:100px;font-size:11px;letter-spacing:.1em;color:var(--v);z-index:100;display:none;pointer-events:none;}
+.mode-badge.show{display:block;}
+/* Sidebar conversation items */
+.conv-group-label{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2);padding:8px 8px 4px;margin-top:4px;}
+.conv-item{padding:8px 10px;border-radius:8px;cursor:pointer;transition:.3s;border:1px solid transparent;}
+.conv-item:hover{background:var(--surface);border-color:var(--border);}
+.conv-item.active{background:rgba(155,111,212,.1);border-color:rgba(155,111,212,.2);}
+.conv-item-title{font-size:12px;color:var(--text);font-weight:500;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-item-meta{font-size:10px;color:var(--dim2);}
+.conv-item-del{float:right;opacity:0;font-size:11px;color:var(--red);cursor:pointer;padding:0 2px;}
+.conv-item:hover .conv-item-del{opacity:.6;}
+.conv-item-del:hover{opacity:1!important;}
+/* Saved work items */
+.saved-item{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+.saved-item-hdr{padding:10px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;transition:.3s;}
+.saved-item-hdr:hover{background:rgba(155,111,212,.05);}
+.saved-item-title{font-size:13px;font-weight:500;}
+.saved-item-meta{font-size:10px;color:var(--dim2);}
+.saved-item-body{display:none;padding:12px 14px;font-size:12px;color:var(--dim);line-height:1.7;border-top:1px solid var(--border);white-space:pre-wrap;max-height:200px;overflow-y:auto;}
+.saved-item.open .saved-item-body{display:block;}
+.saved-item-chevron{font-size:10px;color:var(--md);transition:transform .3s;}
+.saved-item.open .saved-item-chevron{transform:rotate(180deg);}
+.ch-input-row{padding:10px 12px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
+.ch-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;outline:none;transition:.3s;resize:none;min-height:42px;max-height:120px;}
+.ch-input:focus{border-color:var(--md);}
+.ch-input::placeholder{color:var(--dim2);}
+.ch-send{width:36px;height:36px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--glow);transition:.3s;flex-shrink:0;}
+.ch-send:hover{transform:scale(1.05);box-shadow:0 0 24px rgba(155,111,212,.5);}
+.ch-send svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;}
+
+/* Thinking animation */
+.eons-thinking{display:flex;align-items:center;gap:8px;padding:2px 0;}
+.eons-think-orbs{display:flex;gap:4px;}
+.eons-orb{width:6px;height:6px;border-radius:50%;background:var(--v);animation:orbBounce 1.4s ease-in-out infinite;box-shadow:0 0 6px var(--v);}
+.eons-orb:nth-child(2){animation-delay:.15s;background:var(--mauve);}
+.eons-orb:nth-child(3){animation-delay:.3s;background:rgba(155,111,212,.5);}
+@keyframes orbBounce{0%,80%,100%{transform:translateY(0);opacity:.4;}40%{transform:translateY(-5px);opacity:1;}}
+.eons-think-label{font-size:10px;color:var(--md);letter-spacing:.1em;font-family:'JetBrains Mono',monospace;animation:labelPulse 1.8s ease-in-out infinite;}
+@keyframes labelPulse{0%,100%{opacity:.4;}50%{opacity:1;}}
+
+/* Typewriter cursor */
+.tw-cursor{display:inline-block;width:2px;height:1em;background:var(--v);margin-left:2px;vertical-align:text-bottom;animation:blink .7s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* Concept panel */
+.concept-panel{display:none;border-top:1px solid var(--border);padding:14px;flex-direction:column;gap:8px;}
+.concept-panel.open{display:flex;}
+.cp-title{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--mauve);}
+.cp-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.cp-input{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:8px 11px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:.3s;width:100%;}
+.cp-input:focus{border-color:var(--md);}
+.cp-input::placeholder{color:var(--dim2);}
+textarea.cp-input{resize:none;min-height:56px;grid-column:1/-1;}
+.cp-actions{display:flex;gap:7px;}
+.cp-send{flex:1;padding:9px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;box-shadow:0 0 14px var(--glow);transition:.3s;}
+.cp-cancel{padding:9px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;font-size:11px;color:var(--dim);cursor:pointer;transition:.3s;}
+
+/* Output panel */
+.output-panel{display:none;border-top:1px solid var(--border);max-height:35vh;overflow-y:auto;flex-direction:column;}
+.output-panel.open{display:flex;}
+.out-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.out-hdr-title{font-size:12px;font-weight:600;flex:1;}
+.out-hdr-badge{font-size:10px;padding:2px 8px;background:rgba(155,111,212,.12);border-radius:100px;color:var(--v);}
+.out-copy{padding:4px 10px;border:1px solid var(--border);border-radius:6px;background:transparent;font-size:10px;color:var(--dim);cursor:pointer;transition:.3s;}
+.out-copy:hover{border-color:var(--md);color:var(--mauve);}
+.out-body{padding:14px;font-size:12px;line-height:1.8;color:var(--dim);white-space:pre-wrap;}
+
+/* ── PAYWALL ── */
+.paywall-wrap{position:relative;z-index:1;width:100%;max-width:780px;}
+.paywall-card{background:var(--glass);border:1px solid var(--border2);border-radius:20px;padding:32px 28px;backdrop-filter:blur(16px);}
+.paywall-kicker{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--md);margin-bottom:10px;}
+.paywall-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,44px);letter-spacing:.04em;margin-bottom:10px;}
+.paywall-sub{font-size:14px;color:var(--dim);line-height:1.7;margin-bottom:20px;}
+.paywall-free-used{font-size:12px;color:var(--green);margin-bottom:24px;}
+
+/* ── TEAM PORTAL ── */
+.team-wrap{position:relative;z-index:1;width:100%;max-width:720px;}
+.team-card{background:var(--glass);border:1px solid var(--border2);border-radius:20px;overflow:hidden;backdrop-filter:blur(16px);}
+.team-login{padding:40px 28px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:14px;}
+.team-login-icon{font-size:36px;}
+.team-login-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.06em;}
+.team-login-sub{font-size:13px;color:var(--dim);}
+.team-pw{background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-family:'Barlow',sans-serif;font-size:15px;outline:none;text-align:center;letter-spacing:.2em;width:100%;max-width:260px;transition:.3s;}
+.team-pw:focus{border-color:var(--v);}
+.team-pw-err{font-size:12px;color:var(--red);display:none;}
+.team-pw-err.show{display:block;}
+.team-enter-btn{padding:12px 32px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;box-shadow:0 0 24px var(--glow);transition:.3s;}
+.team-dash{display:none;padding:24px;}
+.team-dash-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.team-dash-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.06em;}
+.team-close-btn{width:30px;height:30px;border:1px solid var(--border);border-radius:7px;background:transparent;color:var(--dim);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
+.ttabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.ttab{padding:6px 14px;border:1px solid var(--border);border-radius:8px;background:transparent;font-size:11px;font-weight:500;letter-spacing:.06em;color:var(--dim);cursor:pointer;transition:.3s;}
+.ttab.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+.ttab-content{display:none;}
+.ttab-content.on{display:block;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:20px;right:20px;z-index:9999;padding:12px 18px;background:rgba(10,30,20,.95);border:1px solid rgba(109,212,168,.25);border-radius:12px;display:flex;align-items:center;gap:9px;transform:translateY(120%);opacity:0;transition:transform .4s cubic-bezier(.2,1,.4,1),opacity .4s;max-width:calc(100vw - 40px);pointer-events:none;}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-text strong{color:var(--green);display:block;font-size:13px;}
+.toast-text span{font-size:12px;color:rgba(196,176,232,.7);}
+
+/* ── REVEAL ── */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s cubic-bezier(.16,1,.3,1);}
+.reveal.visible{opacity:1;transform:none;}
+
+/* ── TEAM AI CHAT ── */
+.team-ai-wrap{display:flex;flex-direction:column;gap:0;height:420px;background:var(--bg);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.team-ai-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;flex-shrink:0;background:var(--surface);}
+.team-ai-mode-btns{display:flex;gap:5px;flex-wrap:wrap;}
+.team-mode-btn{padding:4px 10px;border:1px solid var(--border);border-radius:100px;background:transparent;font-size:10px;font-weight:500;letter-spacing:.06em;color:var(--dim);cursor:pointer;transition:.3s;}
+.team-mode-btn:hover,.team-mode-btn.on{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.1);}
+.team-ai-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.team-ai-msgs::-webkit-scrollbar{width:3px;}
+.team-ai-msgs::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+.team-msg{display:flex;gap:8px;align-items:flex-start;animation:msgIn .3s ease;}
+.team-msg-av{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;}
+.team-msg.assistant .team-msg-av{background:rgba(155,111,212,.15);color:var(--v);}
+.team-msg.user .team-msg-av{background:rgba(155,111,212,.25);color:var(--white);}
+.team-msg-content{flex:1;min-width:0;}
+.team-msg-role{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--md);margin-bottom:3px;}
+.team-msg-text{font-size:12px;line-height:1.75;color:var(--text);}
+.team-msg-text strong{color:var(--mauve);font-weight:600;}
+.team-msg-text code{background:rgba(155,111,212,.12);padding:1px 5px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;}
+.team-ai-input-row{padding:8px 10px;border-top:1px solid var(--border);display:flex;gap:7px;align-items:flex-end;flex-shrink:0;}
+.team-ai-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:9px;padding:8px 12px;color:var(--text);font-family:'Barlow',sans-serif;font-size:12px;outline:none;transition:.3s;resize:none;min-height:36px;max-height:100px;}
+.team-ai-input:focus{border-color:var(--md);}
+.team-ai-input::placeholder{color:var(--dim2);}
+.team-ai-send{width:32px;height:32px;background:linear-gradient(135deg,var(--v),var(--v2));border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px var(--glow);transition:.3s;flex-shrink:0;}
+.team-ai-send:hover{transform:scale(1.05);}
+.team-ai-actions{padding:6px 10px;border-top:1px solid var(--border);display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
+.team-ai-action-btn{padding:4px 10px;border:1px solid var(--border);border-radius:100px;background:transparent;font-size:10px;letter-spacing:.05em;color:var(--md);cursor:pointer;transition:.3s;}
+.team-ai-action-btn:hover{border-color:var(--v);color:var(--v);background:rgba(155,111,212,.08);}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-thumb{background:rgba(155,111,212,.2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="mode-badge" id="modeBadge"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">E<span>O</span>NS</a>
+  <div class="nav-right">
+    <div class="nav-ai-badge"><span class="nav-ai-badge-dot"></span>EONS AI</div>
+    <button class="theme-toggle" id="themeToggle" onclick="toggleTheme()" title="Toggle theme"><span id="themeIcon">☀️</span></button>
+    <button class="nav-team-btn" onclick="openTeam()">🏢 Team</button>
+    <a href="index.html" class="nav-back">← Site</a>
+  </div>
+</nav>
+
+<!-- EMAIL GATE -->
+<div class="overlay" id="gateOverlay">
+  <div class="overlay-bg"></div>
+  <div class="gate-wrap">
+    <!-- Step indicator — hidden during sign-in flow -->
+    <div class="step-indicator" id="stepIndicator">
+      <div class="step-dot active" id="sd1">1</div>
+      <div class="step-line" id="sl1"></div>
+      <div class="step-dot" id="sd2">2</div>
+      <div class="step-line" id="sl2"></div>
+      <div class="step-dot" id="sd3">3</div>
+    </div>
+    <div class="gate-card">
+      <!-- Sign in toggle row -->
+      <div class="gate-toggle-row" id="gateToggleRow">
+        <span style="font-size:12px;color:var(--dim);">Already used EONS AI?</span>
+        <button class="gate-toggle-btn" onclick="showSignIn()">Sign in →</button>
+      </div>
+      <div class="gate-hdr">
+        <span class="gate-hdr-icon" id="gHdrIcon">🎬</span>
+        <div class="gate-hdr-title" id="gTitle">Meet Your Creative Director</div>
+        <div class="gate-hdr-sub" id="gSub">The EONS AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.</div>
+      </div>
+      <div class="gate-body">
+
+        <!-- SIGN IN STEP -->
+        <div class="gate-step" id="gs-signin">
+          <div style="text-align:center;margin-bottom:16px;">
+            <div style="font-size:13px;color:var(--dim);">Enter your email to pick up where you left off.</div>
+          </div>
+          <div class="gate-field">
+            <label class="gate-label">Email Address</label>
+            <input class="gate-input" id="siEmail" type="email" placeholder="alex@brand.com" autocomplete="email" onkeydown="if(event.key==='Enter')signIn()">
+          </div>
+          <div class="gate-error" id="siError">No account found with that email. Try a different email or create a new account.</div>
+          <button class="gate-btn" onclick="signIn()">Sign In →</button>
+          <button class="gate-btn-ghost" onclick="showNewUser()">← New here? Create account</button>
+        </div>
+
+        <!-- RETURNING USER WELCOME STEP -->
+        <div class="gate-step" id="gs-returning">
+          <div style="text-align:center;margin-bottom:20px;">
+            <div class="gate-returning-av" id="gReturningAv">A</div>
+            <div style="font-size:17px;font-weight:600;margin-bottom:4px;" id="gReturningName">Alex Rivera</div>
+            <div style="font-size:12px;color:var(--dim);margin-bottom:4px;" id="gReturningCompany"></div>
+            <div style="font-size:11px;color:var(--md);" id="gReturningMeta">Last session: today</div>
+          </div>
+          <button class="gate-btn" onclick="continueAsReturning()">Continue as this user →</button>
+          <button class="gate-btn-ghost" onclick="showNewUser()">Not you? Start fresh</button>
+        </div>
+
+        <!-- STEP 1: Name + Email -->
+        <div class="gate-step active" id="gs1">
+          <div class="gate-field"><label class="gate-label">Your Name</label><input class="gate-input" id="gName" type="text" placeholder="Alex Rivera" autocomplete="name"></div>
+          <div class="gate-field"><label class="gate-label">Email Address</label><input class="gate-input" id="gEmail" type="email" placeholder="alex@brand.com" autocomplete="email"></div>
+          <div class="gate-field"><label class="gate-label">Company / Brand <span style="opacity:.5;font-size:9px;">OPTIONAL</span></label><input class="gate-input" id="gCompany" type="text" placeholder="Brand Co." autocomplete="organization"></div>
+          <div class="gate-error" id="ge1">Please enter your name and a valid email.</div>
+          <button class="gate-btn" onclick="gateStep1Next()">Continue →</button>
+          <p class="gate-privacy">No spam. No selling your data. Ever.</p>
+        </div>
+
+        <!-- STEP 2: Source -->
+        <div class="gate-step" id="gs2">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:4px;">How did you hear about EONS AI?</p>
+          <div class="source-grid">
+            <button class="source-btn" onclick="selectSource(this,'instagram')">📸 Instagram</button>
+            <button class="source-btn" onclick="selectSource(this,'google')">🔍 Google Search</button>
+            <button class="source-btn" onclick="selectSource(this,'linkedin')">💼 LinkedIn</button>
+            <button class="source-btn" onclick="selectSource(this,'referral')">🤝 Referral</button>
+            <button class="source-btn" onclick="selectSource(this,'email')">📧 Cold Email</button>
+            <button class="source-btn" onclick="selectSource(this,'other')">✨ Other</button>
+          </div>
+          <div class="gate-error" id="ge2">Please select how you found us.</div>
+          <button class="gate-btn" onclick="gateStep2Next()">Continue →</button>
+          <button class="gate-btn-ghost" onclick="gateBack(1)">← Back</button>
+        </div>
+
+        <!-- STEP 3: Purpose -->
+        <div class="gate-step" id="gs3">
+          <p style="font-size:13px;color:var(--dim);margin-bottom:8px;">What are you looking to use the AI for?</p>
+          <div class="purpose-grid">
+            <button class="purpose-btn" onclick="selectPurpose(this,'concept')"><span class="purpose-btn-icon">💡</span><div class="purpose-btn-text"><div class="purpose-btn-title">Develop a Concept</div><div class="purpose-btn-sub">Explore ideas and build creative direction</div></div></button>
+            <button class="purpose-btn" onclick="selectPurpose(this,'brief')"><span class="purpose-btn-icon">📋</span><div class="purpose-btn-text"><div class="purpose-btn-title">Generate a Brief</div><div class="purpose-btn-sub">Get a professional creative brief ready to share</div></div></button>
+            <button class="purpose-btn" onclick="selectPurpose(this,'storyboard')"><span class="purpose-btn-icon">🎬</span><div class="purpose-btn-text"><div class="purpose-btn-title">Write a Storyboard</div><div class="purpose-btn-sub">Scene-by-scene storyboard for an animation</div></div></button>
+            <button class="purpose-btn" onclick="selectPurpose(this,'explore')"><span class="purpose-btn-icon">🔍</span><div class="purpose-btn-text"><div class="purpose-btn-title">Research &amp; Explore</div><div class="purpose-btn-sub">See what 3D animation could do for my brand</div></div></button>
+            <button class="purpose-btn" onclick="selectPurpose(this,'hire')"><span class="purpose-btn-icon">🚀</span><div class="purpose-btn-text"><div class="purpose-btn-title">Ready to Hire</div><div class="purpose-btn-sub">I have a project and want to connect with EONS</div></div></button>
+          </div>
+          <div class="gate-error" id="ge3">Please select what you are looking to do.</div>
+          <button class="gate-btn" onclick="gateComplete()">Start Building →</button>
+          <button class="gate-btn-ghost" onclick="gateBack(2)">← Back</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAYWALL -->
+<div class="overlay" id="paywallOverlay">
+  <div class="overlay-bg"></div>
+  <div class="paywall-wrap">
+    <div class="paywall-card">
+      <div class="paywall-kicker">Unlock Full Access</div>
+      <h2 class="paywall-title">You've Used Your Free Generations</h2>
+      <p class="paywall-sub">Upgrade to keep building — briefs, storyboards, visual direction, and competitor analysis without limits.</p>
+      <div class="paywall-free-used">✓ 2/2 free generations used</div>
+      <div class="billing-toggle">
+        <button class="bt-btn on" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="bt-btn" id="btnAnnual" onclick="setBilling('annual')">Annual <span style="color:var(--green);font-size:10px;">Save 20%</span></button>
+      </div>
+      <div class="pc-grid">
+        <div class="pc"><div class="pc-name">Free</div><div class="pc-price">$0</div><div class="pc-period">Forever</div><ul class="pc-feats"><li>Unlimited explore chat</li><li>2 document generations</li><li>Concept submission to EONS</li></ul><button class="pc-btn" onclick="closePaywall()">Continue with free →</button></div>
+        <div class="pc"><div class="pc-name">Creator</div><div class="pc-price" id="price-creator">$25<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period" id="period-creator">Billed monthly</div><div class="pc-annual-note" id="annual-creator" style="display:none;">$240/yr — save $60</div><ul class="pc-feats"><li>15 document generations/mo</li><li>All document types</li><li>Import PDFs &amp; documents</li><li>Concept submission to EONS</li></ul><button class="pc-btn" onclick="goStripe('creator')">Get Creator →</button></div>
+        <div class="pc hot"><div class="pc-badge">Most Popular</div><div class="pc-name">Brand</div><div class="pc-price" id="price-brand">$49<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period" id="period-brand">Billed monthly</div><div class="pc-annual-note" id="annual-brand" style="display:none;">$470/yr — save $118</div><ul class="pc-feats"><li>Unlimited document generations</li><li>Import PDFs &amp; documents</li><li>Conversation history</li><li>15% discount on EONS projects</li></ul><button class="pc-btn" onclick="goStripe('brand')">Get Brand →</button></div>
+        <div class="pc"><div class="pc-name">Studio</div><div class="pc-price" id="price-studio">$75<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period" id="period-studio">Billed monthly</div><div class="pc-annual-note" id="annual-studio" style="display:none;">$840/yr — save $60</div><ul class="pc-feats"><li>Everything in Brand</li><li>White-label brief exports</li><li>Direct EONS Slack access</li><li>For agencies &amp; studios</li></ul><button class="pc-btn" onclick="goStripe('studio')">Get Studio →</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TEAM PORTAL -->
+<div class="overlay" id="teamOverlay">
+  <div class="overlay-bg" onclick="closeTeam()"></div>
+  <div class="team-wrap">
+    <div class="team-card">
+      <div class="team-login" id="teamLogin">
+        <div class="team-login-icon">🏢</div>
+        <div class="team-login-title">EONS Team Portal</div>
+        <div class="team-login-sub">Enter the team password to access your workspace.</div>
+        <div class="team-pw-err" id="teamPwErr">Incorrect password.</div>
+        <input class="team-pw" id="teamPwInput" type="password" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkTeamPw()">
+        <button class="team-enter-btn" onclick="checkTeamPw()">Enter Portal →</button>
+      </div>
+      <div class="team-dash" id="teamDash">
+        <div class="team-dash-hdr">
+          <div class="team-dash-title">EONS <span style="color:var(--v)">Studio</span></div>
+          <button class="team-close-btn" onclick="closeTeam()">✕</button>
+        </div>
+        <div class="ttabs">
+          <button class="ttab on" onclick="switchTTab('overview',this)">Overview</button>
+          <button class="ttab" onclick="switchTTab('leads',this)">Leads</button>
+          <button class="ttab" onclick="switchTTab('convs',this)">Conversations</button>
+          <button class="ttab" onclick="switchTTab('saved',this)">Saved Work</button>
+          <button class="ttab" onclick="switchTTab('ai',this)" style="color:var(--v);border-color:rgba(155,111,212,.3);">✦ AI Chat</button>
+        </div>
+        <div class="ttab-content on" id="tt-overview"><p style="font-size:13px;color:var(--dim);">Dashboard overview — leads and conversations will appear here as visitors use EONS AI.</p></div>
+        <div class="ttab-content" id="tt-leads"><div id="leadsTableWrap" style="overflow-x:auto;"><p style="font-size:13px;color:var(--dim);">No leads yet.</p></div></div>
+        <div class="ttab-content" id="tt-convs"><div id="convsListWrap"><p style="font-size:13px;color:var(--dim);">No conversations yet.</p></div></div>
+        <div class="ttab-content" id="tt-saved"><div id="savedWorkWrap"><p style="font-size:13px;color:var(--dim);">No saved work yet — generate documents in the AI chat and they appear here.</p></div></div>
+        <div class="ttab-content" id="tt-ai">
+          <div class="team-ai-wrap">
+            <div class="team-ai-hdr">
+              <div>
+                <div style="font-size:14px;font-weight:600;margin-bottom:2px;">Internal AI Chat</div>
+                <div style="font-size:11px;color:var(--dim);">Private — no generation limits, not logged as visitor leads</div>
+              </div>
+              <div class="team-ai-mode-btns">
+                <button class="team-mode-btn on" id="tm-explore" onclick="setTeamMode('explore',this)">🧭 Explore</button>
+                <button class="team-mode-btn" id="tm-brand" onclick="setTeamMode('brand',this)">🎯 Brand</button>
+                <button class="team-mode-btn" id="tm-storyboard" onclick="setTeamMode('storyboard',this)">🎬 Storyboard</button>
+                <button class="team-mode-btn" id="tm-brief" onclick="setTeamMode('brief',this)">📋 Brief</button>
+              </div>
+            </div>
+            <div class="team-ai-msgs" id="teamAiMsgs"></div>
+            <div class="team-ai-input-row">
+              <textarea class="team-ai-input" id="teamAiInput" placeholder="Ask anything — strategy, briefs, storyboards, competitor research..." rows="1"></textarea>
+              <button class="team-ai-send" onclick="sendTeamMsg()">
+                <svg viewBox="0 0 24 24" width="14" height="14" stroke="white" fill="none" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+              </button>
+            </div>
+            <div class="team-ai-actions">
+              <button class="team-ai-action-btn" onclick="teamGenerate('brief')">📋 Generate Brief</button>
+              <button class="team-ai-action-btn" onclick="teamGenerate('storyboard')">🎬 Generate Storyboard</button>
+              <button class="team-ai-action-btn" onclick="teamGenerate('visual')">🎨 Visual Direction</button>
+              <button class="team-ai-action-btn" onclick="clearTeamChat()">🗑 Clear</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LANDING PAGE -->
+<div id="landingView">
+  <div class="landing">
+    <div class="orb-scene">
+      <div class="orb-ring"></div>
+      <div class="orb"><div class="orb-inner"></div></div>
+    </div>
+    <div class="landing-kicker">EONS Animation Studio</div>
+    <h1 class="landing-title">Your 3D Creative<br>Director. <span class="grad">Powered By AI.</span></h1>
+    <p class="landing-sub">The first AI built specifically for <strong>3D animation creative development</strong>. Generate professional briefs, storyboards, and visual direction — powered by real expertise.</p>
+    <button class="landing-cta" onclick="openGate()">Start Building Your Concept →</button>
+    <p class="landing-note">2 free generations · No account required · Concept sent directly to EONS</p>
+  </div>
+
+  <!-- Capability cards -->
+  <div class="scroll-section">
+    <div class="caps-hdr">
+      <h2 class="caps-title reveal">What The <span style="color:var(--v)">AI Does</span></h2>
+      <p class="caps-sub reveal">Six capabilities built on real 3D animation expertise — not generic AI</p>
+    </div>
+    <div class="caps-grid">
+      <div class="cap-card reveal"><span class="cap-icon">📋</span><div class="cap-title">Creative Brief</div><div class="cap-desc">Complete professional brief covering objective, audience, tone, visual style, animation approach, and deliverable specs.</div><span class="cap-tag">Full Document</span></div>
+      <div class="cap-card reveal"><span class="cap-icon">🎬</span><div class="cap-title">Scene Storyboard</div><div class="cap-desc">Scene-by-scene with shot types, camera movement, animation techniques, lighting notes, and production complexity ratings.</div><span class="cap-tag">Cinematic Detail</span></div>
+      <div class="cap-card reveal"><span class="cap-icon">🎨</span><div class="cap-title">Visual Direction</div><div class="cap-desc">Color temperature, animation pace, camera vocabulary, lighting philosophy, music mood, and real-world aesthetic references.</div><span class="cap-tag">Brand-Specific</span></div>
+      <div class="cap-card reveal"><span class="cap-icon">🔍</span><div class="cap-title">Competitor Analysis</div><div class="cap-desc">Identifies what competitors' visual identity is missing and builds the business case for 3D animation filling that gap.</div><span class="cap-tag">Strategic</span></div>
+      <div class="cap-card reveal"><span class="cap-icon">🗺</span><div class="cap-title">Production Roadmap</div><div class="cap-desc">Prioritized production plan with timeline, budget allocation, and complexity breakdown per asset.</div><span class="cap-tag">Scope Intelligence</span></div>
+      <div class="cap-card reveal"><span class="cap-icon">📤</span><div class="cap-title">Studio Submission</div><div class="cap-desc">Submit your full concept directly to the EONS team — packaged as a professional brief with your full conversation transcript.</div><span class="cap-tag">Seamless Handoff</span></div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  <div class="pricing-landing scroll-section">
+    <h2 class="pricing-landing-title reveal">Simple <span style="color:var(--v)">Pricing</span></h2>
+    <p class="pricing-landing-sub reveal">Start free. Upgrade for unlimited creative power.</p>
+    <div class="billing-toggle">
+      <button class="bt-btn on" onclick="setBilling('monthly')">Monthly</button>
+      <button class="bt-btn" onclick="setBilling('annual')">Annual</button>
+    </div>
+    <div class="pc-grid">
+      <div class="pc reveal"><div class="pc-name">Free</div><div class="pc-price">$0</div><div class="pc-period">Forever</div><ul class="pc-feats"><li>Unlimited explore chat</li><li>2 document generations</li><li>Concept submission to EONS</li></ul><button class="pc-btn" onclick="openGate()">Start Free →</button></div>
+      <div class="pc reveal"><div class="pc-name">Creator</div><div class="pc-price" id="lp-price-creator">$25<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period">or $20/mo billed annually</div><ul class="pc-feats"><li>15 document generations/mo</li><li>Import PDFs &amp; documents</li><li>All document types</li></ul><button class="pc-btn" onclick="goStripe('creator')">Get Creator →</button></div>
+      <div class="pc hot reveal"><div class="pc-badge">Most Popular</div><div class="pc-name">Brand</div><div class="pc-price" id="lp-price-brand">$49<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period">or $39/mo billed annually</div><ul class="pc-feats"><li>Unlimited document generations</li><li>Import PDFs &amp; documents</li><li>Conversation history</li><li>15% discount on EONS projects</li></ul><button class="pc-btn" onclick="goStripe('brand')">Get Brand →</button></div>
+      <div class="pc reveal"><div class="pc-name">Studio</div><div class="pc-price" id="lp-price-studio">$75<span style="font-size:14px;color:var(--dim)">/mo</span></div><div class="pc-period">or $70/mo annually</div><ul class="pc-feats"><li>Everything in Brand</li><li>White-label brief exports</li><li>Direct EONS Slack access</li><li>For agencies &amp; studios</li></ul><button class="pc-btn" onclick="goStripe('studio')">Get Studio →</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT AREA -->
+<div id="mainWrap">
+  <div class="chat-layout">
+    <div class="chat-sidebar" id="chatSidebar">
+      <button class="sidebar-new-btn" onclick="newConversation()">+ New Conversation</button>
+      <div class="sidebar-list" id="sidebarList"></div>
+    </div>
+    <div class="chat-main">
+      <div class="ch-hdr">
+        <div class="ch-hdr-av">✦</div>
+        <div class="ch-hdr-info">
+          <div class="ch-hdr-name">EONS AI</div>
+          <div class="ch-hdr-status">Online — Creative Director Mode</div>
+        </div>
+        <div class="ch-phase" id="chPhase">Explore</div>
+        <div class="credits-badge" id="creditsBadge">2 free remaining</div>
+      </div>
+      <div class="ch-msgs" id="chMsgs"></div>
+      <div class="concept-panel" id="conceptPanel">
+        <div class="cp-title">📤 Send Concept to EONS Studio</div>
+        <div class="cp-row">
+          <input class="cp-input" id="cpName" placeholder="Your name">
+          <input class="cp-input" id="cpEmail" placeholder="Your email">
+        </div>
+        <textarea class="cp-input" id="cpNotes" placeholder="Any final notes for the team..."></textarea>
+        <div class="cp-actions">
+          <button class="cp-send" onclick="submitConcept()">Send to Studio →</button>
+          <button class="cp-cancel" onclick="closeCP()">Cancel</button>
+        </div>
+      </div>
+      <div class="output-panel" id="outputPanel">
+        <div class="out-hdr">
+          <div class="out-hdr-title" id="outTitle">Document</div>
+          <div class="out-hdr-badge" id="outBadge">Generated</div>
+          <button class="out-copy" onclick="copyOut()">Copy</button>
+        </div>
+        <div class="out-body" id="outBody"></div>
+      </div>
+      <div class="ch-actions">
+        <button class="ch-action-btn" id="mode-explore" onclick="setMode('explore')" title="General creative direction and strategy">🧭 Explore</button>
+        <button class="ch-action-btn" id="mode-brand" onclick="setMode('brand')" title="Brand strategy, positioning, identity and growth">🎯 Brand Strategy</button>
+        <button class="ch-action-btn" id="mode-storyboard" onclick="setMode('storyboard')" title="Production pipeline, shot design, and animation workflow">🎬 Storyboard</button>
+        <button class="ch-action-btn" id="mode-brief" onclick="setMode('brief')" title="Generate a full creative brief document">📋 Brief</button>
+        <button class="ch-action-btn" onclick="openCP()">📤 Send to Studio</button>
+      </div>
+      <div class="ch-input-row">
+        <textarea class="ch-input" id="chInput" placeholder="Describe your brand or project..." rows="1"></textarea>
+        <button class="ch-send" onclick="sendMsg()">
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><div class="toast-text"><strong id="toastTitle"></strong><span id="toastMsg"></span></div></div>
+
+<script>
+/* ══════════════════════════════════════
+   EONS STUDIO AI — Complete Script
+   All functions in one clean block
+══════════════════════════════════════ */
+
+/* ── CONFIG ── */
+const CONFIG = {
+  anthropic_key: '',
+  worker_url: 'https://eons-api-proxy.ryanruichen03.workers.dev/proxy',
+  free_generations: 2,
+  stripe: {
+    creator: 'https://buy.stripe.com/YOUR_CREATOR_LINK',
+    brand:   'https://buy.stripe.com/YOUR_BRAND_LINK',
+    studio:  'https://buy.stripe.com/YOUR_STUDIO_LINK',
+  },
+};
+
+/* ── SECURITY ── */
+const SECURITY = {
+  password_hash: '8a3a32f35784f4867a227fe8b05d7d3c3c629001122c95a6c040162f047c6ef2',
+  salt: 'eons_studio_2025_nyc',
+  max_attempts: 5,
+  lockout_minutes: 15,
+};
+
+async function sha256(msg) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyPassword(input) {
+  const hash = await sha256(SECURITY.salt + input);
+  return hash === SECURITY.password_hash;
+}
+
+/* ── STATE ── */
+let chatHistory = [];
+let currentUser = null;
+let gateSource = '', gatePurpose = '';
+let convType = 'explore';
+let billingMode = 'monthly';
+let teamAuth = false;
+
+/* ── PARTICLES ── */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+let W = innerWidth, H = innerHeight;
+canvas.width = W; canvas.height = H;
+const PARTICLE_COUNT = W > 768 ? 120 : 60;
+const particles = [];
+
+class Particle {
+  constructor() { this.reset(true); }
+  reset(init) {
+    this.x = Math.random() * W;
+    this.y = init ? Math.random() * H : H + 10;
+    this.z = Math.random() * 800 + 200;
+    this.vx = (Math.random() - .5) * .14;
+    this.vy = -(Math.random() * .12 + .06);
+    this.hue = 265 + Math.random() * 20;
+    this.sat = 50 + Math.random() * 40;
+    this.lit = 55 + Math.random() * 30;
+    this.r = Math.random() * 2 + .8;
+    this.pulse = 0;
+    this.life = 0;
+    this.maxLife = 200 + Math.random() * 300;
+  }
+  update() {
+    this.pulse += .007;
+    const r = this.r * (1 + Math.sin(this.pulse) * .4);
+    const p = 600 / this.z;
+    const px = this.x * p + W / 2 * (1 - p);
+    const py = this.y * p + H / 2 * (1 - p);
+    this.x += this.vx; this.y += this.vy; this.life++;
+    if (this.y < -20 || this.x < -50 || this.x > W + 50 || this.life > this.maxLife) this.reset(false);
+    return { px, py, r: Math.max(r * p, .3) };
+  }
+}
+for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+
+(function loop() {
+  requestAnimationFrame(loop);
+  ctx.clearRect(0, 0, W, H);
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  ctx.globalAlpha = isLight ? .15 : 1;
+  particles.forEach(p => {
+    const { px, py, r } = p.update();
+    const g = ctx.createRadialGradient(px, py, 0, px, py, r * 3);
+    g.addColorStop(0, `hsla(${p.hue},${p.sat}%,${p.lit}%,.9)`);
+    g.addColorStop(.5, `hsla(${p.hue},${p.sat}%,${p.lit}%,.2)`);
+    g.addColorStop(1, 'transparent');
+    ctx.beginPath(); ctx.arc(px, py, r * 3, 0, Math.PI * 2);
+    ctx.fillStyle = g; ctx.fill();
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue},${p.sat}%,${p.lit}%,.95)`; ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+})();
+
+/* ── THEME ── */
+function initTheme() {
+  const s = localStorage.getItem('eons_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', s);
+  updateThemeIcon(s);
+}
+function toggleTheme() {
+  const c = document.documentElement.getAttribute('data-theme') || 'dark';
+  const n = c === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', n);
+  localStorage.setItem('eons_theme', n);
+  updateThemeIcon(n);
+}
+function updateThemeIcon(t) {
+  const i = document.getElementById('themeIcon');
+  if (i) i.textContent = t === 'dark' ? '☀️' : '🌙';
+}
+
+/* ── TOAST ── */
+function toast(title, msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent = msg || '';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+/* ── BILLING ── */
+function setBilling(mode) {
+  billingMode = mode;
+  document.querySelectorAll('.bt-btn').forEach(b => b.classList.remove('on'));
+  document.querySelectorAll('.bt-btn').forEach(b => {
+    if ((mode === 'monthly' && b.textContent.includes('Monthly')) ||
+        (mode === 'annual' && b.textContent.includes('Annual'))) {
+      b.classList.add('on');
+    }
+  });
+  const prices = { creator: [25, 20], brand: [49, 39], studio: [75, 70] };
+  Object.entries(prices).forEach(([k, [m, a]]) => {
+    const val = mode === 'monthly' ? m : a;
+    ['price-' + k, 'lp-price-' + k].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = '$' + val + '<span style="font-size:14px;color:var(--dim)">/mo</span>';
+    });
+    const ann = document.getElementById('annual-' + k);
+    if (ann) ann.style.display = mode === 'annual' ? 'block' : 'none';
+    const per = document.getElementById('period-' + k);
+    if (per) per.textContent = mode === 'monthly' ? 'Billed monthly' : 'Billed annually';
+  });
+}
+function goStripe(tier) {
+  const link = CONFIG.stripe[tier];
+  if (!link || link.includes('YOUR_')) {
+    toast('Coming Soon', 'Stripe payments not yet configured. Email eonstudioanimation@gmail.com to upgrade.');
+    return;
+  }
+  window.open(link, '_blank');
+}
+
+/* ── GENERATIONS ── */
+function getGensUsed() { return parseInt(localStorage.getItem('eons_gens') || '0'); }
+function incGens() { localStorage.setItem('eons_gens', getGensUsed() + 1); updateCredits(); }
+function canGenerate() { return getGensUsed() < CONFIG.free_generations; }
+function updateCredits() {
+  const el = document.getElementById('creditsBadge');
+  const used = getGensUsed();
+  const rem = Math.max(0, CONFIG.free_generations - used);
+  if (el) el.textContent = rem > 0 ? rem + ' free remaining' : 'Upgrade to generate';
+}
+
+
+/* ══ ACCOUNT STORAGE ══ */
+// Accounts stored by email key — allows returning users to sign back in
+function saveAccount(user) {
+  const key = 'eons_acct_' + btoa(user.email.toLowerCase().trim()).replace(/=/g,'');
+  const existing = JSON.parse(localStorage.getItem(key) || '{}');
+  const account = {
+    ...existing,
+    name: user.name,
+    email: user.email,
+    company: user.company || existing.company || '',
+    source: existing.source || user.source,
+    purpose: user.purpose || existing.purpose,
+    lastSeen: Date.now(),
+    visits: (existing.visits || 0) + 1,
+    sessionId: user.sessionId,
+  };
+  localStorage.setItem(key, JSON.stringify(account));
+  return account;
+}
+
+function lookupAccount(email) {
+  const key = 'eons_acct_' + btoa(email.toLowerCase().trim()).replace(/=/g,'');
+  const account = localStorage.getItem(key);
+  return account ? JSON.parse(account) : null;
+}
+
+function formatLastSeen(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts;
+  const days = Math.floor(diff / 86400000);
+  if (days === 0) return 'Last session: today';
+  if (days === 1) return 'Last session: yesterday';
+  if (days < 7) return 'Last session: ' + days + ' days ago';
+  return 'Last session: ' + new Date(ts).toLocaleDateString();
+}
+
+/* ══ SIGN IN FLOW ══ */
+let returningUser = null;
+
+function showSignIn() {
+  // Hide step indicator and toggle row during sign-in
+  document.getElementById('stepIndicator').style.display = 'none';
+  document.getElementById('gateToggleRow').style.display = 'none';
+  document.getElementById('gHdrIcon').textContent = '👋';
+  document.getElementById('gTitle').textContent = 'Welcome Back';
+  document.getElementById('gSub').textContent = 'Enter your email to pick up where you left off.';
+  // Hide all steps, show sign-in
+  document.querySelectorAll('.gate-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('gs-signin').classList.add('active');
+  setTimeout(() => document.getElementById('siEmail').focus(), 100);
+}
+
+function showNewUser() {
+  // Restore normal gate
+  document.getElementById('stepIndicator').style.display = 'flex';
+  document.getElementById('gateToggleRow').style.display = 'flex';
+  document.getElementById('gHdrIcon').textContent = '🎬';
+  document.getElementById('gTitle').textContent = 'Meet Your Creative Director';
+  document.getElementById('gSub').textContent = 'The EONS AI generates professional 3D animation briefs, storyboards, and visual direction — powered by real creative expertise.';
+  document.querySelectorAll('.gate-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('gs1').classList.add('active');
+  returningUser = null;
+}
+
+function signIn() {
+  const email = document.getElementById('siEmail').value.trim();
+  const err = document.getElementById('siError');
+  if (!email || !email.includes('@')) {
+    err.textContent = 'Please enter a valid email address.';
+    err.classList.add('show');
+    return;
+  }
+  const account = lookupAccount(email);
+  if (!account) {
+    err.textContent = 'No account found with that email. Try a different email or create a new account.';
+    err.classList.add('show');
+    return;
+  }
+  err.classList.remove('show');
+  returningUser = account;
+  showReturningWelcome(account);
+}
+
+function showReturningWelcome(account) {
+  // Show returning user welcome screen
+  document.getElementById('gHdrIcon').textContent = '✦';
+  document.getElementById('gTitle').textContent = 'Welcome back, ' + account.name.split(' ')[0] + '.';
+  document.getElementById('gSub').textContent = account.company ? account.company : account.email;
+  // Populate returning user card
+  document.getElementById('gReturningAv').textContent = account.name.charAt(0).toUpperCase();
+  document.getElementById('gReturningName').textContent = account.name;
+  document.getElementById('gReturningCompany').textContent = account.company || account.email;
+  document.getElementById('gReturningMeta').textContent = formatLastSeen(account.lastSeen);
+  document.querySelectorAll('.gate-step').forEach(s => s.classList.remove('active'));
+  document.getElementById('gs-returning').classList.add('active');
+}
+
+function continueAsReturning() {
+  if (!returningUser) return;
+  // Restore generations from account (they keep their count)
+  currentUser = {
+    ...returningUser,
+    sessionId: Date.now(),
+    isReturning: true,
+  };
+  // Update account last seen
+  saveAccount(currentUser);
+  closeGate();
+  launchChat();
+  toast('Welcome back, ' + currentUser.name.split(' ')[0] + '! 👋', 'Your conversation history is ready.');
+}
+
+/* ── GATE ── */
+function openGate() {
+  document.getElementById('gateOverlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeGate() {
+  document.getElementById('gateOverlay').classList.remove('active');
+  document.body.style.overflow = '';
+}
+function gateStep1Next() {
+  const name = document.getElementById('gName').value.trim();
+  const email = document.getElementById('gEmail').value.trim();
+  const err = document.getElementById('ge1');
+  if (!name || !email || !email.includes('@')) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  // Check if this email already has an account — offer to restore session
+  const existing = lookupAccount(email);
+  if (existing && existing.name) {
+    // Pre-fill name if they matched an existing account
+    returningUser = { ...existing, name }; // use the name they just typed
+    setGateStep(2); // continue normal flow but with enriched data
+  } else {
+    setGateStep(2);
+  }
+}
+function gateStep2Next() {
+  const err = document.getElementById('ge2');
+  if (!gateSource) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  setGateStep(3);
+}
+function gateComplete() {
+  const err = document.getElementById('ge3');
+  if (!gatePurpose) { err.classList.add('show'); return; }
+  err.classList.remove('show');
+  const name = document.getElementById('gName').value.trim();
+  const email = document.getElementById('gEmail').value.trim();
+  const company = document.getElementById('gCompany').value.trim();
+  currentUser = { name, email, company, source: gateSource, purpose: gatePurpose, sessionId: Date.now() };
+  saveAccount(currentUser); // save for future sign-ins
+  saveLeads(currentUser);
+  closeGate();
+  launchChat();
+}
+function gateBack(step) { setGateStep(step); }
+function setGateStep(n) {
+  for (let i = 1; i <= 3; i++) {
+    const s = document.getElementById('gs' + i);
+    if (s) s.classList.toggle('active', i === n);
+    const dot = document.getElementById('sd' + i);
+    const line = document.getElementById('sl' + i);
+    if (dot) { dot.classList.toggle('active', i === n); dot.classList.toggle('done', i < n); }
+    if (line) line.classList.toggle('done', i < n);
+  }
+}
+function selectSource(el, val) {
+  gateSource = val;
+  document.querySelectorAll('.source-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+function selectPurpose(el, val) {
+  gatePurpose = val;
+  document.querySelectorAll('.purpose-btn').forEach(b => b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+/* ── LEADS STORAGE ── */
+function saveLeads(user) {
+  const leads = JSON.parse(localStorage.getItem('eons_leads') || '[]');
+  leads.unshift({ ...user, ts: Date.now() });
+  localStorage.setItem('eons_leads', JSON.stringify(leads.slice(0, 200)));
+}
+
+/* ── LAUNCH CHAT ── */
+function launchChat() {
+  document.getElementById('landingView').style.display = 'none';
+  document.getElementById('mainWrap').style.display = 'flex';
+  updateCredits();
+  loadConversations();
+  setMode('explore');
+}
+
+/* ── CHAT INIT ── */
+function initChat() {
+  chatHistory = [];
+  const opener = currentUser
+    ? `Hey ${currentUser.name} — I'm the EONS AI, your creative director for this session. Tell me about the brand or product you're working with. What are we building?`
+    : `Hey — I'm the EONS AI. Tell me about the brand or product you're working on.`;
+  addMsg('assistant', opener);
+  updatePhase();
+}
+
+/* ── ADD MESSAGE ── */
+function addMsg(role, text) {
+  const msgs = document.getElementById('chMsgs');
+  if (!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'ch-msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'ch-av';
+  av.textContent = role === 'user' ? (currentUser ? currentUser.name[0].toUpperCase() : 'U') : '✦';
+  const content = document.createElement('div');
+  content.className = 'ch-content';
+  const sender = document.createElement('div');
+  sender.className = 'ch-sender';
+  sender.textContent = role === 'user' ? (currentUser ? currentUser.name : 'You') : 'EONS AI';
+  const textDiv = document.createElement('div');
+  textDiv.className = 'ch-text';
+  content.appendChild(sender);
+  content.appendChild(textDiv);
+  div.appendChild(av);
+  div.appendChild(content);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  if (role === 'assistant') {
+    typeWriter(textDiv, text);
+  } else {
+    textDiv.innerHTML = text.replace(/</g, '&lt;');
+  }
+}
+
+/* ── TYPEWRITER ── */
+function typeWriter(el, text, cb) {
+  el.innerHTML = '';
+  let i = 0;
+  const cursor = document.createElement('span');
+  cursor.className = 'tw-cursor';
+  el.appendChild(cursor);
+  function typeChar() {
+    if (i < text.length) {
+      cursor.before(document.createTextNode(text[i]));
+      i++;
+      const ch = text[i - 1];
+      const delay = ch === ' ' ? 18 : '.!?,'.includes(ch) ? 60 : 25;
+      setTimeout(() => requestAnimationFrame(typeChar), delay);
+    } else {
+      cursor.remove();
+      el.innerHTML = text
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`(.*?)`/g, '<code>$1</code>');
+      if (cb) cb();
+    }
+  }
+  requestAnimationFrame(typeChar);
+}
+
+/* ── THINKING ANIMATION ── */
+const THINK_LABELS = ['Directing...', 'Building the world...', 'Framing the shot...', 'Composing...', 'Thinking in 3D...', 'Crafting the vision...', 'Reading the brief...'];
+let thinkInterval = null;
+function showTyping() {
+  const msgs = document.getElementById('chMsgs');
+  if (!msgs) return;
+  const el = document.createElement('div');
+  el.className = 'ch-msg assistant';
+  el.id = 'typingIndicator';
+  el.innerHTML = '<div class="ch-av">✦</div><div class="ch-content"><div class="ch-sender">EONS AI</div><div class="ch-text"><div class="eons-thinking"><div class="eons-think-orbs"><div class="eons-orb"></div><div class="eons-orb"></div><div class="eons-orb"></div></div><span class="eons-think-label" id="thinkLabel">' + THINK_LABELS[0] + '</span></div></div></div>';
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  let li = 0;
+  thinkInterval = setInterval(() => {
+    li = (li + 1) % THINK_LABELS.length;
+    const lbl = document.getElementById('thinkLabel');
+    if (lbl) lbl.textContent = THINK_LABELS[li];
+  }, 2000);
+}
+function hideTyping() {
+  clearInterval(thinkInterval);
+  const el = document.getElementById('typingIndicator');
+  if (el) el.remove();
+}
+
+/* ── SEND MESSAGE ── */
+async function sendMsg() {
+  const inp = document.getElementById('chInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = ''; inp.style.height = 'auto';
+  addMsg('user', txt);
+  chatHistory.push({ role: 'user', content: txt });
+  showTyping();
+  try {
+    const [rep] = await Promise.all([
+      callAI(chatHistory),
+      new Promise(r => setTimeout(r, 600))
+    ]);
+    hideTyping();
+    if (!rep) return;
+    chatHistory.push({ role: 'assistant', content: rep });
+    addMsg('assistant', rep);
+    updatePhase();
+    saveCurrentConversation();
+  } catch (e) {
+    hideTyping();
+    addMsg('assistant', 'Connection issue — check the Cloudflare Worker or email eonstudioanimation@gmail.com');
+    console.error('Chat error:', e);
+  }
+}
+
+/* ── SYSTEM PROMPT ── */
+const SYSTEM = `You are EONS AI \u2014 a senior creative director, brand strategist, and consumer psychologist embedded inside EONS Animation Studio. You combine deep 3D animation expertise with executive-level brand thinking and intuitive client psychology.\n\nABOUT EONS: NYC-based strategy-led motion studio. We deliver visual systems for growth \u2014 not just animation videos. The shift: from selling deliverables to engineering business outcomes. Team: Ryan Chen (Founder/CEO \u2014 brand strategy, 3D generalist), Antwain Harty (Animator Team Lead), Dahee Lee (Junior Animator).\n\nPACKAGES (from pivot debrief):\n\u2022 Pilot ($5.5K\u2013$7K, 2\u20133 weeks) \u2014 Proof of concept. Entry-level brand animation.\n\u2022 Foundation ($6.5K\u2013$8.5K, 3\u20134 weeks) \u2014 Core brand animation system.\n\u2022 Growth ($12K\u2013$18K, 5\u20136 weeks) \u2014 Campaign-ready asset system. Most common.\n\u2022 Authority ($22K\u2013$35K, 8\u201310 weeks) \u2014 Full brand infrastructure + multi-video systems.\nOutcome Layers: Launch, AI Simplification, Performance, Authority \u2014 added to any package.\nProduction Tracks: Standard or AI-Accelerated.\n\nTARGET CLIENTS: Funded startups (Seed\u2013Series B), AI/SaaS companies needing product clarity, DTC/CPG brands launching products, marketing leaders with allocated brand budgets.\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nCONSUMER PSYCHOLOGY FRAMEWORK\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nYou understand how buyers actually make decisions \u2014 not how they say they do.\n\nBUYER PSYCHOLOGY:\n\u2022 People buy on emotion and justify with logic. Surface the emotional core of every brief.\n\u2022 The stated problem (\"we need a video\") is never the real problem. The real problem is fear of being ignored, irrelevant, or misunderstood in market.\n\u2022 Status and identity drive premium purchases. 3D animation signals investment, seriousness, permanence. Ask: what does hiring EONS say about this brand's self-concept?\n\u2022 Loss aversion is stronger than gain motivation. Frame the cost of bad visual identity as more compelling than the benefit of good visual identity.\n\u2022 Specificity builds trust faster than quality claims. \"We've done DTC skincare for 3 brands in this price point\" lands harder than \"we do great work.\"\n\nPSYCHOLOGICAL ARCHETYPES \u2014 read which one you're talking to:\n\u2022 The Visionary: Has a clear picture in their head, struggles to articulate it. Ask them to describe a brand they love and why. Mirror their language.\n\u2022 The Analyst: Wants ROI justification before creative conversation. Lead with business outcome, not aesthetic.\n\u2022 The Collaborator: Wants to feel heard and co-create. Ask more questions than you answer.\n\u2022 The Delegator: Wants to hand it off and trust the expert. Show confidence, give recommendations not options.\n\u2022 The Skeptic: Has been burned before. Name the failure modes proactively before they do.\n\nPERCEPTIVE LISTENING \u2014 what to notice:\n\u2022 When a client uses hedging language (\"kind of,\" \"sort of,\" \"maybe\") \u2014 they're uncertain about their brief, not the animation.\n\u2022 When they compare themselves to a big competitor \u2014 they fear being mistaken for small.\n\u2022 When they emphasize speed over quality \u2014 there's a deadline driving the conversation they haven't mentioned.\n\u2022 When they say \"simple\" \u2014 they usually mean \"clear.\" Ask what complex looks like to them.\n\u2022 When they can't answer \"who is this for\" \u2014 the brief doesn't exist yet. Help them build it.\n\u2022 Silence after a specific question means you've touched something important. Stay there.\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nBRAND STRATEGY FRAMEWORK\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nPOSITIONING PRINCIPLES:\n\u2022 Visual identity is a competitive moat, not decoration. 3D animation specifically signals: this company invests in its brand, takes itself seriously, and has budget.\n\u2022 The goal is visual differentiation in a crowded category \u2014 not being the best, being the most distinct.\n\u2022 Unclaimed visual territory is where brands win. Before any brief: what does every competitor look like? What does the space between them look like?\n\u2022 Brand consistency across touchpoints compounds over time. One video is a campaign. A visual system is brand equity.\n\nSTRATEGIC REFRAME TECHNIQUE:\nWhen a client describes what they want (output), redirect to what they need (outcome):\n\u2022 \"We need a product video\" \u2192 \"What does success look like 6 months after this goes live?\"\n\u2022 \"We want something cinematic\" \u2192 \"What feeling do you want your customer to have 3 seconds in?\"\n\u2022 \"We need it to stand out\" \u2192 \"Stand out from what specifically? Who are you next to in your customer's mind?\"\n\nVISUAL STRATEGY QUESTIONS (use these to unlock the brief):\n\u2022 Who is the person this reaches, and what does she believe about herself before she sees this?\n\u2022 What are the 3 brands she respects most \u2014 and what do they have in common visually?\n\u2022 If your brand were a material \u2014 what would it be made of, and why?\n\u2022 What is the one frame in this video that does all the work?\n\u2022 What would a version of this that costs 10x more look like?\n\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\n3D ANIMATION EXPERTISE\n\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\u2550\nTECHNIQUES: Hero macro shots, liquid simulations, particle systems, caustic lighting, subsurface scattering, chromatic aberration, depth of field, slow motion 120fps, camera path animation, HDRI vs three-point lighting, volumetric fog, procedural texturing, motion blur.\nVISUAL STYLES: Dark luxury editorial (Jacquemus/Bottega), clean tech (Apple product launch), cinematic lifestyle (Nike/Adidas), ethereal organic (Glossier/Aesop), brutalist geometric.\nCAMERA LANGUAGE: Macro reveals, orbit around product, push-in hero moment, Dutch angle, overhead 3D flat lay, parallax layering, subtle handheld shake in 3D.\n\nCONVERSATION INTELLIGENCE:\n\u2022 Reference earlier context naturally: \"you mentioned your launch is Q2 \u2014 that changes the timeline calculus\"\n\u2022 Build on answers: if they say \"luxury,\" ask \"Bottega quiet luxury or Balmain maximalist luxury?\"\n\u2022 Push back with evidence: \"I'd push back on 15 seconds here \u2014 your story needs 30 to land, and here's why\"\n\u2022 When you sense hesitation, name it: \"It sounds like you're not fully committed to the direction yet \u2014 what's not sitting right?\"\n\u2022 Recommend ONE package with specific justification. Never list all packages.\n\nTONE: Confident senior creative director. Warm but direct. Have opinions \u2014 share them. Never say \"great idea!\" or \"certainly!\" Short (2\u20134 sentences) for conversation. Rich and detailed only for documents. When the concept is ready, naturally suggest sending to the EONS team.`;
+
+/* ── CALL AI ── */
+async function callAI(msgs, maxT) {
+  maxT = maxT || 1200;
+  const r = await fetch(CONFIG.worker_url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxT,
+      system: SYSTEM + getModeSystemAddendum(),
+      messages: msgs,
+    })
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.error?.message || 'API error ' + r.status);
+  }
+  const d = await r.json();
+  return d.content?.[0]?.text || 'Something went wrong — email eonstudioanimation@gmail.com';
+}
+
+/* ── GENERATE DOCUMENTS ── */
+function tryGenerate(type) {
+  if (!canGenerate()) { showPaywall(); return; }
+  incGens();
+  const prompts = {
+    brief: 'Based on our conversation, generate a complete professional EONS creative brief. Include: Project Objective, Target Audience, Brand Tone, Visual Style Direction, Recommended Package with justification, and any key creative considerations.',
+    storyboard: 'Based on our conversation, write a detailed scene-by-scene storyboard. For each scene include: shot type, camera movement, animation technique, lighting notes, sound design notes, and production complexity rating (Simple/Moderate/Complex).',
+    visual: 'Based on our conversation, write a complete Visual Direction document. Include: Color Temperature, Animation Pace, Camera Language, Lighting Philosophy, Music Direction, and Aesthetic References with specific examples.',
+  };
+  const prompt = chatHistory.length > 0
+    ? 'Based on our conversation so far, ' + prompts[type].toLowerCase()
+    : prompts[type];
+  chatHistory.push({ role: 'user', content: prompt });
+  addMsg('user', '📄 Generate ' + type);
+  showTyping();
+  convType = type;
+  callAI(chatHistory, 2000).then(rep => {
+    hideTyping();
+    if (!rep) return;
+    chatHistory.push({ role: 'assistant', content: rep });
+    addMsg('assistant', rep);
+    const op = document.getElementById('outputPanel');
+    const ob = document.getElementById('outBody');
+    const ot = document.getElementById('outTitle');
+    if (op && ob) {
+      ot.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+      ob.textContent = rep;
+      op.classList.add('open');
+    }
+    updatePhase();
+  }).catch(e => {
+    hideTyping();
+    addMsg('assistant', 'Generation failed — ' + e.message);
+  });
+}
+
+function updatePhase() {
+  const el = document.getElementById('chPhase');
+  if (!el) return;
+  const l = chatHistory.length;
+  if (l >= 10) el.textContent = 'Ready to Brief';
+  else if (l >= 6) el.textContent = 'Building Concept';
+  else if (l >= 2) el.textContent = 'Developing';
+  else el.textContent = 'Explore';
+}
+
+/* ── CONCEPT PANEL ── */
+function openCP() { document.getElementById('conceptPanel').classList.add('open'); }
+function closeCP() { document.getElementById('conceptPanel').classList.remove('open'); }
+function copyOut() {
+  const ob = document.getElementById('outBody');
+  if (ob) navigator.clipboard.writeText(ob.textContent).then(() => toast('Copied!', 'Document copied to clipboard.'));
+}
+async function submitConcept() {
+  const name = document.getElementById('cpName').value.trim();
+  const email = document.getElementById('cpEmail').value.trim();
+  if (!name || !email) { toast('Required', 'Please enter your name and email.'); return; }
+  const notes = document.getElementById('cpNotes').value.trim();
+  const transcript = chatHistory.map(m => m.role.toUpperCase() + ': ' + m.content).join('\n\n');
+  const mailto = 'mailto:eonstudioanimation@gmail.com?subject=' + encodeURIComponent('New EONS Concept — ' + (currentUser?.company || name)) + '&body=' + encodeURIComponent('From: ' + name + '\nEmail: ' + email + '\nNotes: ' + (notes || 'None') + '\n\n' + transcript);
+  window.open(mailto, '_blank');
+  toast('Concept Sent! 🎬', 'Opening your email client...');
+  closeCP();
+}
+
+/* ── PAYWALL ── */
+function showPaywall() { document.getElementById('paywallOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closePaywall() { document.getElementById('paywallOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+
+/* ── TEAM PORTAL ── */
+function openTeam() { document.getElementById('teamOverlay').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeTeam() { document.getElementById('teamOverlay').classList.remove('active'); document.body.style.overflow = ''; }
+async function checkTeamPw() {
+  const input = document.getElementById('teamPwInput').value;
+  const err = document.getElementById('teamPwErr');
+  const ok = await verifyPassword(input);
+  if (ok) {
+    teamAuth = true;
+    document.getElementById('teamLogin').style.display = 'none';
+    document.getElementById('teamDash').style.display = 'block';
+    renderTeamDash();
+  } else {
+    err.textContent = 'Incorrect password.';
+    err.classList.add('show');
+    document.getElementById('teamPwInput').value = '';
+  }
+}
+function switchTTab(id, btn) {
+  document.querySelectorAll('.ttab-content').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('.ttab').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('tt-' + id);
+  if (el) el.classList.add('on');
+  if (btn) btn.classList.add('on');
+  if (id === 'ai') initTeamChat();
+  if (id === 'saved') renderSavedWork();
+  if (id === 'leads' || id === 'overview') renderTeamDash();
+}
+function renderTeamDash() {
+  const leads = JSON.parse(localStorage.getItem('eons_leads') || '[]');
+  const lw = document.getElementById('leadsTableWrap');
+  if (lw) {
+    if (!leads.length) {
+      lw.innerHTML = '<p style="font-size:13px;color:var(--dim);">No leads yet.</p>';
+    } else {
+      lw.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:12px;">' +
+        '<tr style="border-bottom:1px solid var(--border);"><th style="text-align:left;padding:6px 8px;color:var(--md);">Name</th><th style="text-align:left;padding:6px 8px;color:var(--md);">Email</th><th style="text-align:left;padding:6px 8px;color:var(--md);">Company</th><th style="text-align:left;padding:6px 8px;color:var(--md);">Source</th><th style="text-align:left;padding:6px 8px;color:var(--md);">Purpose</th></tr>' +
+        leads.map(l => '<tr style="border-bottom:1px solid var(--border);"><td style="padding:7px 8px;">' + (l.name||'') + '</td><td style="padding:7px 8px;color:var(--md);">' + (l.email||'') + '</td><td style="padding:7px 8px;">' + (l.company||'—') + '</td><td style="padding:7px 8px;">' + (l.source||'') + '</td><td style="padding:7px 8px;">' + (l.purpose||'') + '</td></tr>').join('') +
+        '</table>';
+    }
+  }
+  const ov = document.getElementById('tt-overview');
+  if (ov) ov.innerHTML = '<p style="font-size:13px;color:var(--dim);margin-bottom:8px;"><strong style="color:var(--mauve);">' + leads.length + '</strong> total leads captured.</p>';
+  renderSavedWork();
+}
+
+/* ── CONVERSATIONS ── */
+function newConversation() {
+  chatHistory = [];
+  activeConvId = null;
+  document.getElementById('chMsgs').innerHTML = '';
+  initChat();
+  renderSidebar();
+}
+
+
+/* ══ MODE SYSTEM ══ */
+let currentMode = 'explore';
+
+const MODES = {
+  explore: {
+    label: '🧭 Explore Mode',
+    system_addendum: '',
+    greeting: (user) => `Hey${user ? ' ' + user.name : ''} — I'm the EONS AI, your creative director. Tell me about the brand or project you're working on. What are we building?`,
+  },
+  brand: {
+    label: '🎯 Brand Strategy Mode',
+    system_addendum: `
+CURRENT MODE: BRAND STRATEGY
+
+You are now operating as a senior brand strategist. Shift your focus to:
+- Brand positioning, differentiation, and market white space
+- Business growth strategy, GTM approach, and revenue channels
+- Brand identity: naming, voice, visual language, and audience fit
+- Competitive landscape analysis and category creation
+- Brand architecture, messaging hierarchy, and value proposition
+- How visual systems (including 3D animation) compound brand equity over time
+
+In this mode: ask business-focused questions first. Understand the competitive context before the creative context. Push the client to articulate their positioning before discussing aesthetics. Reference business frameworks (Jobs to be Done, Brand Archetypes, Category Design) where relevant. Connect every creative recommendation back to a business outcome.`,
+    greeting: (user) => `${user ? user.name + ', ' : ''}I'm in Brand Strategy mode. Let's get strategic before we get creative. Tell me about the brand — who are you competing against, and what do you want to own in your category?`,
+  },
+  storyboard: {
+    label: '🎬 Storyboard Mode',
+    system_addendum: `
+CURRENT MODE: STORYBOARD & PRODUCTION PIPELINE
+
+You are now operating as a senior storyboard artist and production pipeline specialist. Your knowledge covers:
+
+PRE-PRODUCTION:
+- Shot design: framing, composition, rule of thirds, leading lines
+- Camera language: ECU, CU, MCU, MS, WS, EWS, POV, OTS, Dutch angle, birds-eye
+- Camera movement: dolly, track, crane, handheld, steadicam, push-in, pull-out, orbit, arc
+- Storyboard notation: transitions (cut, dissolve, wipe, match cut, smash cut), timing marks, action arrows
+- Shot lists, animatics, timing boards, beat boards
+
+PRODUCTION PIPELINE (general, not just 3D):
+- Pre-pro: concept, script, storyboard, animatic, asset list, schedule
+- Production: blocking, layout, animation, rendering, compositing
+- Post: color grade, sound design, VFX, titles, delivery formats
+- For 3D specifically: modeling, rigging, texturing, lighting, simulation, rendering, compositing in Nuke/AE
+
+ANIMATION PRINCIPLES:
+- 12 principles (squash & stretch, anticipation, staging, straight-ahead vs pose-to-pose, follow-through, slow in/out, arcs, secondary action, timing, exaggeration, solid drawing, appeal)
+- Motion blur, depth of field, subsurface scattering, caustics, volumetrics
+
+TERMINOLOGY: Use industry-standard language. Be specific about shot duration, cut rhythm, and production complexity per shot.
+
+In this mode: think frame by frame. Ask about the desired pacing and mood before designing shots. Recommend specific camera choices with rationale. Rate every shot: Simple (no simulation/effects), Moderate (basic motion), Complex (simulation, particles, caustics).`,
+    greeting: (user) => `${user ? user.name + ', ' : ''}I'm in Storyboard mode — pipeline, shot design, and production thinking. What are we storyboarding? Give me the concept and I'll start building shots.`,
+  },
+  brief: {
+    label: '📋 Brief Generation Mode',
+    system_addendum: `
+CURRENT MODE: CREATIVE BRIEF GENERATION
+
+You are now focused on extracting and structuring a complete professional creative brief. Your job is to ask the precise questions needed to fill every section of a production-ready brief.
+
+BRIEF SECTIONS TO COMPLETE:
+1. Project Objective — what the video must achieve (not what it contains)
+2. Target Audience — specific person, not demographic group. Their beliefs, behavior, platform
+3. Brand Tone — 3 words max. What it IS and what it IS NOT
+4. Visual Style Direction — specific aesthetic references, lighting approach, color temperature
+5. Animation Approach — camera language, pacing, technique (macro, orbit, particle, simulation)
+6. Deliverables — hero asset duration, aspect ratios, platform cuts needed
+7. Technical Specs — resolution, frame rate, delivery format
+8. Timeline — hard deadline, preferred delivery date, milestone dates
+9. Budget Range — confirm which EONS package fits
+10. Success Metrics — how will the client measure if this worked?
+
+In this mode: be methodical. Work through sections in order. If the client skips ahead, bring them back. Don't generate the brief until you have answers to at least 7 of 10 sections. Then produce the complete document.`,
+    greeting: (user) => `${user ? user.name + ', ' : ''}I'm in Brief Generation mode. I'll ask you targeted questions to build a production-ready creative brief. Let's start: what's the core objective of this video — not what's in it, but what it needs to achieve?`,
+  },
+};
+
+function setMode(mode) {
+  currentMode = mode;
+  // Update button states
+  document.querySelectorAll('.ch-action-btn[id^="mode-"]').forEach(b => b.classList.remove('mode-active'));
+  const activeBtn = document.getElementById('mode-' + mode);
+  if (activeBtn) activeBtn.classList.add('mode-active');
+  // Show mode badge
+  const badge = document.getElementById('modeBadge');
+  if (badge) {
+    badge.textContent = MODES[mode].label;
+    badge.classList.add('show');
+    setTimeout(() => badge.classList.remove('show'), 2500);
+  }
+  // If we already have a conversation, just notify
+  if (chatHistory.length > 0) {
+    addMsg('assistant', 'Switched to ' + MODES[mode].label + '. ' + getModeTransition(mode));
+    return;
+  }
+  // Fresh start - clear and re-init with mode greeting
+  chatHistory = [];
+  document.getElementById('chMsgs').innerHTML = '';
+  const greeting = MODES[mode].greeting(currentUser);
+  addMsg('assistant', greeting);
+  chatHistory.push({ role: 'assistant', content: greeting });
+  updatePhase();
+}
+
+function getModeTransition(mode) {
+  const msgs = {
+    explore: 'Let's continue — I'm thinking broadly now.',
+    brand: 'Let's zoom out to strategy. What's the positioning challenge?',
+    storyboard: 'Let's think in shots. Where are we in the production process?',
+    brief: 'Let's get precise. What's the core objective of this project?',
+  };
+  return msgs[mode] || '';
+}
+
+function getModeSystemAddendum() {
+  return MODES[currentMode]?.system_addendum || '';
+}
+
+/* ══ CONVERSATION HISTORY ══ */
+let conversations = [];
+let activeConvId = null;
+
+function loadConversations() {
+  conversations = JSON.parse(localStorage.getItem('eons_convs') || '[]');
+  renderSidebar();
+}
+
+function saveCurrentConversation() {
+  if (!chatHistory.length) return;
+  const title = getConvTitle();
+  if (activeConvId) {
+    const idx = conversations.findIndex(c => c.id === activeConvId);
+    if (idx >= 0) {
+      conversations[idx] = { ...conversations[idx], title, history: [...chatHistory], mode: currentMode, ts: Date.now() };
+    }
+  } else {
+    activeConvId = Date.now();
+    conversations.unshift({ id: activeConvId, title, history: [...chatHistory], mode: currentMode, ts: Date.now() });
+  }
+  conversations = conversations.slice(0, 50);
+  localStorage.setItem('eons_convs', JSON.stringify(conversations));
+  renderSidebar();
+}
+
+function getConvTitle() {
+  const first = chatHistory.find(m => m.role === 'user');
+  if (first) return first.content.slice(0, 40) + (first.content.length > 40 ? '...' : '');
+  return 'New Conversation';
+}
+
+function loadConversation(id) {
+  const conv = conversations.find(c => c.id === id);
+  if (!conv) return;
+  activeConvId = id;
+  chatHistory = [...conv.history];
+  currentMode = conv.mode || 'explore';
+  document.getElementById('chMsgs').innerHTML = '';
+  chatHistory.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'ch-msg ' + m.role;
+    const av = document.createElement('div');
+    av.className = 'ch-av';
+    av.textContent = m.role === 'user' ? (currentUser ? currentUser.name[0].toUpperCase() : 'U') : '✦';
+    const content = document.createElement('div');
+    content.className = 'ch-content';
+    const sender = document.createElement('div');
+    sender.className = 'ch-sender';
+    sender.textContent = m.role === 'user' ? (currentUser ? currentUser.name : 'You') : 'EONS AI';
+    const textDiv = document.createElement('div');
+    textDiv.className = 'ch-text';
+    textDiv.innerHTML = m.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>');
+    content.appendChild(sender); content.appendChild(textDiv);
+    div.appendChild(av); div.appendChild(content);
+    document.getElementById('chMsgs').appendChild(div);
+  });
+  document.getElementById('chMsgs').scrollTop = 99999;
+  // Update mode button
+  document.querySelectorAll('.ch-action-btn[id^="mode-"]').forEach(b => b.classList.remove('mode-active'));
+  const btn = document.getElementById('mode-' + currentMode);
+  if (btn) btn.classList.add('mode-active');
+  renderSidebar();
+  updatePhase();
+}
+
+function deleteConversation(id, e) {
+  e.stopPropagation();
+  conversations = conversations.filter(c => c.id !== id);
+  localStorage.setItem('eons_convs', JSON.stringify(conversations));
+  if (activeConvId === id) {
+    activeConvId = null;
+    newConversation();
+  }
+  renderSidebar();
+}
+
+function renderSidebar() {
+  const list = document.getElementById('sidebarList');
+  if (!list) return;
+  if (!conversations.length) {
+    list.innerHTML = '<p style="font-size:11px;color:var(--dim2);padding:8px;text-align:center;">No conversations yet</p>';
+    return;
+  }
+  // Group by date
+  const now = Date.now();
+  const day = 86400000;
+  const groups = { Today: [], 'This Week': [], Older: [] };
+  conversations.forEach(c => {
+    const age = now - c.ts;
+    if (age < day) groups.Today.push(c);
+    else if (age < day * 7) groups['This Week'].push(c);
+    else groups.Older.push(c);
+  });
+  list.innerHTML = Object.entries(groups).map(([label, convs]) => {
+    if (!convs.length) return '';
+    return '<div class="conv-group-label">' + label + '</div>' +
+      convs.map(c => `<div class="conv-item${c.id === activeConvId ? ' active' : ''}" onclick="loadConversation(${c.id})"><span class="conv-item-del" onclick="deleteConversation(${c.id},event)">✕</span><div class="conv-item-title">${c.title}</div><div class="conv-item-meta">${c.mode || 'explore'} · ${new Date(c.ts).toLocaleDateString()}</div></div>`).join('');
+  }).join('');
+}
+
+/* ══ SAVED WORK ══ */
+function saveWork(title, content, type) {
+  const saved = JSON.parse(localStorage.getItem('eons_saved') || '[]');
+  saved.unshift({ id: Date.now(), title, content, type, ts: Date.now() });
+  localStorage.setItem('eons_saved', JSON.stringify(saved.slice(0, 50)));
+  toast('Saved! 📋', title + ' saved to Team Portal.');
+}
+
+function renderSavedWork() {
+  const wrap = document.getElementById('savedWorkWrap');
+  if (!wrap) return;
+  const saved = JSON.parse(localStorage.getItem('eons_saved') || '[]');
+  if (!saved.length) {
+    wrap.innerHTML = '<p style="font-size:13px;color:var(--dim);">No saved work yet — generate documents in the AI chat and they appear here.</p>';
+    return;
+  }
+  wrap.innerHTML = saved.map(item => `
+    <div class="saved-item" id="sw-${item.id}">
+      <div class="saved-item-hdr" onclick="toggleSavedItem(${item.id})">
+        <div>
+          <div class="saved-item-title">${item.title}</div>
+          <div class="saved-item-meta">${item.type} · ${new Date(item.ts).toLocaleDateString()}</div>
+        </div>
+        <span class="saved-item-chevron">▾</span>
+      </div>
+      <div class="saved-item-body">${item.content.replace(/</g,'&lt;')}</div>
+    </div>
+  `).join('');
+}
+
+function toggleSavedItem(id) {
+  const el = document.getElementById('sw-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+
+/* ══ TEAM AI CHAT (internal — no limits, not logged as visitor) ══ */
+let teamChatHistory = [];
+let teamMode = 'explore';
+let teamAiTyping = false;
+
+function setTeamMode(mode, btn) {
+  teamMode = mode;
+  document.querySelectorAll('.team-mode-btn').forEach(b => b.classList.remove('on'));
+  if (btn) btn.classList.add('on');
+  // Notify in chat if already has messages
+  if (teamChatHistory.length > 0) {
+    addTeamMsg('assistant', 'Switched to ' + MODES[mode].label + '. ' + getModeTransition(mode));
+  }
+}
+
+function initTeamChat() {
+  if (teamChatHistory.length > 0) return; // already started
+  const greeting = 'Internal AI ready. I have no generation limits in this mode and your conversations are private to the team. What are we working on?';
+  addTeamMsg('assistant', greeting);
+  teamChatHistory.push({ role: 'assistant', content: greeting });
+}
+
+function addTeamMsg(role, text) {
+  const msgs = document.getElementById('teamAiMsgs');
+  if (!msgs) return;
+  const div = document.createElement('div');
+  div.className = 'team-msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'team-msg-av';
+  av.textContent = role === 'user' ? 'RC' : '✦';
+  const content = document.createElement('div');
+  content.className = 'team-msg-content';
+  const roleEl = document.createElement('div');
+  roleEl.className = 'team-msg-role';
+  roleEl.textContent = role === 'user' ? 'Team' : 'EONS AI';
+  const textEl = document.createElement('div');
+  textEl.className = 'team-msg-text';
+  content.appendChild(roleEl);
+  content.appendChild(textEl);
+  div.appendChild(av);
+  div.appendChild(content);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  if (role === 'assistant') {
+    typeWriter(textEl, text);
+  } else {
+    textEl.innerHTML = text.replace(/</g, '&lt;');
+  }
+}
+
+function showTeamTyping() {
+  const msgs = document.getElementById('teamAiMsgs');
+  if (!msgs) return;
+  const el = document.createElement('div');
+  el.className = 'team-msg assistant';
+  el.id = 'teamTypingIndicator';
+  el.innerHTML = '<div class="team-msg-av">✦</div><div class="team-msg-content"><div class="team-msg-role">EONS AI</div><div class="team-msg-text"><div class="eons-thinking"><div class="eons-think-orbs"><div class="eons-orb"></div><div class="eons-orb"></div><div class="eons-orb"></div></div><span class="eons-think-label">' + THINK_LABELS[0] + '</span></div></div></div>';
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function hideTeamTyping() {
+  const el = document.getElementById('teamTypingIndicator');
+  if (el) el.remove();
+}
+
+async function sendTeamMsg() {
+  if (teamAiTyping) return;
+  const inp = document.getElementById('teamAiInput');
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = ''; inp.style.height = 'auto';
+  addTeamMsg('user', txt);
+  teamChatHistory.push({ role: 'user', content: txt });
+  teamAiTyping = true;
+  showTeamTyping();
+  try {
+    const systemWithMode = SYSTEM + getModeSystemAddendum() + '
+
+NOTE: This is an internal team session. No generation limits apply. Be as detailed and thorough as needed.';
+    const [rep] = await Promise.all([
+      callAIWithSystem(teamChatHistory, 2000, systemWithMode),
+      new Promise(r => setTimeout(r, 600))
+    ]);
+    hideTeamTyping();
+    if (!rep) return;
+    teamChatHistory.push({ role: 'assistant', content: rep });
+    addTeamMsg('assistant', rep);
+  } catch (e) {
+    hideTeamTyping();
+    addTeamMsg('assistant', 'Error: ' + e.message);
+  } finally {
+    teamAiTyping = false;
+  }
+}
+
+async function teamGenerate(type) {
+  if (teamAiTyping) return;
+  const prompts = {
+    brief: 'Based on our conversation, generate a complete production-ready EONS creative brief with all sections filled in detail.',
+    storyboard: 'Based on our conversation, write a detailed scene-by-scene storyboard with shot types, camera movement, timing, lighting notes, and production complexity per shot.',
+    visual: 'Based on our conversation, write a complete Visual Direction document covering color temperature, animation pace, camera language, lighting philosophy, music direction, and specific aesthetic references.',
+  };
+  const msg = teamChatHistory.length > 0
+    ? prompts[type]
+    : 'Generate a sample ' + type + ' for a fictional DTC skincare brand launching a hero product video.';
+  teamChatHistory.push({ role: 'user', content: msg });
+  addTeamMsg('user', '📄 Generate ' + type);
+  teamAiTyping = true;
+  showTeamTyping();
+  try {
+    const systemWithMode = SYSTEM + getModeSystemAddendum() + '
+
+NOTE: This is an internal team session. Be extremely detailed and thorough.';
+    const [rep] = await Promise.all([
+      callAIWithSystem(teamChatHistory, 2500, systemWithMode),
+      new Promise(r => setTimeout(r, 600))
+    ]);
+    hideTeamTyping();
+    if (!rep) return;
+    teamChatHistory.push({ role: 'assistant', content: rep });
+    addTeamMsg('assistant', rep);
+    // Auto-save to saved work
+    saveWork(type.charAt(0).toUpperCase() + type.slice(1) + ' (Internal) — ' + new Date().toLocaleDateString(), rep, type + '-internal');
+  } catch (e) {
+    hideTeamTyping();
+    addTeamMsg('assistant', 'Generation failed: ' + e.message);
+  } finally {
+    teamAiTyping = false;
+  }
+}
+
+function clearTeamChat() {
+  teamChatHistory = [];
+  const msgs = document.getElementById('teamAiMsgs');
+  if (msgs) msgs.innerHTML = '';
+  initTeamChat();
+}
+
+/* ── CALL AI WITH CUSTOM SYSTEM ── */
+async function callAIWithSystem(msgs, maxT, system) {
+  maxT = maxT || 1500;
+  const r = await fetch(CONFIG.worker_url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxT,
+      system: system,
+      messages: msgs,
+    })
+  });
+  if (!r.ok) {
+    const e = await r.json().catch(() => ({}));
+    throw new Error(e.error?.message || 'API error ' + r.status);
+  }
+  const d = await r.json();
+  return d.content?.[0]?.text || 'Something went wrong.';
+}
+
+/* ── REVEAL OBSERVER ── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); } });
+}, { threshold: 0.08, rootMargin: '0px 0px 80px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── INPUT AUTO-RESIZE ── */
+document.getElementById('chInput').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+});
+document.getElementById('chInput').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+document.getElementById('teamAiInput').addEventListener('input', function () {
+  this.style.height = 'auto';
+  this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+});
+document.getElementById('teamAiInput').addEventListener('keydown', function (e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTeamMsg(); }
+});
+
+/* ── HASH ROUTING ── */
+window.addEventListener('hashchange', () => { if (location.hash === '#team') openTeam(); });
+if (location.hash === '#team') openTeam();
+
+/* ── INIT ── */
+initTheme();
+
+</script>
+</body>
+</html>

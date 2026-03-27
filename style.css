@@ -1,0 +1,2750 @@
+/* =========================================================
+   SECTION 1 — VARIABLES, RESET, GLOBAL UTILITIES
+   ========================================================= */
+
+/* ---------- 1.1 ROOT VARIABLES ---------- */
+:root {
+  /* Colors */
+  --bg: #0a0a0a;
+  --bg-light: #111;
+  --bg-lighter: #181818;
+  --text: #ffffff;
+  --text-dim: #b3b3b3;
+  --accent: #ff4d00;
+  --accent-soft: rgba(255, 77, 0, 0.2);
+
+  /* Surfaces */
+  --card-bg: #121212;
+  --card-border: rgba(255, 255, 255, 0.08);
+
+  /* Typography */
+  --font-main: 'Inter', sans-serif;
+  --font-heading: 'Inter', sans-serif;
+  --font-size-base: 16px;
+
+  /* Spacing */
+  --space-xs: 0.5rem;
+  --space-sm: 1rem;
+  --space-md: 2rem;
+  --space-lg: 4rem;
+  --space-xl: 6rem;
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+
+  /* Shadows */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.25);
+  --shadow-strong: 0 8px 40px rgba(0, 0, 0, 0.45);
+
+  /* Transitions */
+  --fast: 0.2s ease;
+  --med: 0.35s ease;
+  --slow: 0.6s ease;
+}
+
+/* ---------- 1.2 CSS RESET ---------- */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-main);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Remove default list + link styles */
+ul, ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Images */
+img, video {
+  max-width: 100%;
+  display: block;
+}
+
+/* ---------- 1.3 GLOBAL UTILITY CLASSES ---------- */
+
+/* Layout */
+.container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.inner {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.flex {
+  display: flex;
+  align-items: center;
+}
+
+.grid {
+  display: grid;
+}
+
+/* Text utilities */
+.dim {
+  color: var(--text-dim);
+}
+
+.highlight {
+  color: var(--accent);
+}
+
+/* Spacing utilities */
+.mt-sm { margin-top: var(--space-sm); }
+.mt-md { margin-top: var(--space-md); }
+.mt-lg { margin-top: var(--space-lg); }
+
+.mb-sm { margin-bottom: var(--space-sm); }
+.mb-md { margin-bottom: var(--space-md); }
+.mb-lg { margin-bottom: var(--space-lg); }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background var(--fast), transform var(--fast);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #ff5f1a;
+  transform: translateY(-2px);
+}
+
+.btn-row {
+  display: flex;
+  gap: 1rem;
+}
+
+/* Surfaces */
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.mesh {
+  background: radial-gradient(circle at 30% 20%, rgba(255, 77, 0, 0.15), transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(255, 77, 0, 0.1), transparent 60%);
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.blur {
+  filter: blur(20px);
+}
+
+/* Pills / Tags */
+.pill {
+  padding: 0.35rem 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.tag {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}
+
+/* =========================================================
+   SECTION 2 — LAYOUT SYSTEM
+   ========================================================= */
+
+/* ---------- 2.1 GLOBAL PAGE WRAPPERS ---------- */
+
+.page {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  width: 100%;
+  padding: var(--space-xl) 0;
+  position: relative;
+}
+
+.section-inner {
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- 2.2 GRID SYSTEM ---------- */
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-lg);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-lg);
+}
+
+.grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-lg);
+}
+
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+}
+
+/* ---------- 2.3 FLEX LAYOUT HELPERS ---------- */
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* ---------- 2.4 SPACING SYSTEM ---------- */
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-md);
+}
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  margin-bottom: var(--space-lg);
+  max-width: 600px;
+}
+
+.section-tag {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+}
+
+/* ---------- 2.5 CARD LAYOUT BASE ---------- */
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  transition: transform var(--fast), box-shadow var(--fast);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---------- 2.6 SECTION BACKGROUND VARIANTS ---------- */
+
+.section--dark {
+  background: var(--bg-light);
+}
+
+.section--darker {
+  background: var(--bg-lighter);
+}
+
+.section--mesh {
+  position: relative;
+}
+
+.section--mesh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 77, 0, 0.15), transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(255, 77, 0, 0.1), transparent 60%);
+  z-index: 1;
+}
+
+/* ---------- 2.7 RESPONSIVE LAYOUT ---------- */
+
+@media (max-width: 992px) {
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: var(--space-lg) 0;
+  }
+
+  .section-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .section {
+    padding: var(--space-md) 0;
+  }
+
+  .section-title {
+    font-size: 1.7rem;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+  }
+}
+/* =========================================================
+   SECTION 3 — NAVIGATION SYSTEM
+   ========================================================= */
+
+/* ---------- 3.1 NAV WRAPPER ---------- */
+
+.nav {
+  width: 100%;
+  padding: 1.25rem 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
+  transition: background var(--med), padding var(--med), box-shadow var(--med);
+}
+
+.nav.scrolled {
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 0.75rem 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------- 3.2 NAV INNER LAYOUT ---------- */
+
+.nav-container {
+  width: 90%;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+/* ---------- 3.3 DESKTOP NAV LINKS ---------- */
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-item-link {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  transition: color var(--fast), opacity var(--fast);
+}
+
+.nav-item-link:hover {
+  color: var(--text);
+  opacity: 0.85;
+}
+
+/* ---------- 3.4 NAV CTA BUTTON ---------- */
+
+.nav-cta-button {
+  padding: 0.6rem 1.25rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: background var(--fast), transform var(--fast);
+}
+
+.nav-cta-button:hover {
+  background: #ff5f1a;
+  transform: translateY(-2px);
+}
+
+/* ---------- 3.5 HAMBURGER MENU (MOBILE) ---------- */
+
+.hamburger {
+  width: 32px;
+  height: 22px;
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.hamburger-line {
+  width: 100%;
+  height: 3px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform var(--fast), opacity var(--fast);
+}
+
+/* Active state for hamburger */
+.hamburger.active .line-1 {
+  transform: translateY(9px) rotate(45deg);
+}
+
+.hamburger.active .line-2 {
+  opacity: 0;
+}
+
+.hamburger.active .line-3 {
+  transform: translateY(-9px) rotate(-45deg);
+}
+
+/* ---------- 3.6 MOBILE NAV PANEL ---------- */
+
+.mobile-nav {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 75%;
+  height: 100vh;
+  background: var(--bg-light);
+  padding: 4rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  transition: right var(--med);
+  z-index: 998;
+}
+
+.mobile-nav.open {
+  right: 0;
+}
+
+.mobile-nav a {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text);
+  opacity: 0.85;
+  transition: opacity var(--fast);
+}
+
+.mobile-nav a:hover {
+  opacity: 1;
+}
+
+/* ---------- 3.7 RESPONSIVE NAVIGATION ---------- */
+
+@media (max-width: 992px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+}
+
+@media (max-width: 576px) {
+  .mobile-nav {
+    width: 85%;
+  }
+}
+/* =========================================================
+   SECTION 4 — CUSTOM CURSOR SYSTEM
+   ========================================================= */
+
+/* ---------- 4.1 BASE CURSOR ELEMENTS ---------- */
+
+.cursor-dot,
+.cursor-halo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: opacity var(--fast), transform var(--fast);
+}
+
+/* Small dot */
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  opacity: 0.9;
+}
+
+/* Halo ring */
+.cursor-halo {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  opacity: 0.25;
+  transition: width var(--med), height var(--med), opacity var(--fast), transform var(--fast);
+}
+
+/* ---------- 4.2 INTERACTION STATES ---------- */
+
+/* Hovering interactive elements */
+a:hover ~ .cursor-halo,
+button:hover ~ .cursor-halo,
+.btn:hover ~ .cursor-halo,
+.nav-item-link:hover ~ .cursor-halo {
+  width: 60px;
+  height: 60px;
+  opacity: 0.35;
+}
+
+/* Hovering buttons */
+.btn:hover ~ .cursor-dot {
+  transform: translate(-50%, -50%) scale(1.4);
+}
+
+/* ---------- 4.3 HIDDEN STATES ---------- */
+
+.cursor-hidden {
+  opacity: 0 !important;
+}
+
+/* ---------- 4.4 MOBILE DISABLE ---------- */
+
+@media (max-width: 992px) {
+  .cursor-dot,
+  .cursor-halo {
+    display: none;
+  }
+}
+/* =========================================================
+   SECTION 5 — HERO + REEL SYSTEM
+   ========================================================= */
+
+/* ---------- 5.1 HERO WRAPPER ---------- */
+
+.hero {
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 6rem; /* accounts for fixed nav */
+  overflow: hidden;
+}
+
+.hero-inner {
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: center;
+  gap: var(--space-lg);
+  position: relative;
+  z-index: 3;
+}
+
+/* ---------- 5.2 HERO TEXT ---------- */
+
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-dim);
+  max-width: 550px;
+  line-height: 1.6;
+}
+
+.hero-cta-button {
+  margin-top: var(--space-md);
+  padding: 0.9rem 1.75rem;
+  font-size: 1.05rem;
+}
+
+/* ---------- 5.3 HERO VIDEO BACKGROUND ---------- */
+
+.hero-video-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+  z-index: 1;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.55),
+    rgba(0, 0, 0, 0.85)
+  );
+  z-index: 2;
+}
+
+/* ---------- 5.4 REEL SYSTEM WRAPPER ---------- */
+
+.reel-container {
+  width: 100%;
+  margin-top: var(--space-lg);
+  position: relative;
+  overflow: hidden;
+}
+
+.reel {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.reel-track {
+  display: flex;
+  gap: 1rem;
+  transition: transform var(--slow);
+  will-change: transform;
+}
+
+.reel-clip {
+  min-width: 260px;
+  height: 160px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  position: relative;
+  background: #000;
+  cursor: pointer;
+  transition: transform var(--fast), opacity var(--fast);
+}
+
+.reel-clip:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+.reel-clip video,
+.reel-clip img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ---------- 5.5 REEL OVERLAY ---------- */
+
+.reel-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity var(--fast);
+}
+
+.reel-clip:hover .reel-overlay {
+  opacity: 1;
+}
+
+/* ---------- 5.6 REEL INDICATORS ---------- */
+
+.reel-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: var(--space-sm);
+}
+
+.reel-indicator-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--text-dim);
+  opacity: 0.4;
+  transition: opacity var(--fast), transform var(--fast);
+}
+
+.reel-indicator-dot.active {
+  opacity: 1;
+  background: var(--accent);
+  transform: scale(1.2);
+}
+
+/* ---------- 5.7 RESPONSIVE HERO ---------- */
+
+@media (max-width: 992px) {
+  .hero-inner {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .hero-text h1 {
+    font-size: 2.8rem;
+  }
+
+  .hero-subtitle {
+    margin: 0 auto;
+  }
+
+  .hero-cta-button {
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-text h1 {
+    font-size: 2.2rem;
+  }
+
+  .reel-clip {
+    min-width: 200px;
+    height: 130px;
+  }
+}
+/* =========================================================
+   SECTION 6 — BUTTON SYSTEM
+   ========================================================= */
+
+/* ---------- 6.1 BASE BUTTON ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.85rem 1.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--fast), color var(--fast), transform var(--fast), opacity var(--fast);
+  border: none;
+  outline: none;
+  user-select: none;
+}
+
+/* Hover + active */
+.btn:hover {
+  transform: translateY(-2px);
+  opacity: 0.95;
+}
+
+.btn:active {
+  transform: translateY(0);
+  opacity: 0.85;
+}
+
+/* Disabled */
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ---------- 6.2 BUTTON VARIANTS ---------- */
+
+/* Primary */
+.btn--primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background: #ff5f1a;
+}
+
+/* Secondary */
+.btn--secondary {
+  background: var(--bg-light);
+  color: var(--text);
+  border: 1px solid var(--card-border);
+}
+
+.btn--secondary:hover {
+  background: var(--bg-lighter);
+}
+
+/* Ghost */
+.btn--ghost {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Accent Outline */
+.btn--outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.btn--outline:hover {
+  background: var(--accent-soft);
+}
+
+/* ---------- 6.3 ICON BUTTONS ---------- */
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.btn-icon svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--fast);
+}
+
+.btn-icon:hover svg {
+  transform: translateX(3px);
+}
+
+/* ---------- 6.4 BUTTON ROWS ---------- */
+
+.btn-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- 6.5 LOADING STATE ---------- */
+
+.btn--loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.btn--loading::after {
+  content: "";
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  position: absolute;
+  right: -28px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* ---------- 6.6 DASHBOARD / CMS BUTTONS ---------- */
+
+.dashboard-button,
+.cms-button,
+.editor-button {
+  padding: 0.65rem 1.25rem;
+  font-size: 0.95rem;
+  border-radius: var(--radius-sm);
+  background: var(--bg-lighter);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  transition: background var(--fast), transform var(--fast);
+}
+
+.dashboard-button:hover,
+.cms-button:hover,
+.editor-button:hover {
+  background: var(--bg-light);
+  transform: translateY(-2px);
+}
+
+/* Save */
+.cms-save-button,
+.editor-save {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cms-save-button:hover,
+.editor-save:hover {
+  background: #ff5f1a;
+}
+
+/* Delete */
+.cms-delete-button,
+.editor-delete {
+  background: #b00020;
+  color: #fff;
+}
+
+.cms-delete-button:hover,
+.editor-delete:hover {
+  background: #c62828;
+}
+
+/* Add */
+.cms-add-button {
+  background: #1e88e5;
+  color: #fff;
+}
+
+.cms-add-button:hover {
+  background: #2196f3;
+}
+
+/* ---------- 6.7 KEYFRAMES ---------- */
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* =========================================================
+   SECTION 7 — SECTION FRAMEWORK
+   ========================================================= */
+
+/* ---------- 7.1 SECTION WRAPPER ---------- */
+
+.section {
+  width: 100%;
+  padding: var(--space-xl) 0;
+  position: relative;
+}
+
+.section-inner {
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+/* ---------- 7.2 SECTION TAG ---------- */
+
+.section-tag {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: var(--space-sm);
+  font-weight: 600;
+}
+
+/* ---------- 7.3 SECTION TITLE ---------- */
+
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-md);
+}
+
+.section-title span {
+  color: var(--accent);
+}
+
+/* ---------- 7.4 SECTION SUBTITLE ---------- */
+
+.section-subtitle {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  max-width: 650px;
+  line-height: 1.65;
+  margin-bottom: var(--space-lg);
+}
+
+/* ---------- 7.5 SECTION GRID ALIGNMENT ---------- */
+
+.section-grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+.section-grid.center {
+  justify-items: center;
+  text-align: center;
+}
+
+.section-grid.left {
+  justify-items: start;
+  text-align: left;
+}
+
+/* ---------- 7.6 SECTION SPACING VARIANTS ---------- */
+
+.section--tight {
+  padding: var(--space-lg) 0;
+}
+
+.section--loose {
+  padding: calc(var(--space-xl) * 1.5) 0;
+}
+
+.section--flush {
+  padding: 0;
+}
+
+/* ---------- 7.7 SECTION BACKGROUND VARIANTS ---------- */
+
+.section--dark {
+  background: var(--bg-light);
+}
+
+.section--darker {
+  background: var(--bg-lighter);
+}
+
+.section--mesh {
+  position: relative;
+}
+
+.section--mesh::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(255, 77, 0, 0.15), transparent 60%),
+              radial-gradient(circle at 70% 80%, rgba(255, 77, 0, 0.1), transparent 60%);
+  z-index: 1;
+}
+
+/* ---------- 7.8 RESPONSIVE SECTION TYPOGRAPHY ---------- */
+
+@media (max-width: 992px) {
+  .section-title {
+    font-size: 2.2rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.05rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .section-title {
+    font-size: 1.8rem;
+  }
+
+  .section-subtitle {
+    font-size: 0.95rem;
+  }
+}
+/* =========================================================
+   SECTION 8 — PORTFOLIO SYSTEM
+   ========================================================= */
+
+/* ---------- 8.1 PORTFOLIO GRID ---------- */
+
+.portfolio-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+/* ---------- 8.2 PORTFOLIO CARD ---------- */
+
+.portfolio-card {
+  position: relative;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--fast), box-shadow var(--fast), opacity var(--fast);
+}
+
+.portfolio-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+  opacity: 0.95;
+}
+
+/* ---------- 8.3 PORTFOLIO MEDIA ---------- */
+
+.portfolio-media {
+  width: 100%;
+  height: 220px;
+  overflow: hidden;
+  position: relative;
+}
+
+.portfolio-media img,
+.portfolio-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--slow);
+}
+
+.portfolio-card:hover .portfolio-media img,
+.portfolio-card:hover .portfolio-media video {
+  transform: scale(1.08);
+}
+
+/* ---------- 8.4 PORTFOLIO OVERLAY ---------- */
+
+.portfolio-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.75)
+  );
+  opacity: 0;
+  transition: opacity var(--fast);
+}
+
+.portfolio-card:hover .portfolio-overlay {
+  opacity: 1;
+}
+
+/* ---------- 8.5 PORTFOLIO CONTENT ---------- */
+
+.portfolio-content {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  z-index: 3;
+  color: #fff;
+}
+
+.portfolio-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.portfolio-meta {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* ---------- 8.6 PORTFOLIO TAG ---------- */
+
+.portfolio-tag {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+/* ---------- 8.7 PORTFOLIO HOVER ICON ---------- */
+
+.portfolio-hover-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 38px;
+  height: 38px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity var(--fast), transform var(--fast);
+}
+
+.portfolio-card:hover .portfolio-hover-icon {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.portfolio-hover-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+}
+
+/* ---------- 8.8 RESPONSIVE PORTFOLIO ---------- */
+
+@media (max-width: 768px) {
+  .portfolio-media {
+    height: 180px;
+  }
+
+  .portfolio-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .portfolio-media {
+    height: 160px;
+  }
+}
+/* =========================================================
+   SECTION 9 — SERVICES, PROCESS, PRICING, TEAM
+   ========================================================= */
+
+/* =========================================================
+   9.1 — SERVICES SECTION
+   ========================================================= */
+
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.service-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  transition: transform var(--fast), box-shadow var(--fast), background var(--fast);
+  cursor: pointer;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+  background: var(--bg-light);
+}
+
+.service-icon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: var(--space-sm);
+}
+
+.service-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.service-desc {
+  font-size: 1rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* =========================================================
+   9.2 — PROCESS SECTION (Möbius Icon Ready)
+   ========================================================= */
+
+.process-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.process-step {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  position: relative;
+  transition: transform var(--fast), box-shadow var(--fast);
+}
+
+.process-step:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+}
+
+.process-icon {
+  width: 52px;
+  height: 52px;
+  margin-bottom: var(--space-sm);
+}
+
+.process-step h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.process-step p {
+  font-size: 1rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+
+/* Step number badge */
+.process-step-number {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* =========================================================
+   9.3 — PRICING SECTION
+   ========================================================= */
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.pricing-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  transition: transform var(--fast), box-shadow var(--fast), background var(--fast);
+}
+
+.pricing-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+  background: var(--bg-light);
+}
+
+.pricing-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.pricing-price {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: var(--space-md);
+  color: var(--accent);
+}
+
+.pricing-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: var(--space-lg);
+}
+
+.pricing-features li {
+  color: var(--text-dim);
+  font-size: 1rem;
+}
+
+.pricing-cta {
+  margin-top: var(--space-md);
+}
+
+/* =========================================================
+   9.4 — TEAM SECTION
+   ========================================================= */
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.team-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+  text-align: center;
+  transition: transform var(--fast), box-shadow var(--fast);
+}
+
+.team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+}
+
+.team-card-image {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto var(--space-sm);
+}
+
+.team-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.team-card-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.team-card-role {
+  font-size: 1rem;
+  color: var(--text-dim);
+  margin-bottom: var(--space-sm);
+}
+
+.team-card-bio {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+}
+/* =========================================================
+   SECTION 10 — TESTIMONIALS + INSTAGRAM
+   ========================================================= */
+
+/* =========================================================
+   10.1 — TESTIMONIALS
+   ========================================================= */
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.testimonial-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg) var(--space-md);
+  position: relative;
+  transition: transform var(--fast), box-shadow var(--fast);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Quote mark */
+.testimonial-quote-icon {
+  width: 32px;
+  height: 32px;
+  opacity: 0.4;
+  margin-bottom: var(--space-sm);
+}
+
+/* Quote text */
+.testimonial-text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin-bottom: var(--space-md);
+}
+
+/* Author row */
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.testimonial-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.testimonial-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.testimonial-author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-author-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.testimonial-author-role {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+/* =========================================================
+   10.2 — INSTAGRAM GRID
+   ========================================================= */
+
+.instagram-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.instagram-post {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform var(--fast), opacity var(--fast);
+}
+
+.instagram-post:hover {
+  transform: scale(1.03);
+  opacity: 0.9;
+}
+
+.instagram-post img,
+.instagram-post video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Overlay */
+.instagram-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  opacity: 0;
+  transition: opacity var(--fast);
+}
+
+.instagram-post:hover .instagram-overlay {
+  opacity: 1;
+}
+
+/* Icon */
+.instagram-icon {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 28px;
+  height: 28px;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity var(--fast), transform var(--fast);
+}
+
+.instagram-post:hover .instagram-icon {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* =========================================================
+   10.3 — RESPONSIVE BEHAVIOR
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .testimonial-text {
+    font-size: 1rem;
+  }
+
+  .instagram-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  }
+}
+
+@media (max-width: 576px) {
+  .testimonial-card {
+    padding: var(--space-md);
+  }
+
+  .testimonial-avatar {
+    width: 44px;
+    height: 44px;
+  }
+}
+/* =========================================================
+   SECTION 11 — CHAT WIDGET
+   ========================================================= */
+
+/* ---------- 11.1 CHAT BUTTON (FLOATING TRIGGER) ---------- */
+
+.chat-open-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-strong);
+  cursor: pointer;
+  z-index: 999;
+  transition: transform var(--fast), background var(--fast);
+}
+
+.chat-open-btn:hover {
+  transform: translateY(-3px);
+  background: #ff5f1a;
+}
+
+/* ---------- 11.2 CHAT CONTAINER ---------- */
+
+.chat-widget {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 360px;
+  height: 520px;
+  background: var(--bg-light);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--med), transform var(--med);
+  z-index: 9999;
+}
+
+.chat-widget.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* ---------- 11.3 CHAT HEADER ---------- */
+
+.chat-header {
+  background: var(--accent);
+  color: #fff;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.chat-header-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.chat-close-btn {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity var(--fast);
+}
+
+.chat-close-btn:hover {
+  opacity: 1;
+}
+
+/* ---------- 11.4 CHAT BODY ---------- */
+
+.chat-body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--bg);
+}
+
+/* Scrollbar styling */
+.chat-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+}
+
+/* ---------- 11.5 MESSAGE BUBBLES ---------- */
+
+.chat-msg {
+  max-width: 80%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.chat-msg.user {
+  background: var(--accent);
+  color: #fff;
+  align-self: flex-end;
+  border-bottom-right-radius: 0;
+}
+
+.chat-msg.bot {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom-left-radius: 0;
+}
+
+/* ---------- 11.6 TYPING INDICATOR ---------- */
+
+.chat-typing {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.5rem 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  width: fit-content;
+}
+
+.chat-typing-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  animation: typingBlink 1s infinite ease-in-out;
+}
+
+.chat-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chat-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes typingBlink {
+  0%, 80%, 100% { opacity: 0.2; }
+  40% { opacity: 1; }
+}
+
+/* ---------- 11.7 INPUT BAR ---------- */
+
+.chat-input-bar {
+  padding: 0.75rem;
+  background: var(--bg-light);
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 0.65rem 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 0.95rem;
+}
+
+.chat-send-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--fast), transform var(--fast);
+}
+
+.chat-send-btn:hover {
+  background: #ff5f1a;
+  transform: translateY(-2px);
+}
+
+.chat-send-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: #fff;
+}
+
+/* ---------- 11.8 MOBILE RESPONSIVE ---------- */
+
+@media (max-width: 576px) {
+  .chat-widget {
+    width: 100%;
+    height: 100vh;
+    bottom: 0;
+    right: 0;
+    border-radius: 0;
+  }
+
+  .chat-open-btn {
+    bottom: 1.25rem;
+    right: 1.25rem;
+  }
+}
+/* =========================================================
+   SECTION 12 — CONTACT SECTION
+   ========================================================= */
+
+/* ---------- 12.1 CONTACT WRAPPER ---------- */
+
+.contact-wrapper {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  margin-top: var(--space-lg);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+/* ---------- 12.2 CONTACT GRID ---------- */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 12.3 CONTACT FORM ---------- */
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.contact-label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.contact-input,
+.contact-textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border var(--fast), background var(--fast);
+}
+
+.contact-input:focus,
+.contact-textarea:focus {
+  border-color: var(--accent);
+  background: var(--bg-light);
+  outline: none;
+}
+
+.contact-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+/* ---------- 12.4 CONTACT INFO PANEL ---------- */
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.contact-info-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-info-text {
+  font-size: 1rem;
+  color: var(--text-dim);
+}
+
+/* ---------- 12.5 SUBMIT BUTTON ---------- */
+
+.contact-submit-btn {
+  margin-top: var(--space-md);
+  padding: 0.9rem 1.75rem;
+  background: var(--accent);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--fast), transform var(--fast);
+}
+
+.contact-submit-btn:hover {
+  background: #ff5f1a;
+  transform: translateY(-2px);
+}
+
+/* ---------- 12.6 SUCCESS + ERROR STATES ---------- */
+
+.contact-success,
+.contact-error {
+  margin-top: var(--space-md);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.contact-success {
+  background: rgba(0, 200, 100, 0.15);
+  color: #00c864;
+  border: 1px solid rgba(0, 200, 100, 0.3);
+}
+
+.contact-error {
+  background: rgba(255, 0, 0, 0.15);
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 0, 0, 0.3);
+}
+/* =========================================================
+   SECTION 13 — FOOTER SYSTEM
+   ========================================================= */
+
+/* ---------- 13.1 FOOTER WRAPPER ---------- */
+
+.footer {
+  width: 100%;
+  background: var(--bg-lighter);
+  padding: var(--space-xl) 0 var(--space-lg);
+  border-top: 1px solid var(--card-border);
+}
+
+.footer-inner {
+  width: 90%;
+  max-width: 1300px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: var(--space-lg);
+}
+
+@media (max-width: 992px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 13.2 FOOTER BRAND ---------- */
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.footer-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.footer-desc {
+  font-size: 1rem;
+  color: var(--text-dim);
+  max-width: 350px;
+  line-height: 1.6;
+}
+
+/* ---------- 13.3 FOOTER LINK COLUMNS ---------- */
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.footer-col-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.footer-link {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  transition: color var(--fast), opacity var(--fast);
+}
+
+.footer-link:hover {
+  color: var(--text);
+  opacity: 0.85;
+}
+
+/* ---------- 13.4 SOCIAL ICONS ---------- */
+
+.footer-social {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: var(--space-sm);
+}
+
+.footer-social-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--bg-light);
+  border: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--fast), transform var(--fast), opacity var(--fast);
+}
+
+.footer-social-icon:hover {
+  background: var(--accent);
+  transform: translateY(-3px);
+  opacity: 0.9;
+}
+
+.footer-social-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--text);
+}
+
+/* ---------- 13.5 COPYRIGHT ROW ---------- */
+
+.footer-bottom {
+  width: 90%;
+  max-width: 1300px;
+  margin: var(--space-lg) auto 0;
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 576px) {
+  .footer-bottom {
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: center;
+  }
+}
+/* =========================================================
+   SECTION 14 — DASHBOARD SYSTEM
+   ========================================================= */
+
+/* ---------- 14.1 DASHBOARD LAYOUT ---------- */
+
+.dashboard {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  background: var(--bg);
+}
+
+@media (max-width: 992px) {
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- 14.2 SIDEBAR ---------- */
+
+.dashboard-sidebar {
+  background: var(--bg-lighter);
+  border-right: 1px solid var(--card-border);
+  padding: var(--space-lg) var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.dashboard-sidebar-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+}
+
+.dashboard-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.dashboard-nav-item {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background var(--fast), color var(--fast);
+}
+
+.dashboard-nav-item:hover {
+  background: var(--bg-light);
+  color: var(--text);
+}
+
+.dashboard-nav-item.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ---------- 14.3 DASHBOARD CONTENT AREA ---------- */
+
+.dashboard-content {
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.dashboard-section-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: var(--space-sm);
+}
+
+.dashboard-section-subtitle {
+  font-size: 1rem;
+  color: var(--text-dim);
+  margin-bottom: var(--space-md);
+}
+
+/* ---------- 14.4 DASHBOARD PANELS ---------- */
+
+.dashboard-panel {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-soft);
+}
+
+.dashboard-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.dashboard-panel-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.dashboard-panel-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* ---------- 14.5 TABLES ---------- */
+
+.dashboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--space-md);
+}
+
+.dashboard-table th,
+.dashboard-table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--card-border);
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.dashboard-table th {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.dashboard-table td {
+  color: var(--text-dim);
+}
+
+.dashboard-table tr:hover td {
+  background: var(--bg-light);
+  color: var(--text);
+}
+
+/* ---------- 14.6 TOGGLES ---------- */
+
+.dashboard-toggle {
+  width: 48px;
+  height: 24px;
+  background: var(--bg-light);
+  border-radius: 999px;
+  position: relative;
+  cursor: pointer;
+  transition: background var(--fast);
+}
+
+.dashboard-toggle::after {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: var(--text);
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform var(--fast), background var(--fast);
+}
+
+.dashboard-toggle.active {
+  background: var(--accent);
+}
+
+.dashboard-toggle.active::after {
+  transform: translateX(24px);
+  background: #fff;
+}
+
+/* ---------- 14.7 INPUTS ---------- */
+
+.dashboard-input,
+.dashboard-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border var(--fast), background var(--fast);
+}
+
+.dashboard-input:focus,
+.dashboard-textarea:focus {
+  border-color: var(--accent);
+  background: var(--bg-light);
+  outline: none;
+}
+
+.dashboard-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* ---------- 14.8 RESPONSIVE ---------- */
+
+@media (max-width: 992px) {
+  .dashboard-sidebar {
+    display: none;
+  }
+
+  .dashboard {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================================================
+   SECTION 15 — CMS TOOLS
+   ========================================================= */
+
+/* ---------- 15.1 CMS EDITOR WRAPPER ---------- */
+
+.cms-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  padding: var(--space-lg);
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--card-border);
+}
+
+/* ---------- 15.2 CONTENT BLOCKS ---------- */
+
+.cms-block {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  position: relative;
+  transition: background var(--fast), box-shadow var(--fast);
+}
+
+.cms-block:hover {
+  background: var(--bg-light);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Block header */
+.cms-block-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.cms-block-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* ---------- 15.3 DRAG HANDLES ---------- */
+
+.cms-drag-handle {
+  width: 22px;
+  height: 22px;
+  background: var(--bg-lighter);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  transition: background var(--fast);
+}
+
+.cms-drag-handle:hover {
+  background: var(--bg-light);
+}
+
+.cms-drag-handle svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.6;
+}
+
+/* ---------- 15.4 INLINE EDITING ---------- */
+
+.cms-inline-input {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  background: var(--bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  font-size: 1rem;
+  transition: border var(--fast), background var(--fast);
+}
+
+.cms-inline-input:focus {
+  border-color: var(--accent);
+  background: var(--bg-light);
+  outline: none;
+}
+
+/* ---------- 15.5 CMS BUTTONS ---------- */
+
+.cms-btn-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: var(--space-sm);
+}
+
+.cms-btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--fast), transform var(--fast);
+  border: none;
+}
+
+/* Save */
+.cms-btn.save {
+  background: var(--accent);
+  color: #fff;
+}
+
+.cms-btn.save:hover {
+  background: #ff5f1a;
+  transform: translateY(-2px);
+}
+
+/* Delete */
+.cms-btn.delete {
+  background: #b00020;
+  color: #fff;
+}
+
+.cms-btn.delete:hover {
+  background: #c62828;
+  transform: translateY(-2px);
+}
+
+/* Add */
+.cms-btn.add {
+  background: #1e88e5;
+  color: #fff;
+}
+
+.cms-btn.add:hover {
+  background: #2196f3;
+  transform: translateY(-2px);
+}
+
+/* ---------- 15.6 MODAL WINDOWS ---------- */
+
+.cms-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--med);
+}
+
+.cms-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.cms-modal-content {
+  background: var(--bg-light);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  width: 90%;
+  max-width: 600px;
+  box-shadow: var(--shadow-strong);
+  animation: modalPop var(--med) ease;
+}
+
+@keyframes modalPop {
+  from {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Modal header */
+.cms-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.cms-modal-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.cms-modal-close {
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity var(--fast);
+}
+
+.cms-modal-close:hover {
+  opacity: 1;
+}
+
+/* Modal body */
+.cms-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Modal footer */
+.cms-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: var(--space-md);
+}
+/* =========================================================
+   SECTION 16 — ANIMATIONS LIBRARY
+   ========================================================= */
+
+/* ---------- 16.1 FADE ANIMATIONS ---------- */
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn var(--slow) forwards;
+}
+
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp var(--slow) forwards;
+}
+
+.fade-in-down {
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: fadeInDown var(--slow) forwards;
+}
+
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-20px);
+  animation: fadeInLeft var(--slow) forwards;
+}
+
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(20px);
+  animation: fadeInRight var(--slow) forwards;
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* ---------- 16.2 SCALE ANIMATIONS ---------- */
+
+.scale-in {
+  opacity: 0;
+  transform: scale(0.92);
+  animation: scaleIn var(--med) forwards;
+}
+
+@keyframes scaleIn {
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* ---------- 16.3 SLIDE ANIMATIONS ---------- */
+
+.slide-up {
+  transform: translateY(40px);
+  opacity: 0;
+  animation: slideUp var(--slow) forwards;
+}
+
+.slide-down {
+  transform: translateY(-40px);
+  opacity: 0;
+  animation: slideDown var(--slow) forwards;
+}
+
+.slide-left {
+  transform: translateX(40px);
+  opacity: 0;
+  animation: slideLeft var(--slow) forwards;
+}
+
+.slide-right {
+  transform: translateX(-40px);
+  opacity: 0;
+  animation: slideRight var(--slow) forwards;
+}
+
+@keyframes slideUp {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideDown {
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideLeft {
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* ---------- 16.4 REVEAL MASK ANIMATION ---------- */
+
+.reveal-mask {
+  position: relative;
+  overflow: hidden;
+}
+
+.reveal-mask::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--accent);
+  transform: translateX(0);
+  animation: revealMask var(--slow) forwards;
+}
+
+@keyframes revealMask {
+  to { transform: translateX(100%); }
+}
+
+/* ---------- 16.5 SCROLL REVEAL (UTILITY CLASSES) ---------- */
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity var(--slow), transform var(--slow);
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- 16.6 LOOPING CINEMATIC EFFECTS ---------- */
+
+.float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.pulse {
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.85; }
+}
+
+/* ---------- 16.7 SHIMMER EFFECT ---------- */
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmerMove 2.5s infinite;
+}
+
+@keyframes shimmerMove {
+  to { transform: translateX(100%); }
+}

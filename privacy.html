@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — EONS Animation Studio</title>
+<meta name="description" content="EONS Animation Studio privacy policy. Learn how we collect, use, and protect your information.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="https://eons.studio/privacy.html">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%23080610'/><text y='.9em' font-size='72' font-family='serif' font-weight='900' fill='%239b6fd4' x='8'>E</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet"></noscript>
+
+<style>
+/* ── RESET & VARS ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#05040e;--surface:rgba(155,111,212,.06);
+  --v:#9b6fd4;--mauve:#c4b0e8;--mauve-d:#8a78b8;--mauve-br:#d8ccf5;
+  --dim:rgba(196,176,232,.6);--white:#f0ecfa;
+  --gb:rgba(180,160,240,.12);--gb2:rgba(180,160,240,.22);
+  --glow:rgba(155,111,212,.2);--t:.3s ease;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Barlow',sans-serif;font-weight:300;line-height:1.8;min-height:100vh;overflow-x:hidden;}
+
+/* ── BG MESH ── */
+.bg-mesh{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 20%,rgba(120,80,200,.08) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 35% at 90% 70%,rgba(180,120,220,.05) 0%,transparent 55%);
+}
+
+/* ── NAV ── */
+nav{position:sticky;top:0;z-index:100;padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;background:rgba(5,4,14,.92);border-bottom:1px solid var(--gb);backdrop-filter:blur(20px);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;color:var(--white);text-decoration:none;}
+.nav-logo span{color:var(--v);}
+.nav-back{font-size:12px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color var(--t);display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--gb);border-radius:100px;}
+.nav-back:hover{color:var(--mauve);border-color:var(--gb2);}
+
+/* ── HERO BAND ── */
+.page-hero{padding:56px 0 36px;position:relative;z-index:1;border-bottom:1px solid var(--gb);background:linear-gradient(180deg,rgba(155,111,212,.04) 0%,transparent 100%);}
+.page-hero-inner{max-width:760px;margin:0 auto;padding:0 28px;}
+.page-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--v);font-family:'Barlow',sans-serif;margin-bottom:16px;}
+.page-eyebrow::before{content:'';width:20px;height:1px;background:var(--v);}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(46px,7vw,72px);letter-spacing:.04em;line-height:.95;margin-bottom:14px;}
+.page-meta{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.page-date{font-size:12px;color:var(--dim);letter-spacing:.06em;}
+.page-badge{font-size:10px;letter-spacing:.14em;text-transform:uppercase;padding:3px 10px;background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.2);border-radius:100px;color:var(--mauve-d);}
+
+/* ── TABLE OF CONTENTS ── */
+.toc-wrap{max-width:760px;margin:0 auto;padding:32px 28px 0;position:relative;z-index:1;}
+.toc-card{background:var(--surface);border:1px solid var(--gb);border-radius:14px;padding:24px 28px;}
+.toc-title{font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--v);margin-bottom:14px;}
+.toc-list{display:grid;grid-template-columns:1fr;gap:6px;}
+@media(min-width:600px){.toc-list{grid-template-columns:1fr 1fr;}}
+.toc-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--dim);text-decoration:none;transition:color var(--t);}
+.toc-item:hover{color:var(--mauve);}
+.toc-num{font-size:10px;font-weight:600;color:var(--v);width:20px;flex-shrink:0;}
+
+/* ── MAIN CONTENT ── */
+.wrap{max-width:760px;margin:0 auto;padding:48px 28px 120px;position:relative;z-index:1;}
+
+/* Section anchors */
+.policy-section{margin-bottom:48px;scroll-margin-top:80px;}
+.section-hdr{display:flex;align-items:flex-start;gap:16px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gb);}
+.section-num{font-family:'Bebas Neue',sans-serif;font-size:32px;color:rgba(155,111,212,.25);line-height:1;flex-shrink:0;min-width:36px;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.07em;line-height:1;color:var(--mauve-br);}
+
+/* Typography */
+p{font-size:14px;color:var(--dim);margin-bottom:14px;line-height:1.85;}
+p:last-child{margin-bottom:0;}
+strong{color:rgba(196,176,232,.9);font-weight:600;}
+
+/* Lists */
+ul,ol{margin:0 0 16px 0;padding:0;}
+li{font-size:14px;color:var(--dim);margin-bottom:10px;line-height:1.75;display:flex;align-items:flex-start;gap:10px;}
+li::before{content:'→';color:var(--v);font-size:11px;flex-shrink:0;margin-top:4px;}
+ol{counter-reset:ol;}
+ol li{counter-increment:ol;}
+ol li::before{content:counter(ol) '.';color:var(--v);font-size:11px;font-weight:600;flex-shrink:0;margin-top:4px;}
+
+/* Info cards */
+.info-card{background:var(--surface);border:1px solid var(--gb);border-radius:12px;padding:20px 22px;margin:20px 0;}
+.info-card-title{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--v);margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.info-card-title::after{content:'';flex:1;height:1px;background:var(--gb);}
+
+/* Highlight box */
+.highlight{background:rgba(155,111,212,.06);border-left:2px solid var(--v);border-radius:0 10px 10px 0;padding:16px 20px;margin:18px 0;}
+.highlight p{margin:0;font-size:13px;color:rgba(196,176,232,.8);}
+
+/* Data table */
+.data-table{width:100%;border-collapse:separate;border-spacing:0;margin:16px 0;font-size:13px;}
+.data-table th{background:rgba(155,111,212,.08);padding:10px 14px;text-align:left;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--mauve-d);border-bottom:1px solid var(--gb);}
+.data-table th:first-child{border-radius:10px 0 0 0;}
+.data-table th:last-child{border-radius:0 10px 0 0;}
+.data-table td{padding:11px 14px;border-bottom:1px solid rgba(180,160,240,.06);color:var(--dim);vertical-align:top;line-height:1.6;}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(155,111,212,.03);}
+.data-table-wrap{border:1px solid var(--gb);border-radius:12px;overflow:hidden;margin:16px 0;}
+
+/* Third-party row */
+.tp-grid{display:flex;flex-direction:column;gap:10px;margin:16px 0;}
+.tp-item{background:var(--surface);border:1px solid var(--gb);border-radius:10px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:10px 14px;align-items:start;}
+.tp-icon{font-size:18px;margin-top:2px;}
+.tp-name{font-size:13px;font-weight:600;color:var(--mauve-br);margin-bottom:3px;}
+.tp-desc{font-size:12px;color:var(--dim);line-height:1.6;}
+.tp-link a{font-size:11px;color:var(--v);text-decoration:none;white-space:nowrap;}
+.tp-link a:hover{text-decoration:underline;}
+
+/* Rights grid */
+.rights-grid{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0;}
+@media(min-width:500px){.rights-grid{grid-template-columns:1fr 1fr;}}
+.right-card{background:var(--surface);border:1px solid var(--gb);border-radius:10px;padding:14px 16px;}
+.right-card-icon{font-size:18px;margin-bottom:8px;}
+.right-card-title{font-size:12px;font-weight:600;color:var(--mauve);margin-bottom:5px;}
+.right-card-desc{font-size:12px;color:var(--dim);line-height:1.6;}
+
+/* Divider */
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--gb2),transparent);margin:40px 0;}
+
+/* Contact box */
+.contact-box{background:linear-gradient(135deg,rgba(155,111,212,.06),rgba(80,40,160,.04));border:1px solid rgba(155,111,212,.2);border-radius:16px;padding:28px 32px;margin-top:48px;}
+.contact-box h2{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.07em;color:var(--mauve-br);margin-bottom:6px;}
+.contact-box .sub{font-size:13px;color:var(--dim);margin-bottom:18px;}
+.contact-row{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--dim);margin-bottom:9px;}
+.contact-row a{color:var(--v);text-decoration:none;}
+.contact-row a:hover{text-decoration:underline;}
+
+/* Anchor hover fix */
+a{color:var(--v);text-decoration:none;}
+a:hover{text-decoration:underline;}
+
+/* ── FOOTER ── */
+.page-footer{padding:28px;border-top:1px solid var(--gb);position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;max-width:760px;margin:0 auto;}
+.footer-copy{font-size:11px;color:rgba(196,176,232,.28);}
+.footer-links{display:flex;gap:16px;}
+.footer-links a{font-size:11px;color:rgba(196,176,232,.35);text-decoration:none;transition:color var(--t);}
+.footer-links a:hover{color:var(--mauve-d);}
+
+@media(max-width:480px){
+  .tp-item{grid-template-columns:auto 1fr;grid-template-rows:auto auto;}
+  .tp-link{grid-column:2;}
+  .section-num{display:none;}
+}
+</style>
+</head>
+<body>
+<div class="bg-mesh"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">E<span>O</span>NS</a>
+  <a href="index.html" class="nav-back">← Back to Site</a>
+</nav>
+
+<!-- PAGE HERO -->
+<div class="page-hero">
+  <div class="page-hero-inner">
+    <div class="page-eyebrow">Legal</div>
+    <h1>Privacy<br>Policy</h1>
+    <div class="page-meta">
+      <span class="page-date">Effective Date: March 2026 · Last Updated: March 31, 2026</span>
+      <span class="page-badge">Era of Novelty Studios LLC</span>
+    </div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc-wrap">
+  <div class="toc-card">
+    <div class="toc-title">Contents</div>
+    <div class="toc-list">
+      <a href="#s1" class="toc-item"><span class="toc-num">01</span>Who We Are</a>
+      <a href="#s2" class="toc-item"><span class="toc-num">02</span>Information We Collect</a>
+      <a href="#s3" class="toc-item"><span class="toc-num">03</span>Lead Generation & AI Tool</a>
+      <a href="#s4" class="toc-item"><span class="toc-num">04</span>How We Use Your Data</a>
+      <a href="#s5" class="toc-item"><span class="toc-num">05</span>Legal Basis (GDPR)</a>
+      <a href="#s6" class="toc-item"><span class="toc-num">06</span>Sharing & Third Parties</a>
+      <a href="#s7" class="toc-item"><span class="toc-num">07</span>Cookies & Tracking</a>
+      <a href="#s8" class="toc-item"><span class="toc-num">08</span>Data Retention</a>
+      <a href="#s9" class="toc-item"><span class="toc-num">09</span>Data Security</a>
+      <a href="#s10" class="toc-item"><span class="toc-num">10</span>Your Rights</a>
+      <a href="#s11" class="toc-item"><span class="toc-num">11</span>Children's Privacy</a>
+      <a href="#s12" class="toc-item"><span class="toc-num">12</span>California Rights (CCPA)</a>
+      <a href="#s13" class="toc-item"><span class="toc-num">13</span>International Transfers</a>
+      <a href="#s14" class="toc-item"><span class="toc-num">14</span>Changes to This Policy</a>
+      <a href="#contact" class="toc-item"><span class="toc-num">✉</span>Contact Us</a>
+    </div>
+  </div>
+</div>
+
+<!-- BODY -->
+<div class="wrap">
+
+  <div class="highlight">
+    <p><strong>Plain English summary:</strong> EONS Animation Studio collects your contact info and project details when you reach out, and captures conversation data when you use our AI tool — all to help us follow up with potential clients and improve our services. We do not sell your data. We do not share it for advertising. We store it securely and you can request deletion at any time.</p>
+  </div>
+
+  <!-- S1 -->
+  <div class="policy-section" id="s1">
+    <div class="section-hdr">
+      <div class="section-num">01</div>
+      <div class="section-title">Who We Are</div>
+    </div>
+    <p>This Privacy Policy is published by <strong>Era of Novelty Studios LLC</strong>, operating as <strong>EONS Animation Studio</strong> ("EONS," "we," "us," or "our"). We are a New York City–based 3D animation and motion design studio.</p>
+    <p>This policy governs all data collected through:</p>
+    <ul>
+      <li>Our primary website at <strong>eons.studio</strong></li>
+      <li>The EONS AI creative director tool at <strong>eons.studio/studio-ai.html</strong></li>
+      <li>Our contact forms, email correspondence, and inquiry channels</li>
+      <li>Any other digital touchpoints operated by EONS Animation Studio</li>
+    </ul>
+    <p>By using our website or services, you agree to the data practices described in this policy. If you do not agree, please discontinue use of our services.</p>
+    <p><strong>Data Controller:</strong> Era of Novelty Studios LLC · New York City, NY · <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S2 -->
+  <div class="policy-section" id="s2">
+    <div class="section-hdr">
+      <div class="section-num">02</div>
+      <div class="section-title">Information We Collect</div>
+    </div>
+    <p>We collect information in two ways: information you provide directly to us, and information collected automatically through your use of our services.</p>
+
+    <div class="info-card">
+      <div class="info-card-title">Information You Provide Directly</div>
+      <ul>
+        <li><strong>Contact form submissions</strong> — Your first name, last name, email address, company or brand name, package interest, and project description when you submit an inquiry through our website.</li>
+        <li><strong>EONS AI onboarding gate</strong> — Your name, email address, and company name (optional) when you register to access the EONS AI creative director tool at studio-ai.html.</li>
+        <li><strong>Concept submissions</strong> — Your name, email, brand name, and any supplemental notes you provide when you choose to submit an AI-generated concept to our studio team via the "Send to Studio" feature.</li>
+        <li><strong>Email correspondence</strong> — Any information you include when emailing us directly at eonstudioanimation@gmail.com.</li>
+        <li><strong>Client project data</strong> — During active projects, we may collect and process briefs, brand assets, reference materials, and communications necessary to deliver contracted services.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">Information Collected Automatically</div>
+      <ul>
+        <li><strong>Usage analytics</strong> — We use Google Analytics to collect anonymized data about how visitors use our site, including pages visited, session duration, general geographic region (city/country level), device type, browser, and referral source. This does not identify you personally.</li>
+        <li><strong>AI conversation logs</strong> — When you use EONS AI, your conversation messages are transmitted through our Cloudflare Worker API proxy to the Anthropic Claude API. A copy of conversation transcripts may be stored locally in your browser's localStorage and, if you use "Send to Studio," transmitted to our team.</li>
+        <li><strong>Cookies and local storage</strong> — We use browser cookies and localStorage to remember your preferences (such as cookie consent status), maintain session continuity in the AI tool, and store conversation history locally on your device.</li>
+        <li><strong>Technical data</strong> — Standard server and CDN logs may capture your IP address, browser user agent, and timestamp of requests. This data is used for security and infrastructure purposes and is not linked to your personal identity in our systems.</li>
+      </ul>
+    </div>
+
+    <div class="highlight">
+      <p><strong>We do not collect:</strong> payment card numbers or banking information (all payments are processed through third-party payment platforms), government-issued ID numbers, or sensitive personal categories such as health data, race, religion, or political affiliation.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S3 -->
+  <div class="policy-section" id="s3">
+    <div class="section-hdr">
+      <div class="section-num">03</div>
+      <div class="section-title">Lead Generation & the EONS AI Tool</div>
+    </div>
+    <p>This section specifically addresses our lead generation activities and how the EONS AI tool captures and processes prospect information, as these are core business operations of EONS Animation Studio.</p>
+
+    <div class="info-card">
+      <div class="info-card-title">How Lead Data Is Captured</div>
+      <p style="font-size:14px;color:var(--dim);margin-bottom:12px;">When a visitor accesses the EONS AI tool, they are required to provide their name, email address, and optionally their company name before the tool becomes active. This constitutes an explicit, affirmative act of data provision.</p>
+      <ul>
+        <li>Lead data (name, email, company, timestamp, conversation type) is stored in your browser's localStorage under the key <code style="font-size:11px;background:rgba(155,111,212,.1);padding:2px 6px;border-radius:4px;">eons_leads</code>. It is not automatically transmitted to an external server at the moment of capture.</li>
+        <li>When you submit a concept via "Send to Studio," your lead data and conversation transcript are compiled and transmitted to EONS via our EmailJS integration and stored as a lead record.</li>
+        <li>When you submit a contact form inquiry, your data is transmitted via EmailJS to our studio inbox and recorded internally as a lead.</li>
+        <li>EONS may use lead contact information to follow up regarding your project inquiry, schedule a strategy call, or send a response to your submitted concept. We do not enroll you in automated marketing sequences without your explicit consent.</li>
+      </ul>
+    </div>
+
+    <div class="info-card">
+      <div class="info-card-title">AI Conversation Data</div>
+      <ul>
+        <li>Your AI conversation messages are transmitted from your browser to our Cloudflare Worker proxy server (<code style="font-size:11px;background:rgba(155,111,212,.1);padding:2px 6px;border-radius:4px;">eons-api-proxy.ryanruichen03.workers.dev</code>), which then forwards them to the Anthropic Claude API.</li>
+        <li>Cloudflare Workers process requests ephemerally — messages are not stored by the proxy beyond the duration of the API call.</li>
+        <li>Anthropic may process conversation data per their own Privacy Policy. We encourage you to review it at <a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">anthropic.com/privacy</a>.</li>
+        <li>Conversation history is stored <strong>only in your browser's localStorage</strong> until you clear it. It does not leave your device unless you choose to submit a concept to our team.</li>
+        <li>If you submit a concept, the full transcript is included in the submission and received by our team via email. This transcript is retained for business purposes as described in Section 8.</li>
+        <li>You may clear your AI conversation history at any time by clearing your browser's localStorage for eons.studio, or using the clear function within the tool.</li>
+      </ul>
+    </div>
+
+    <div class="highlight">
+      <p><strong>Business purpose of lead generation:</strong> EONS Animation Studio is a boutique studio that uses the AI tool as a qualifying and educational resource to help potential clients develop project briefs before engaging our team. Lead data is used exclusively for client outreach, project scoping, and business development. We do not resell, rent, or license lead data to any third party.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S4 -->
+  <div class="policy-section" id="s4">
+    <div class="section-hdr">
+      <div class="section-num">04</div>
+      <div class="section-title">How We Use Your Information</div>
+    </div>
+    <p>We use personal information only for the purposes described below. We will not use your data for any purpose incompatible with these stated uses without first notifying you.</p>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Purpose</th><th>Data Used</th><th>Legal Basis</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Responding to project inquiries and contact form submissions</td><td>Name, email, company, project details</td><td>Legitimate interest / Contract performance</td></tr>
+          <tr><td>Following up on AI-generated concepts submitted to our team</td><td>Name, email, company, AI transcript</td><td>Consent (explicit submission)</td></tr>
+          <tr><td>Scheduling and conducting strategy calls</td><td>Name, email, company, calendar data</td><td>Contract performance</td></tr>
+          <tr><td>Delivering contracted animation and motion design services</td><td>Client project data, communications</td><td>Contract performance</td></tr>
+          <tr><td>Analyzing website usage to improve our services</td><td>Anonymized analytics data</td><td>Legitimate interest</td></tr>
+          <tr><td>Maintaining security and preventing fraud</td><td>IP address, access logs</td><td>Legitimate interest</td></tr>
+          <tr><td>Complying with legal obligations (taxes, record-keeping)</td><td>Client name, payment records, invoices</td><td>Legal obligation</td></tr>
+          <tr><td>Improving the EONS AI tool and user experience</td><td>Aggregated, anonymized usage patterns</td><td>Legitimate interest</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>We do not:</strong> sell your data to third parties, share your data for third-party advertising, use your data for profiling or automated decision-making that produces legal effects, or send unsolicited commercial emails without consent.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S5 -->
+  <div class="policy-section" id="s5">
+    <div class="section-hdr">
+      <div class="section-num">05</div>
+      <div class="section-title">Legal Basis for Processing (GDPR)</div>
+    </div>
+    <p>If you are located in the European Economic Area (EEA), United Kingdom, or Switzerland, we process your personal data under the following legal bases as defined by the General Data Protection Regulation (GDPR) and applicable UK data protection laws:</p>
+    <ul>
+      <li><strong>Consent (Art. 6(1)(a) GDPR)</strong> — Where you have actively provided information, submitted a form, or accepted cookies. You may withdraw consent at any time without affecting the lawfulness of prior processing.</li>
+      <li><strong>Contract Performance (Art. 6(1)(b) GDPR)</strong> — Where processing is necessary to fulfill a contract with you or take pre-contractual steps at your request (e.g., responding to a project inquiry or delivering animation services).</li>
+      <li><strong>Legal Obligation (Art. 6(1)(c) GDPR)</strong> — Where processing is required to comply with applicable law, such as financial record-keeping, tax obligations, or responding to lawful requests from authorities.</li>
+      <li><strong>Legitimate Interests (Art. 6(1)(f) GDPR)</strong> — Where we have a legitimate business interest that is not overridden by your data protection rights, such as operating and improving our website, securing our infrastructure, or following up on a project inquiry you initiated.</li>
+    </ul>
+    <p>For processing based on legitimate interests, we have assessed that our business interests are proportionate and do not override your fundamental rights, particularly given the nature of our services and the limited, purpose-specific scope of data collection.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S6 -->
+  <div class="policy-section" id="s6">
+    <div class="section-hdr">
+      <div class="section-num">06</div>
+      <div class="section-title">Sharing & Third-Party Services</div>
+    </div>
+    <p>EONS Animation Studio does not sell, rent, or trade your personal information. We share data only in the following limited circumstances:</p>
+
+    <div class="tp-grid">
+
+      <div class="tp-item">
+        <div class="tp-icon">📊</div>
+        <div>
+          <div class="tp-name">Google Analytics</div>
+          <div class="tp-desc">We use Google Analytics to understand how visitors interact with our website. Data collected is anonymized and aggregated. We use IP anonymization. You may opt out via browser extensions such as the Google Analytics Opt-out Add-on, or by declining analytics cookies. Analytics data is processed by Google per their Privacy Policy.</div>
+        </div>
+        <div class="tp-link"><a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Privacy Policy ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">✉️</div>
+        <div>
+          <div class="tp-name">EmailJS</div>
+          <div class="tp-desc">Contact form submissions and AI concept submissions are transmitted through EmailJS to deliver your message to our team inbox. EmailJS processes the message content and your contact details transiently for delivery purposes. EmailJS does not store message content beyond delivery. View their privacy practices on their website.</div>
+        </div>
+        <div class="tp-link"><a href="https://www.emailjs.com/legal/privacy-policy/" target="_blank" rel="noopener">Privacy Policy ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">🤖</div>
+        <div>
+          <div class="tp-name">Anthropic Claude API</div>
+          <div class="tp-desc">Your messages in the EONS AI tool are processed by the Anthropic Claude API to generate AI responses. Messages are transmitted via our Cloudflare Worker proxy. Anthropic may process conversation data in accordance with their API usage policies. We do not use API-provided data for training purposes. Commercial API usage data handling may differ from consumer products.</div>
+        </div>
+        <div class="tp-link"><a href="https://www.anthropic.com/privacy" target="_blank" rel="noopener">Privacy Policy ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">🌐</div>
+        <div>
+          <div class="tp-name">Cloudflare</div>
+          <div class="tp-desc">Our API proxy runs on Cloudflare Workers. Cloudflare processes network requests as part of providing infrastructure services and may log IP addresses and request metadata for security and performance purposes. Our DNS and CDN services also operate through Cloudflare.</div>
+        </div>
+        <div class="tp-link"><a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">Privacy Policy ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">🎬</div>
+        <div>
+          <div class="tp-name">Vimeo / YouTube</div>
+          <div class="tp-desc">Portfolio and showreel videos are hosted on Vimeo or embedded from YouTube. When you view video content, these platforms may set cookies and collect viewer data per their own policies. Video embeds are loaded only when you interact with portfolio items to minimize passive data collection.</div>
+        </div>
+        <div class="tp-link"><a href="https://vimeo.com/privacy" target="_blank" rel="noopener">Vimeo ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">📅</div>
+        <div>
+          <div class="tp-name">Calendly</div>
+          <div class="tp-desc">If you schedule a strategy call through our booking link, you will be directed to Calendly. Calendly collects your name, email, and availability. Any data you provide during booking is governed by Calendly's Privacy Policy. EONS receives your booking details to prepare for and conduct the call.</div>
+        </div>
+        <div class="tp-link"><a href="https://calendly.com/pages/privacy" target="_blank" rel="noopener">Privacy Policy ↗</a></div>
+      </div>
+
+      <div class="tp-item">
+        <div class="tp-icon">💳</div>
+        <div>
+          <div class="tp-name">Payment Processors (PayPal, Zelle, Stripe)</div>
+          <div class="tp-desc">Payments for services are processed through PayPal, Zelle, and/or Stripe. EONS does not receive, store, or process your payment card details. Payment processors handle all financial data in compliance with PCI-DSS standards. We receive only transaction confirmation and the amount paid.</div>
+        </div>
+        <div class="tp-link"><a href="https://stripe.com/privacy" target="_blank" rel="noopener">Stripe ↗</a></div>
+      </div>
+
+    </div>
+
+    <p>We may also disclose personal information where required by law, in response to valid legal process (subpoenas, court orders), to protect the rights and safety of EONS, our team, or others, or in connection with a business sale, merger, or acquisition — in which case the acquiring entity would be bound by this privacy policy or required to provide equivalent protections.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S7 -->
+  <div class="policy-section" id="s7">
+    <div class="section-hdr">
+      <div class="section-num">07</div>
+      <div class="section-title">Cookies & Tracking Technologies</div>
+    </div>
+    <p>Our website uses cookies and browser localStorage. When you first visit, a cookie consent banner gives you the choice to accept or decline non-essential cookies.</p>
+
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr><th>Type</th><th>Purpose</th><th>Can Opt Out?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Essential cookies</strong></td><td>Cookie consent preference, session continuity</td><td>No — required for site to function</td></tr>
+          <tr><td><strong>Analytics cookies</strong> (Google Analytics)</td><td>Anonymized usage statistics</td><td>Yes — decline via cookie banner or opt-out extension</td></tr>
+          <tr><td><strong>localStorage — AI conversation history</strong></td><td>Stores your EONS AI conversation locally in your browser</td><td>Yes — clear browser localStorage for eons.studio</td></tr>
+          <tr><td><strong>localStorage — Lead data</strong></td><td>Stores your AI tool registration locally</td><td>Yes — clear browser localStorage for eons.studio</td></tr>
+          <tr><td><strong>localStorage — Site preferences</strong></td><td>Remembers reel, portfolio, and testimonial display settings</td><td>Yes — clear browser localStorage for eons.studio</td></tr>
+          <tr><td><strong>Third-party cookies</strong> (Vimeo, YouTube)</td><td>Set when you play embedded video content</td><td>Yes — do not interact with video embeds</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>To manage cookies in your browser, visit your browser settings. For Google Analytics specifically, you may install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>. Privacy-focused browser extensions such as uBlock Origin also provide granular control.</p>
+    <p>We do not use cross-site tracking, behavioral advertising cookies, or fingerprinting technologies.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S8 -->
+  <div class="policy-section" id="s8">
+    <div class="section-hdr">
+      <div class="section-num">08</div>
+      <div class="section-title">Data Retention</div>
+    </div>
+    <p>We retain personal information only for as long as necessary to fulfill the purposes for which it was collected, comply with legal obligations, and resolve disputes.</p>
+    <ul>
+      <li><strong>Contact form submissions and AI concept submissions</strong> — Retained in our internal records for up to <strong>3 years</strong> from the date of submission, or until you request deletion. This retention supports business development tracking and potential future engagement.</li>
+      <li><strong>Active client project data</strong> — Retained for the duration of the project plus <strong>7 years</strong> to comply with New York State business record-keeping requirements and applicable tax law (IRC §6001).</li>
+      <li><strong>Invoices and financial records</strong> — Retained for a minimum of <strong>7 years</strong> as required by federal and state tax regulations.</li>
+      <li><strong>Analytics data</strong> — Google Analytics data is retained per our Google Analytics retention settings, currently set to <strong>26 months</strong>.</li>
+      <li><strong>AI conversation data (localStorage)</strong> — Stored locally in your browser with no server-side expiration. You control deletion by clearing localStorage.</li>
+      <li><strong>Email correspondence</strong> — Retained in our business email system for as long as the business relationship is active and up to 3 years thereafter, unless deletion is requested.</li>
+      <li><strong>Server/CDN access logs</strong> — Retained for <strong>30–90 days</strong> for security and infrastructure purposes, then automatically deleted.</li>
+    </ul>
+    <p>When data is no longer required for its stated purpose, we will delete or anonymize it in a commercially reasonable timeframe. To request earlier deletion, see Section 10.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S9 -->
+  <div class="policy-section" id="s9">
+    <div class="section-hdr">
+      <div class="section-num">09</div>
+      <div class="section-title">Data Security</div>
+    </div>
+    <p>EONS Animation Studio implements reasonable technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+    <ul>
+      <li>Our website is served over <strong>HTTPS/TLS</strong> (enforced via Cloudflare), encrypting data in transit between your browser and our servers.</li>
+      <li>API communications between the EONS AI tool and Anthropic are transmitted over encrypted connections via our Cloudflare Worker proxy.</li>
+      <li>Dashboard access is protected by a <strong>SHA-256 hashed password</strong> with rate limiting, lockout after repeated failed attempts, and session token protection against replay attacks.</li>
+      <li>AI conversation data is stored client-side in browser localStorage, meaning it does not transit our servers unless you explicitly submit a concept.</li>
+      <li>We limit access to personal data within our organization to personnel who require it to perform their role.</li>
+      <li>We do not store payment card data — all payment processing is handled by PCI-compliant third-party processors.</li>
+    </ul>
+    <div class="highlight">
+      <p><strong>Important limitation:</strong> No method of electronic transmission or storage is 100% secure. While we take data security seriously and apply reasonable safeguards, we cannot guarantee absolute security. In the event of a data breach that affects your rights, we will notify you as required by applicable law.</p>
+    </div>
+    <p>If you discover a potential security vulnerability affecting our services, please report it to <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a>.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S10 -->
+  <div class="policy-section" id="s10">
+    <div class="section-hdr">
+      <div class="section-num">10</div>
+      <div class="section-title">Your Privacy Rights</div>
+    </div>
+    <p>Depending on your location, you may have the following rights regarding your personal information. To exercise any of these rights, contact us at <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a>. We will respond within 30 days (or within the timeframe required by applicable law).</p>
+
+    <div class="rights-grid">
+      <div class="right-card">
+        <div class="right-card-icon">👁</div>
+        <div class="right-card-title">Right to Access</div>
+        <div class="right-card-desc">Request a copy of the personal information we hold about you.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">✏️</div>
+        <div class="right-card-title">Right to Rectification</div>
+        <div class="right-card-desc">Request correction of inaccurate or incomplete personal information.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">🗑</div>
+        <div class="right-card-title">Right to Erasure</div>
+        <div class="right-card-desc">Request deletion of your personal data, subject to legal retention obligations.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">⏸</div>
+        <div class="right-card-title">Right to Restriction</div>
+        <div class="right-card-desc">Request that we limit processing of your data in certain circumstances.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">📦</div>
+        <div class="right-card-title">Right to Portability</div>
+        <div class="right-card-desc">Receive your data in a structured, machine-readable format (where applicable).</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">🚫</div>
+        <div class="right-card-title">Right to Object</div>
+        <div class="right-card-desc">Object to processing based on legitimate interests or for direct marketing.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">↩️</div>
+        <div class="right-card-title">Withdraw Consent</div>
+        <div class="right-card-desc">Withdraw previously given consent at any time without affecting past processing.</div>
+      </div>
+      <div class="right-card">
+        <div class="right-card-icon">⚖️</div>
+        <div class="right-card-title">Lodge a Complaint</div>
+        <div class="right-card-desc">File a complaint with your local data protection authority (EU/UK residents).</div>
+      </div>
+    </div>
+
+    <p>Additionally, you can exercise the following self-service rights immediately:</p>
+    <ul>
+      <li><strong>Clear AI conversation history</strong> — Open your browser settings, navigate to Site Data for eons.studio, and clear localStorage.</li>
+      <li><strong>Opt out of analytics</strong> — Decline cookies via our cookie consent banner or install the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics opt-out extension</a>.</li>
+      <li><strong>Unsubscribe from communications</strong> — Reply "unsubscribe" to any email from us and we will remove you from our outreach list.</li>
+    </ul>
+    <p>We will not discriminate against you for exercising any privacy rights.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S11 -->
+  <div class="policy-section" id="s11">
+    <div class="section-hdr">
+      <div class="section-num">11</div>
+      <div class="section-title">Children's Privacy</div>
+    </div>
+    <p>EONS Animation Studio's services are directed at businesses and marketing professionals and are not intended for individuals under the age of <strong>18</strong>. We do not knowingly collect personal information from minors.</p>
+    <p>If you believe we have inadvertently collected information from a person under 18, please contact us immediately at <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a> and we will delete it promptly.</p>
+    <p>Our AI tool's terms of access include a representation that users are at least 18 years of age and authorized to conduct business on behalf of their organization.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S12 -->
+  <div class="policy-section" id="s12">
+    <div class="section-hdr">
+      <div class="section-num">12</div>
+      <div class="section-title">California Privacy Rights (CCPA / CPRA)</div>
+    </div>
+    <p>If you are a California resident, you have additional rights under the California Consumer Privacy Act (CCPA) as amended by the California Privacy Rights Act (CPRA).</p>
+    <ul>
+      <li><strong>Right to Know</strong> — You may request disclosure of the categories and specific pieces of personal information we have collected about you in the past 12 months, the categories of sources, the business purpose for collection, and the categories of third parties with whom we share it.</li>
+      <li><strong>Right to Delete</strong> — You may request deletion of personal information we have collected from you, subject to applicable exceptions.</li>
+      <li><strong>Right to Correct</strong> — You may request correction of inaccurate personal information.</li>
+      <li><strong>Right to Opt Out of Sale or Sharing</strong> — We do not sell or share personal information for cross-context behavioral advertising. This right does not apply to our current data practices, but we are committed to maintaining this standard.</li>
+      <li><strong>Right to Limit Use of Sensitive Personal Information</strong> — We do not collect sensitive personal information as defined by CPRA (e.g., government IDs, financial account numbers, precise geolocation, health information, racial/ethnic origin).</li>
+      <li><strong>Non-Discrimination</strong> — We will not discriminate against you for exercising your CCPA rights.</li>
+    </ul>
+    <p>To submit a CCPA rights request, email <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a> with the subject line "CCPA Rights Request." We will verify your identity and respond within 45 days (extendable by an additional 45 days with notice).</p>
+
+    <div class="info-card">
+      <div class="info-card-title">Categories of Personal Information Collected (CCPA)</div>
+      <ul>
+        <li><strong>Identifiers</strong> — Name, email address, company name, IP address</li>
+        <li><strong>Commercial information</strong> — Project interests, package inquiries, service engagement</li>
+        <li><strong>Internet/network activity</strong> — Website usage data, AI conversation content</li>
+        <li><strong>Professional information</strong> — Job role, company, industry (if provided)</li>
+        <li><strong>Inferences</strong> — Project type preferences inferred from AI conversation context for the purpose of matching services</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S13 -->
+  <div class="policy-section" id="s13">
+    <div class="section-hdr">
+      <div class="section-num">13</div>
+      <div class="section-title">International Data Transfers</div>
+    </div>
+    <p>EONS Animation Studio is based in New York City, United States. If you are accessing our services from outside the United States — including from the European Economic Area, United Kingdom, or other jurisdictions — your personal information will be transferred to and processed in the United States.</p>
+    <p>The United States may not offer the same level of data protection as your home jurisdiction. By using our services, you acknowledge this transfer. We rely on the following mechanisms for international transfers:</p>
+    <ul>
+      <li><strong>Your explicit consent</strong> — By submitting a contact form or registering for the AI tool, you consent to the transfer of your data to the US for the purposes described in this policy.</li>
+      <li><strong>Contractual necessity</strong> — Where data transfer is necessary to fulfill services you have requested.</li>
+      <li><strong>Third-party standard contractual clauses</strong> — Our service providers (Google, Anthropic, Cloudflare) maintain their own data transfer mechanisms under applicable data protection frameworks.</li>
+    </ul>
+    <p>EU and UK residents may contact us to inquire about the specific safeguards applicable to their data transfer.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- S14 -->
+  <div class="policy-section" id="s14">
+    <div class="section-hdr">
+      <div class="section-num">14</div>
+      <div class="section-title">Changes to This Policy</div>
+    </div>
+    <p>We may update this Privacy Policy from time to time to reflect changes in our data practices, legal requirements, or business operations. When we make material changes, we will:</p>
+    <ul>
+      <li>Update the "Last Updated" date at the top of this page</li>
+      <li>Display a notice on our website for a reasonable period following significant changes</li>
+      <li>Where required by applicable law, notify affected individuals directly</li>
+    </ul>
+    <p>Your continued use of our website or services after any changes constitutes acceptance of the updated Privacy Policy. We encourage you to review this page periodically. The version of the policy in effect at the time of your interaction with us governs how we handle your data collected at that time.</p>
+    <p>Previous versions of this policy are available upon request by contacting us at <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a>.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- CONTACT -->
+  <div class="contact-box" id="contact">
+    <h2>Contact Us</h2>
+    <p class="sub">For privacy-related questions, requests to access or delete your data, or any concerns about how we handle your information — reach out directly. We aim to respond within 5 business days.</p>
+    <div class="contact-row">
+      <span style="color:var(--v)">🏢</span>
+      <strong>Era of Novelty Studios LLC (EONS Animation Studio)</strong>
+    </div>
+    <div class="contact-row">
+      <span style="color:var(--v)">📧</span>
+      <a href="mailto:eonstudioanimation@gmail.com">eonstudioanimation@gmail.com</a>
+    </div>
+    <div class="contact-row">
+      <span style="color:var(--v)">📍</span>
+      New York City, New York, USA
+    </div>
+    <div class="contact-row">
+      <span style="color:var(--v)">⚖️</span>
+      Subject line for privacy requests: <strong>"Privacy Request — [Your Name]"</strong>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="page-footer">
+    <div class="footer-copy">© 2026 Era of Novelty Studios LLC · EONS Animation Studio</div>
+    <div class="footer-links">
+      <a href="index.html">Home</a>
+      <a href="studio-ai.html">Studio AI</a>
+      <a href="mailto:eonstudioanimation@gmail.com">Contact</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1299,10 +1299,10 @@ function hideTyping(){clearInterval(_thinkIv);document.getElementById('typing')?
 const SYS=`You are the EONS Studio AI — a senior 3D animation creative director and brand strategist embedded in EONS Animation Studio, NYC. You help brands build visual systems for growth through 3D animation.\n\nABOUT EONS: Strategy-led motion studio. Packages: Pilot ($5.5K-$7K, 2-3 weeks), Foundation ($6.5K-$8.5K, 3-4 weeks), Growth ($12K-$18K, 5-6 weeks), Authority ($22K-$35K, 8-10 weeks).\n\nTarget clients: Funded startups (Seed-Series B), AI/SaaS companies, DTC/CPG brands, marketing leaders with allocated budgets.\n\nYOUR ROLE: Ask smart questions to understand the brand, build creative concepts, generate briefs and storyboards. Be direct and confident. Recommend ONE package with justification. Never say "great idea!" or "certainly!" Keep responses short (2-4 sentences) for conversation, detailed only for documents.\n\nWhen concept is ready, suggest submitting to the EONS team.`;
 
 async function callAI(msgs){
-  const r=await fetch('https://eons-api-proxy.ryanruichen03.workers.dev/proxy',{
+  const r=await fetch('https://eons-api-proxy.ryanruichen03.workers.dev',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS,messages:msgs})
+    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,system:SYS,messages:msgs})
   });
   if(!r.ok){const e=await r.json().catch(()=>({}));return'Connection error: '+(e.error?.message||r.status);}
   const d=await r.json();

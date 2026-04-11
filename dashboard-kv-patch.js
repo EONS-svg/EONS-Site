@@ -18,24 +18,34 @@
   // ── Wait for your scripts to finish loading ───────────────────────────────
   window.addEventListener("load", function () {
 
-    // ── 1. Patch checkPw to unlock KV when password is correct ───────────
-    // Your checkPw() calls verifyPassword() then sets dashAuth=true.
-    // We patch it to also call EONS_KV.unlock() with the raw password.
-    const _origCheckPw = window.checkPw;
-    if (typeof _origCheckPw === "function") {
-      window.checkPw = function () {
-        // Grab the password before calling the original (which clears the field on failure)
-        const pwd = document.getElementById("dlPw")?.value || "";
-        _origCheckPw.call(this);
-        // If login succeeds, dashAuth becomes true within ~1 tick (it's async)
-        setTimeout(function () {
-          if (window.dashAuth && pwd) {
+    // ── 1. Unlock KV when dashboard password is correct ──────────────────
+    // Strategy: listen on the password input for Enter key AND on the
+    // login button for clicks. Capture the raw password BEFORE checkPw
+    // clears the field, then poll for dashAuth becoming true.
+    function setupKVUnlock() {
+      const pwInput = document.getElementById("dlPw");
+      const loginBtn = document.querySelector(".dash-login .dash-save");
+
+      function captureAndUnlock() {
+        const pwd = pwInput?.value || "";
+        if (!pwd) return;
+        // Poll every 50ms for up to 2s waiting for dashAuth to go true
+        let attempts = 0;
+        const poll = setInterval(function () {
+          attempts++;
+          if (window.dashAuth) {
+            clearInterval(poll);
             window.EONS_KV.unlock(pwd);
             console.log("[Dashboard Patch] KV writes unlocked.");
           }
-        }, 100);
-      };
+          if (attempts > 40) clearInterval(poll); // give up after 2s
+        }, 50);
+      }
+
+      if (pwInput)  pwInput.addEventListener("keydown",  function(e){ if(e.key==="Enter") captureAndUnlock(); });
+      if (loginBtn) loginBtn.addEventListener("click", captureAndUnlock);
     }
+    setupKVUnlock();
 
     // ── 2. Patch saveReel() ───────────────────────────────────────────────
     // Your saveReel() reads DOM inputs, updates reelData, calls saveReelStore() + buildReel()

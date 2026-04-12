@@ -1053,10 +1053,10 @@ function buildCFThumbUrl(info){
 }
 
 /* ════════ HERO REEL ════════ */
-let reelData={clips:[],interval:8};
+let reelData={clips:[],interval:8}; window.reelData=reelData;
 let reelIdx=0;
 function loadReel(){try{const s=storeGet('eons_reel');if(s)reelData=JSON.parse(s);}catch{}}
-function saveReelStore(){storeSet('eons_reel',JSON.stringify(reelData));}
+function saveReelStore(){window.reelData=reelData;storeSet('eons_reel',JSON.stringify(reelData));}
 
 function buildReel(){
   const container=document.getElementById('heroReel');
@@ -1315,7 +1315,7 @@ function saveReel(){
   const invalid=clips.filter(c=>!extractCFInfo(c.url));
   if(invalid.length){toast('Invalid URLs ⚠','Only Cloudflare Stream URLs are supported.');return;}
   const interval=parseInt(document.getElementById('rmInterval').value)||8;
-  reelData={clips,interval};saveReelStore();buildReel();toast('Reel Updated! 🎬','Hero background is live.');
+  reelData={clips,interval};window.reelData=reelData;saveReelStore();buildReel();toast('Reel Updated! 🎬','Hero background is live.');
 }
 
 /* ── PORTFOLIO MANAGER — CF Stream only ── */

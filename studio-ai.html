@@ -1471,6 +1471,7 @@ async function doAuth(){
     await dbPut('users',user);
     saveAcctLS(user);
     saveLeads(user);
+    if(window.EONS_CAPTURE) window.EONS_CAPTURE.lead({name,email,company,source:'studio-ai-signup'});
     await enterApp(user,false);
   } else {
     // Check IndexedDB first, fall back to localStorage
@@ -1493,6 +1494,7 @@ async function doAuth(){
       document.getElementById('aSubmit').textContent='Continue as '+user.name.split(' ')[0]+' →';
       return;
     }
+    if(window.EONS_CAPTURE) window.EONS_CAPTURE.lead({name:user.name,email:user.email,company:user.company||'',source:'studio-ai-signin'});
     await enterApp(user,true);
   }
 }
@@ -1720,7 +1722,15 @@ async function sendMsg(){
     if(S.dna.brandName)document.getElementById('cvhSession').textContent=S.dna.brandName+' — Session';
     saveConversation();
     // Save to leads on first user message
-    if(S.turn===1&&S.user)saveLeads({...S.user,source:'ai_chat'});
+    if(S.turn===1&&S.user){
+      saveLeads({...S.user,source:'ai_chat'});
+      if(window.EONS_CAPTURE) window.EONS_CAPTURE.lead({name:S.user.name,email:S.user.email,company:S.user.company||'',source:'ai_chat'});
+    }
+    // Push conversation to KV every 3 turns so you capture partial sessions too
+    if(S.turn%3===0&&S.user){
+      const transcript=S.messages.map(m=>m.role.toUpperCase()+': '+(typeof m.content==='string'?m.content:(m.content[0]?.text||''))).join('\n\n');
+      if(window.EONS_CAPTURE) window.EONS_CAPTURE.conv({name:S.user.name,email:S.user.email,brand:S.user.company||'',type:'explore',transcript});
+    }
     // Show calendly after 5 turns
     if(S.turn===5)setTimeout(showCalendlyBanner,1500);
   }catch(err){
@@ -2074,6 +2084,7 @@ function submitConcept(){
   const dnaBlock=S.dna.brandName?'\n\n--- BRAND DNA ---\n'+JSON.stringify(S.dna,null,2):'';
   const mailto='mailto:eonstudioanimation@gmail.com?subject='+encodeURIComponent('New EONS Concept — '+(S.user?.company||name))+'&body='+encodeURIComponent('From: '+name+'\nEmail: '+email+'\nNotes: '+(notes||'None')+dnaBlock+'\n\n--- TRANSCRIPT ---\n'+transcript);
   window.open(mailto,'_blank');
+  if(window.EONS_CAPTURE) window.EONS_CAPTURE.conv({name,email,brand:S.user?.company||'',type:'inquiry',transcript:transcript+(dnaBlock||'')});
   toast('Concept Sent! 🎬','Opening your email client...');
   closeCP();
 }
@@ -2454,5 +2465,6 @@ openDB().then(()=>{
 })();
 
 </script>
+<script src="/lead-conv-capture.js"></script>
 </body>
 </html>
